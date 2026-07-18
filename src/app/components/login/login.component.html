@@ -1,0 +1,36 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Clubhouse — Logowanie</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-container">
+    <div class="logo-section">
+      <h1>Clubhouse</h1>
+      <p>Twoje zajęcia, karnety i kluby w jednym miejscu</p>
+    </div>
+
+    <ion-card class="login-card">
+      <ion-card-content>
+        <ion-button
+          expand="block"
+          color="primary"
+          class="microsoft-button"
+          (click)="onLoginWithMicrosoft()"
+          [disabled]="isLoading"
+        >
+          <ion-spinner name="circular" *ngIf="isLoading"></ion-spinner>
+          <span *ngIf="!isLoading">
+            <ion-icon name="logo-microsoft" slot="start"></ion-icon>
+            Zaloguj się / Zarejestruj się
+          </span>
+        </ion-button>
+
+        <ion-text color="danger" class="error-text" *ngIf="isLoginFailed">
+          {{ errorMessage }}
+        </ion-text>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

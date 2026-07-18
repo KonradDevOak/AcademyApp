@@ -1,0 +1,15 @@
+{
+  "name": "@shared/iam-msal-core",
+  "version": "1.0.0",
+  "description": "Core abstractions and shared code for IAM MSAL authentication (Employee and Customer)",
+  "peerDependencies": {
+    "@angular/common": "^20.1.2",
+    "@angular/core": "^20.1.2",
+    "@azure/msal-browser": "^4.15.0",
+    "rxjs": "~7.8.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}

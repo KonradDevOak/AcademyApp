@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Clubhouse</string>
+    <string name="title_activity_main">Clubhouse</string>
+    <string name="package_name">pl.localbiz.clubhouse</string>
+    <string name="custom_url_scheme">pl.localbiz.clubhouse</string>
+</resources>

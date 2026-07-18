@@ -1,0 +1,45 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Moje kluby</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-card>
+    <ion-card-content>
+      <form [formGroup]="joinForm" (ngSubmit)="join()">
+        <ion-item>
+          <ion-label position="stacked">Dołącz do klubu</ion-label>
+          <ion-input
+            type="text"
+            formControlName="storefrontId"
+            placeholder="Identyfikator klubu od recepcji"
+          ></ion-input>
+        </ion-item>
+        <ion-button expand="block" type="submit" [disabled]="!joinForm.valid" class="ion-margin-top">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Dołącz
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-list *ngIf="!isLoading && memberships.length > 0">
+    <ion-item *ngFor="let membership of memberships">
+      <ion-icon name="people-outline" slot="start"></ion-icon>
+      <ion-label>
+        <h2>Klub {{ membership.storefrontId.substring(0, 8) }}</h2>
+        <p>Dołączono: {{ membership.joinedAt | date: 'dd.MM.yyyy' }}</p>
+      </ion-label>
+      <ion-button fill="clear" color="danger" (click)="confirmLeave(membership.storefrontId)">
+        <ion-icon name="exit-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <div class="empty-state" *ngIf="!isLoading && memberships.length === 0">
+    <ion-text color="medium">
+      <p>Nie należysz jeszcze do żadnego klubu.</p>
+    </ion-text>
+  </div>
+</ion-content>

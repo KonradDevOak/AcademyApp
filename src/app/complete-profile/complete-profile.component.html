@@ -1,0 +1,32 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Uzupełnij profil</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="complete-profile-content">
+  <div class="complete-profile-container">
+    <ion-card>
+      <ion-card-content>
+        <p>Zanim zaczniesz, podaj jak mamy się do Ciebie zwracać.</p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <ion-item>
+            <ion-label position="stacked">Imię i nazwisko</ion-label>
+            <ion-input type="text" formControlName="displayName" placeholder="np. Jan Kowalski"></ion-input>
+          </ion-item>
+
+          <ion-button
+            expand="block"
+            type="submit"
+            [disabled]="!form.valid || isSaving"
+            class="ion-margin-top"
+          >
+            <ion-spinner name="circular" *ngIf="isSaving"></ion-spinner>
+            <span *ngIf="!isSaving">Zapisz i przejdź dalej</span>
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>
