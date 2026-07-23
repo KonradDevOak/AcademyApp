@@ -3,9 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
   IonCard,
   IonCardContent,
   IonButton,
@@ -29,9 +26,6 @@ import { MembersApiService } from '../../core/services/members-api.service';
   imports: [
     CommonModule,
     IonContent,
-    IonHeader,
-    IonTitle,
-    IonToolbar,
     IonCard,
     IonCardContent,
     IonButton,

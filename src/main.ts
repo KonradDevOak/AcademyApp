@@ -10,6 +10,7 @@ import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
 import { AppInitService } from '@shared/iam-msal-external';
 import { authTokenInterceptor } from './app/interceptors/auth-token.interceptor';
+import { ThemeService } from './app/core/services/theme.service';
 
 // Call the element loader before the bootstrapModule/bootstrapApplication call
 defineCustomElements(window);
@@ -26,6 +27,10 @@ bootstrapApplication(AppComponent, {
     provideAppInitializer(() => {
       const appInitService = inject(AppInitService);
       return appInitService.init()();
+    }),
+    provideAppInitializer(() => {
+      const themeService = inject(ThemeService);
+      return themeService.init();
     }),
   ],
 });

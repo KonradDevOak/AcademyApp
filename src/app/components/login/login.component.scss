@@ -1,5 +1,8 @@
 .login-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  // --ion-color-light / --ion-color-light-tint are remapped by Ionic's dark palette (dark.class.css),
+  // so this gradient adapts automatically to the user's light/dark/system choice from ThemeService
+  // instead of needing its own prefers-color-scheme media query.
+  --background: linear-gradient(135deg, var(--ion-color-light-tint) 0%, var(--ion-color-light) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,30 +19,40 @@
 .logo-section {
   text-align: center;
   margin-bottom: 30px;
-  color: white;
 
-  ion-icon {
-    font-size: 80px;
-    margin-bottom: 15px;
+  .brand-mark {
+    margin-bottom: 16px;
   }
 
-  h1 {
-    font-size: 32px;
-    font-weight: bold;
+  .brand-name {
+    display: flex;
+    flex-direction: column;
     margin: 0 0 8px 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.1;
+
+    .line-1 {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--ion-color-dark);
+    }
+
+    .line-2 {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--ion-color-primary);
+    }
   }
 
   p {
     font-size: 16px;
     margin: 0;
-    opacity: 0.9;
+    color: var(--ion-color-medium);
   }
 }
 
 .login-card {
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border: none;
   overflow: hidden;
 
@@ -48,37 +61,11 @@
   }
 }
 
-.input-item {
-  margin-bottom: 8px;
-  border-radius: 12px;
-  --background: #f8f9fa;
-  --border-width: 0;
-  --padding-start: 16px;
-  --padding-end: 16px;
-
-  &.input-error {
-    --border-color: var(--ion-color-danger);
-    --border-width: 1px;
-  }
-
-  ion-label {
-    font-weight: 600;
-    color: var(--ion-color-dark);
-    margin-bottom: 8px;
-  }
-
-  ion-input {
-    --color: var(--ion-color-dark);
-    font-size: 16px;
-  }
-}
-
 .microsoft-button {
   --background: #0078d4;
   --background-hover: #106ebe;
   --background-activated: #005a9e;
   --color: white;
-  margin-bottom: 1rem;
   font-weight: 600;
   height: 50px;
 
@@ -88,67 +75,10 @@
   }
 }
 
-.divider {
-  display: flex;
-  align-items: center;
-  margin: 1.5rem 0;
-  color: var(--ion-color-medium);
-
-  hr {
-    flex: 1;
-    border: none;
-    border-top: 1px solid var(--ion-color-light);
-    margin: 0;
-  }
-
-  span {
-    padding: 0 1rem;
-    font-size: 0.9rem;
-    color: var(--ion-color-medium);
-  }
-}
-
-.legacy-form {
-  opacity: 0.7;
-  transition: opacity 0.3s ease;
-
-  &:hover {
-    opacity: 1;
-  }
-}
-
 .error-text {
   display: block;
   margin: 0.5rem 0;
   font-size: 0.875rem;
-}
-
-.login-button {
-  margin-top: 24px;
-  margin-bottom: 20px;
-  --border-radius: 12px;
-  height: 50px;
-  font-weight: 600;
-  font-size: 16px;
-
-  ion-spinner {
-    margin-right: 8px;
-  }
-}
-
-.register-section {
-  text-align: center;
-  margin-top: 16px;
-
-  p {
-    margin: 0 0 8px 0;
-    font-size: 14px;
-  }
-
-  ion-button {
-    --color: var(--ion-color-secondary);
-    font-weight: 600;
-  }
 }
 
 // Responsive design
@@ -164,31 +94,18 @@
   .logo-section {
     margin-bottom: 24px;
 
-    h1 {
-      font-size: 28px;
+    .brand-name {
+      .line-1 {
+        font-size: 26px;
+      }
+
+      .line-2 {
+        font-size: 18px;
+      }
     }
 
     p {
       font-size: 14px;
-    }
-  }
-}
-
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .login-content {
-    --background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-  }
-
-  .input-item {
-    --background: #2d3748;
-
-    ion-label {
-      color: var(--ion-color-light);
-    }
-
-    ion-input {
-      --color: var(--ion-color-light);
     }
   }
 }

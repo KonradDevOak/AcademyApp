@@ -13,12 +13,15 @@ import {
   IonIcon,
   IonAvatar,
   IonList,
+  IonSegment,
+  IonSegmentButton,
   AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { personOutline, logOutOutline } from 'ionicons/icons';
 import { MsalExternalAuthService } from '@shared/iam-msal-external';
 import { UserProfile } from '@shared/iam-msal-core';
+import { ThemeService, ThemePreference } from '../core/services/theme.service';
 
 @Component({
   selector: 'app-tab1',
@@ -36,15 +39,19 @@ import { UserProfile } from '@shared/iam-msal-core';
     IonLabel,
     IonIcon,
     IonAvatar,
-    IonList
+    IonList,
+    IonSegment,
+    IonSegmentButton
   ],
 })
 export class Tab1Page implements OnInit {
   private msalAuthService = inject(MsalExternalAuthService);
   private router = inject(Router);
   private alertController = inject(AlertController);
+  private themeService = inject(ThemeService);
 
   currentUser: UserProfile | null = null;
+  themePreference: ThemePreference = this.themeService.preference;
 
   constructor() {
     addIcons({ personOutline, logOutOutline });
@@ -56,6 +63,10 @@ export class Tab1Page implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+  }
+
+  onThemeChange(event: CustomEvent) {
+    this.themeService.setPreference(event.detail.value as ThemePreference);
   }
 
   async logout() {

@@ -20,6 +20,23 @@
       </ion-card-content>
     </ion-card>
 
+    <ion-card class="theme-card">
+      <ion-card-content>
+        <ion-label class="theme-label">Motyw</ion-label>
+        <ion-segment [value]="themePreference" (ionChange)="onThemeChange($event)">
+          <ion-segment-button value="light">
+            <ion-label>Jasny</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="dark">
+            <ion-label>Ciemny</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="system">
+            <ion-label>Systemowy</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-card-content>
+    </ion-card>
+
     <ion-card class="menu-card">
       <ion-list>
         <ion-item button="true" (click)="logout()" class="logout-item">

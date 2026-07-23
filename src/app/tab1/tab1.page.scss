@@ -106,6 +106,18 @@
   }
 }
 
+.theme-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+
+  .theme-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+}
+
 .menu-card {
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
