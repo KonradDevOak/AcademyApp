@@ -1,5 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   IonHeader,
@@ -19,7 +21,7 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { peopleOutline, addOutline, exitOutline } from 'ionicons/icons';
+import { peopleOutline, addOutline, exitOutline, chevronForwardOutline } from 'ionicons/icons';
 import { MembersApiService } from '../core/services/members-api.service';
 import { MembershipDto } from '../core/models/member.model';
 
@@ -30,6 +32,7 @@ import { MembershipDto } from '../core/models/member.model';
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
@@ -50,13 +53,14 @@ export class ClubsPage implements OnInit {
   private formBuilder = inject(FormBuilder);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
+  private router = inject(Router);
 
   memberships: MembershipDto[] = [];
   isLoading = true;
   joinForm: FormGroup;
 
   constructor() {
-    addIcons({ peopleOutline, addOutline, exitOutline });
+    addIcons({ peopleOutline, addOutline, exitOutline, chevronForwardOutline });
     this.joinForm = this.formBuilder.group({
       storefrontId: ['', [Validators.required]]
     });
@@ -98,7 +102,14 @@ export class ClubsPage implements OnInit {
         });
         await toast.present();
       },
-      error: async (error: unknown) => {
+      error: async (error: HttpErrorResponse) => {
+        if (this.isConsentRequiredError(error)) {
+          await this.router.navigate(['/tabs/clubs', storefrontId, 'consents'], {
+            queryParams: { returnTo: 'join' }
+          });
+          return;
+        }
+
         console.error('Failed to join storefront:', error);
         const toast = await this.toastController.create({
           message: 'Nie udało się dołączyć. Sprawdź identyfikator klubu.',
@@ -109,6 +120,11 @@ export class ClubsPage implements OnInit {
         await toast.present();
       }
     });
+  }
+
+  private isConsentRequiredError(error: HttpErrorResponse): boolean {
+    const errors = error?.error?.errors;
+    return Array.isArray(errors) && errors.some((e: { code?: string }) => e.code === 'member_consent_required');
   }
 
   async confirmLeave(storefrontId: string) {

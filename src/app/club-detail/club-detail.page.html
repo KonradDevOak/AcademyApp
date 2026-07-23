@@ -1,0 +1,33 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/clubs"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ membership?.storefrontName ?? 'Klub' }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="ion-text-center" *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading && membership">
+    <ion-text color="medium" class="ion-padding">
+      <p>Dołączono: {{ membership.joinedAt | date: 'dd.MM.yyyy' }}</p>
+    </ion-text>
+
+    <ion-list>
+      <ion-item [routerLink]="['/tabs/clubs', storefrontId, 'consents']" button>
+        <ion-icon name="document-text-outline" slot="start"></ion-icon>
+        <ion-label>Zgody</ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+      </ion-item>
+      <ion-item [routerLink]="['/tabs/clubs', storefrontId, 'health-questionnaire']" button>
+        <ion-icon name="medkit-outline" slot="start"></ion-icon>
+        <ion-label>Ankieta zdrowotna</ion-label>
+        <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </ng-container>
+</ion-content>

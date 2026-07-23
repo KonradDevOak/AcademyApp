@@ -10,7 +10,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "run": "ng run app:serve --host=localhost --port=4200"
+    "run": "ng run app:serve --host=localhost --port=4204"
   },
   "private": true,
   "dependencies": {
@@ -31,6 +31,7 @@
     "@capacitor/keyboard": "7.0.1",
     "@capacitor/local-notifications": "^7.0.1",
     "@capacitor/preferences": "^7.0.1",
+    "@capacitor/push-notifications": "^7.0.7",
     "@capacitor/status-bar": "7.0.1",
     "@capacitor/toast": "^7.0.1",
     "@ionic/angular": "^8.6.5",

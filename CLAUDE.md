@@ -112,40 +112,63 @@ dodany jako dozwolony redirect URI na tym samym app registration (obok istnieją
 dla Showcase/LocalBizWeb) — inaczej Entra odrzuci callback z "invalid redirect URI" niezależnie od tego,
 jak poprawny jest kod appki. Żaden test logowania end-to-end nie zadziała bez obu tych kroków.
 
-## Brakujący endpoint backendu (rozwiązany równolegle w Sandboxie, 2026-07-18)
+## Brakujące endpointy backendu dodane przy okazji Task B/C/D (2026-07-18/21)
 
-`MemberClassesController` nie miał żadnego "przeglądaj dostępne sesje" — dodano
-`GET api/classes/{storefrontId}/sessions?from=&to=` w tej samej sesji, żeby nie blokować przyszłego
-Task B (grafik). Zob. `Sandbox/src/Modules/Classes/CLAUDE.md` → sekcja "Member-facing schedule browsing".
+- `GET api/classes/{storefrontId}/sessions?from=&to=` (2026-07-18, Task B) — zob.
+  `Sandbox/src/Modules/Classes/CLAUDE.md` → "Member-facing schedule browsing".
+- `GET api/classes/{storefrontId}/class-types` (2026-07-21, Task C) — nazwy zajęć dla pickera
+  "zajęcia startowe" w formularzu sign-up karnetu (multi-class-type `MembershipType`).
+- `GET api/carnets/{storefrontId}/membership-types` (2026-07-21, Task C) — katalog karnetów do wyboru
+  przy self-service sign-up; backend dotąd miał tylko wersję owner-facing.
+- `CarnetNotFoundException` (2026-07-21) naprawiony, żeby mapować się na `404`, nie generyczny `500` —
+  zob. `Sandbox/src/Modules/Carnets/CLAUDE.md`. `carnet.page.ts` polega na tym rozróżnieniu, żeby wiedzieć
+  kiedy pokazać formularz sign-up zamiast karty istniejącego karnetu.
+- `POST/DELETE api/notifications/native-push-subscriptions/member` (2026-07-21, Task D) — nowy, osobny
+  od istniejącego web-push endpointu; zob. "Push notifications" niżej.
+- `GET api/carnets/p24/payment-callback` (2026-07-21) — strona-lądowisko dla P24 checkout return-URL;
+  zob. "P24 payment-callback zbudowane 2026-07-21" niżej.
 
-## Struktura appki (Task A — ten stan)
+## Struktura appki (po Task B/C/D, 2026-07-21)
 
 ```
 src/app/
 ├── app.routes.ts              # '' -> login, login, complete-profile (CustomerGuard), tabs
 ├── components/login/          # CIAM login (jeden przycisk, bez legacy email/hasło formularza)
 ├── complete-profile/          # POST members/complete-profile — pierwsze uzupełnienie profilu
-├── tabs/                      # ion-tabs shell (Ionic CLI "tabs" convention — path 'tabs' zagnieżdżony
-│                                 dwukrotnie to standardowy wzorzec generatora, nie błąd)
-├── clubs/                     # "Moje kluby" — GET me/memberships, join/leave
-├── tab1/                      # Profil — MsalExternalAuthService.getUserProfile()/logout()
+├── tabs/                      # ion-tabs shell — 4 taby: Kluby, Grafik, Karnet, Profil
+├── clubs/                     # "Moje kluby" — GET me/memberships, join (z retry po zgodach)/leave
+├── club-detail/                # Hub klubu (clubs/:storefrontId) — linki do Zgody/Ankieta
+├── consents/                   # Lista+akceptacja zgód (clubs/:storefrontId/consents, ?returnTo=join)
+├── health-questionnaire/       # Ankieta zdrowotna (append-only) + gate zgody RODO art.9
+├── schedule/                   # Tab "Grafik" — sesje/zapisy/lista rezerwowa/odrobienia
+├── carnet/                     # Tab "Karnet" — aktualny karnet lub sign-up + akcje P24
+├── tab1/                       # Profil — MsalExternalAuthService.getUserProfile()/logout()
 ├── core/
-│   ├── models/member.model.ts       # MemberDto/MembershipDto — kamelCase, zgodne z backendem
-│   └── services/members-api.service.ts
+│   ├── models/                 # member/classes/carnets .model.ts — kamelCase, zgodne z backendem
+│   └── services/
+│       ├── members-api.service.ts       # api/members/* (rozszerzone o consents/health-questionnaire)
+│       ├── classes-api.service.ts       # api/classes/*
+│       ├── carnets-api.service.ts       # api/carnets/*
+│       ├── notifications-api.service.ts # api/notifications/native-push-subscriptions
+│       ├── push-notifications.service.ts # wrapper @capacitor/push-notifications, patrz "Push" niżej
+│       ├── storefront-context.service.ts # który klub jest "aktywny" dla Grafik/Karnet, @capacitor/preferences
+│       └── carnet-payment-callback.service.ts # deep link powrotny z checkoutu P24, mirror MsalExternalAuthService
 └── interceptors/auth-token.interceptor.ts   # Bearer na żądania zawierające '/api/'
 ```
 
-**Znane uproszczenie**: `MembershipDto` z backendu ma tylko `storefrontId`/`joinedAt` — **brak nazwy
-klubu**. Ekran "Moje kluby" pokazuje skrócony `storefrontId` zamiast nazwy. Brak dziś publicznego
-endpointu "storefront po ID" (istniejące publiczne `resolve`/`public` w Storefronts rozwiązują po
-domenie, nie po id — zob. `Sandbox/ai/BACKEND_CAPABILITIES.md` §2). Do doprecyzowania w Task B/C:
-albo nowy member-facing bus route zwracający nazwy storefrontów po liście ID, albo backend dołącza
-nazwę bezpośrednio do `MembershipDto`.
+**Rozwiązane uproszczenie (było w Task A)**: `MembershipDto` teraz niesie `storefrontName` — backend
+(`GetMyMembershipsHandler`, `Sandbox/src/Modules/Members/CLAUDE.md`) dobatchowuje nazwę przez nową trasę
+busa `storefronts/names-by-ids`, fail-open do `null` przy błędzie. Ekran "Moje kluby" i picker
+klubu (`StorefrontContextService.pickStorefront`) pokazują realną nazwę, z fallbackiem na skrócony
+`storefrontId` gdy `null`.
 
-**Znane uproszczenie**: "dołącz do klubu" to dziś zwykłe pole tekstowe na `storefrontId` (GUID) —
-brak realnego mechanizmu odkrywania/zapraszania (QR/link/kod). Wystarczające, żeby udowodnić że
-`POST members/{storefrontId}/join` faktycznie działa end-to-end; realny onboarding UX to osobna decyzja
-produktowa, nie zakładana tutaj.
+**Wciąż uproszczone**: "dołącz do klubu" to zwykłe pole tekstowe na `storefrontId` (GUID) — brak
+realnego mechanizmu odkrywania/zapraszania (QR/link/kod). Świadomie poza zakresem tego zadania.
+
+**Nawigacja wielu klubów**: `StorefrontContextService` trzyma "aktywny" `storefrontId` dla tabów
+Grafik/Karnet — jeden klub: auto-wybór po cichu; wiele: `ActionSheetController` picker przy pierwszym
+wejściu w sesji, zapamiętany w `@capacitor/preferences`. Zgody/Ankieta nie potrzebują tego kontekstu —
+są zawsze per-konkretny-klub, osiągane z `ClubDetailPage`.
 
 ## Rebrand natywny
 
@@ -163,33 +186,63 @@ pierwotnie) — nie traktować jak siatki bezpieczeństwa. `.github/workflows/bu
 repo robi tylko `lint` + `ng build` (web bundle) — **nie** builduje/podpisuje/publikuje Android/iOS,
 to świadomie poza zakresem, większa inwestycja CI na później.
 
-**Co nie zostało i nie mogło zostać zweryfikowane w tej sesji** (brak emulatora/urządzenia w
-środowisku):
-- Cały round-trip logowania CIAM: `Browser.open()` → hostowany login Entra → redirect przez
-  `pl.localbiz.clubhouse://auth-callback` → `appUrlOpen` → `handleRedirectPromise` → aktywne konto.
-- Czy backendowe CORS w ogóle dopuszcza origin appki natywnej (`https://localhost` domyślnie na
-  Capacitorze) — niesprawdzone, może wymagać dopisania do polityki CORS backendu.
-- `npx cap sync android`/`npx cap sync ios` — nie uruchomiono w tej sesji (wymaga zainstalowanego
-  Android SDK/Xcode), więc nawet strukturalna poprawność projektów natywnych po zmianach w
-  `AndroidManifest.xml`/`Info.plist`/`build.gradle` jest niepotwierdzona.
+**Co nie zostało i nie mogło zostać zweryfikowane w żadnej sesji dotąd** (brak emulatora/urządzenia w
+środowisku) — pełna, aktualna lista: "Znane luki / do zrobienia" niżej. W skrócie: cały CIAM login
+round-trip, `npx cap sync android`/`ios`, i wszystko zależne od realnego urządzenia (push, P24 checkout).
 
-## Następne kroki (świadomie poza zakresem Task A)
+## Push notifications — natywny FCM (decyzja 2026-07-21, nie web-push)
 
-Pełny zakres pierwotnego zadania (`Sandbox/docs/fitness/faza-6-next-steps.md` punkt 3) obejmował też
-grafik zajęć, karnety/P24, zgody, ankietę zdrowotną, push — rozbite na osobne przyszłe zadania:
+Świadomie **nie** konsumuje backendu istniejącego web-push (VAPID/`PushSubscriptionsController`) — appka
+to natywny Capacitor WebView, gdzie "dostawa nawet gdy appka zamknięta" nie jest tak pewna jak w
+prawdziwej karcie przeglądarki. Zamiast tego: `@capacitor/push-notifications` + nowy backendowy kanał
+FCM. Pełny design (fan-out `IPushService`→`IPushChannel`, `CompositePushService`,
+`NativePushSubscription`) w `Sandbox/src/Modules/Notifications/CLAUDE.md` → "Natywny push (FCM/APNs)".
 
-- **Task B — Grafik i zapisy**: `GET classes/{storefrontId}/sessions`, enroll/cancel/waitlist,
-  makeup credits, personal training self-service.
-- **Task C — Karnety/P24**: zakup, auto-renewal, anulowanie, retry-payment. Najwyższe ryzyko biznesowe
-  (prawdziwe pieniądze) — `CarnetsP24Client.cs` ma niepotwierdzone przeciw sandboxowi pola (zob.
-  `Sandbox/src/Modules/Carnets/CLAUDE.md`). Dodatkowa natywna komplikacja: `POST carnets/me/carnets`
-  zwraca hostowany URL P24 do otwarcia — w appce natywnej przez `@capacitor/browser`, z powrotem przez
-  deep link (ten sam wzorzec co login), co wymaga też zmiany po stronie IaC/backendu (P24 return URL).
-- **Task D — Zgody/ankieta zdrowotna/push**: `consents/pending|accept`, `health-questionnaire` (zestaw
-  pytań **nieustalony** — zob. `Sandbox/src/Modules/Members/CLAUDE.md`, nie zgadywać). Push:
-  **nierozstrzygnięta decyzja architektoniczna** — backend (`Sandbox/src/Modules/Notifications/
-  CLAUDE.md` → "Web Push (VAPID)") zbudowany pod przeglądarkowy Web Push (VAPID + service worker), nie
-  pod natywny FCM/APNs. Appka natywna prawdopodobnie chce `@capacitor/push-notifications` (FCM/APNs) —
-  to **inna integracja backendowa** niż istniejąca (`PushSubscriptionsController`), wymagająca nowego
-  `IPushService`/kształtu subskrypcji. Nie zaczynać kodu w żadnym kierunku bez jawnej decyzji z
-  użytkownikiem — dwie opcje z realnymi trade-offami, nie oczywisty wybór.
+`push-notifications.service.ts` — `init()` wołane raz z `TabsPage.ngOnInit()` (po `CustomerGuard`, więc
+prompt uprawnień pojawia się tylko dla zalogowanego membera). No-op poza `Capacitor.isNativePlatform()`
+(przeglądarka/`ionic serve` nigdy nie triggeruje realnego promptu). Sekwencja: `checkPermissions()` →
+`requestPermissions()` gdy `'prompt'` → jeśli `'granted'`, `register()` + listenery: `'registration'`
+(token → `notificationsApi.registerDeviceToken(platform, token)`), `'registrationError'` (tylko log,
+push jest best-effort), `'pushNotificationReceived'` (foreground → `ToastController`),
+`'pushNotificationActionPerformed'` (tap → `router.navigateByUrl(data.url)`, jeśli backend je ustawi —
+dziś żaden trigger tego nie robi, zob. Notifications CLAUDE.md).
+
+**iOS/APNs zbudowane 2026-07-21** — backend ma teraz `ApnsPushChannel` (dotAPNS, mirror
+`FcmPushChannel`, ten sam `IPushChannel`/`CompositePushService` fan-out) obok FCM, zob.
+`Sandbox/src/Modules/Notifications/CLAUDE.md` → "Natywny push (FCM/APNs)". Konto Apple Developer
+Program + klucz `.p8` potwierdzone przez użytkownika jako istniejące — realne poświadczenia wciąż
+trzeba ręcznie wkleić do Key Vault po `terraform apply` (jak FCM/wFirma), kod jest gotowy.
+
+**P24 payment-callback zbudowane 2026-07-21** — `carnet.page.ts`'s `signUp()`/`retryPayment()` teraz
+`await CarnetPaymentCallbackService.waitForReturn()` po `Browser.open()`, zamiast odświeżać stan
+karnetu od razu. Nowy serwis `core/services/carnet-payment-callback.service.ts` (mirror
+`msal-external-auth.service.ts` — własny `App.addListener('appUrlOpen', ...)`, własny prefiks
+`pl.localbiz.clubhouse://payment-callback`), nowy intent-filter host w
+`android/app/src/main/AndroidManifest.xml` (iOS nic nie wymaga — `Info.plist` rejestruje tylko schemat,
+nie host). Backend: `GET api/carnets/p24/payment-callback` (`MemberCarnetsController`, `[AllowAnonymous]`)
+serwuje statyczną stronę-lądowisko przekierowującą na ten deep link; `p24carnets--returnUrl` (Terraform)
+zmieniony na ten endpoint zamiast stałej, nigdy nieużywanej kopii URL-a Subscriptions. Zob.
+`Sandbox/src/Modules/Carnets/CLAUDE.md` → "P24 recurring integration" po szczegóły.
+
+**Niezweryfikowane w żadnej sesji dotąd** (brak realnego urządzenia + brak potwierdzonego projektu
+Firebase/prawdziwych sekretów APNs w Key Vault): prawdziwy prompt uprawnień push, realny token
+FCM/APNs, realna dostawa po triggerze (np. odwołanie sesji), i cały P24 checkout→deep-link round-trip
+(wymaga też punktu 2 z `faza-7-next-steps.md` — żywa weryfikacja P24 w sandboxie, wciąż otwarta).
+
+## Znane luki / do zrobienia (2026-07-21)
+
+- **CIAM login round-trip nadal niezweryfikowany end-to-end** — status User Flow w Azure Portalu
+  (tenant `sandboxdevo`) niepewny, użytkownik sam to sprawdza (zob. `Sandbox/src/Modules/Members/
+  CLAUDE.md` → "IaC — krok ręczny"). Backend/frontend obu stron gotowe, ale bez tego żaden realny test
+  logowania nie zadziała niezależnie od jakości kodu.
+- **P24 sandbox nadal "documented, not live-verified"** (`Sandbox/src/Modules/Carnets/CLAUDE.md`) —
+  realne pieniądze, nie testować na produkcyjnym storefroncie przed potwierdzeniem.
+- **Zestaw pytań ankiety zdrowotnej** (`health-questionnaire.page.ts`) to rozsądne minimum wymyślone na
+  potrzeby v1 (3 toggle + notatka), nie ustalony z klientką zestaw — `AnswersJson` jest opaque po stronie
+  backendu, więc zmiana formularza później nie wymaga migracji.
+- **`npx cap sync android`/`ios` nieuruchomione w tej sesji** (brak SDK/Xcode) — strukturalna poprawność
+  `AndroidManifest.xml`/`Info.plist`/`build.gradle` po dodaniu `@capacitor/push-notifications`
+  niepotwierdzona.
+- **CORS dla iOS** — dev CORS dopuszcza `http://localhost` (Android `androidScheme: 'http'`), ale
+  domyślny schemat Capacitor dla iOS (`capacitor://localhost`) nie jest dziś na liście
+  `member_native_app_cors_origins` (`Sandbox/iac/env/*.tfvars`) — do sprawdzenia przed testami na iOS.

@@ -1,0 +1,59 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Ankieta zdrowotna</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="ion-text-center" *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!isLoading">
+    <ion-text color="medium" *ngIf="lastSubmittedAt">
+      <p>Ostatnio zapisano: {{ lastSubmittedAt | date: 'dd.MM.yyyy HH:mm' }}. Zapisanie formularza utworzy nową wersję.</p>
+    </ion-text>
+
+    <ion-list>
+      <ion-item>
+        <ion-icon name="medkit-outline" slot="start"></ion-icon>
+        <ion-toggle formControlName="hasHealthContraindications">
+          Przeciwwskazania zdrowotne do wysiłku fizycznego
+        </ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-toggle formControlName="hasChronicCondition">
+          Choroby przewlekłe (serce, cukrzyca, astma itp.)
+        </ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-toggle formControlName="takesRegularMedication">
+          Stałe przyjmowanie leków
+        </ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Dodatkowe informacje</ion-label>
+        <ion-textarea formControlName="additionalNotes" autoGrow="true" rows="3"></ion-textarea>
+      </ion-item>
+
+      <ion-item *ngIf="requiresConsent">
+        <ion-label class="ion-text-wrap">
+          <ion-toggle formControlName="healthDataConsentAccepted">
+            Zgadzam się na przetwarzanie danych o zdrowiu
+          </ion-toggle>
+          <p (click)="openContent(healthDataConsent!.contentUrl)">
+            Zobacz treść zgody <ion-icon name="open-outline"></ion-icon>
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-note color="danger" *ngIf="requiresConsent && !canSubmit">
+      Musisz zaakceptować zgodę na przetwarzanie danych o zdrowiu, żeby zapisać ankietę.
+    </ion-note>
+
+    <ion-button expand="block" type="submit" class="ion-margin-top" [disabled]="!canSubmit || isSubmitting">
+      Zapisz
+    </ion-button>
+  </form>
+</ion-content>
