@@ -1,111 +1,160 @@
+$mono-font: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+$grey: #888888;
+
 .login-content {
-  // --ion-color-light / --ion-color-light-tint are remapped by Ionic's dark palette (dark.class.css),
-  // so this gradient adapts automatically to the user's light/dark/system choice from ThemeService
-  // instead of needing its own prefers-color-scheme media query.
-  --background: linear-gradient(135deg, var(--ion-color-light-tint) 0%, var(--ion-color-light) 100%);
+  --background: #000000;
+  --color: #ffffff;
+}
+
+.terminal {
+  // Fixed, not min-height — a transform-based nudge (translateY) would otherwise render past this
+  // box's own bottom edge without growing it, forcing the page to scroll. Padding-top pushes the
+  // flex-centered content down within this same fixed height instead, so it never overflows.
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  font-family: $mono-font;
+  box-sizing: border-box;
+  // "przesuń całość nieco w dół" — nudge below true vertical center, not dead-center
+  padding-top: 8vh;
+}
+
+.terminal-line {
+  font-size: 28px;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1;
+  padding: 0 20px;
+}
+
+.word-white {
+  color: #ffffff;
+}
+
+.word-grey {
+  color: $grey;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.85em;
+  margin-left: 2px;
+  background: #ffffff;
+  vertical-align: middle;
+  transform: translateY(-3px);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.login-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  // Explicit width, not shrink-to-fit: `.terminal`'s `align-items: center` would otherwise size
+  // this to its content, which broke the child button's full-bleed math (see .crt-button below).
+  width: 100%;
+
+  // Shown/hidden via opacity, not *ngIf — element stays mounted so the CRT entrance animation
+  // (triggered by the .visible class below) always has something to animate onto, and toggling
+  // is a plain style change rather than a DOM insert/destroy.
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+
+.crt-button {
+  // `.login-action` is now full viewport width itself, so the button just fills it — no vw/negative
+  // margin break-out trick needed (that trick only works when every ancestor is unpadded/full-width,
+  // which wasn't true here: it was previously shifted left because its actual containing block,
+  // `.login-action`, was shrink-wrapped, not the viewport).
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-.login-container {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.logo-section {
-  text-align: center;
-  margin-bottom: 30px;
-
-  .brand-mark {
-    margin-bottom: 16px;
-  }
-
-  .brand-name {
-    display: flex;
-    flex-direction: column;
-    margin: 0 0 8px 0;
-    line-height: 1.1;
-
-    .line-1 {
-      font-size: 30px;
-      font-weight: 700;
-      color: var(--ion-color-dark);
-    }
-
-    .line-2 {
-      font-size: 20px;
-      font-weight: 500;
-      color: var(--ion-color-primary);
-    }
-  }
-
-  p {
-    font-size: 16px;
-    margin: 0;
-    color: var(--ion-color-medium);
-  }
-}
-
-.login-card {
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  background: #ffffff;
+  color: #000000;
   border: none;
-  overflow: hidden;
+  border-radius: 0;
+  padding: 18px 0;
+  cursor: pointer;
+  transform-origin: center;
 
-  ion-card-content {
-    padding: 30px;
+  // CRT tube warming up: the picture starts squeezed into a bright horizontal line and unfurls
+  // vertically to full height, with a small overshoot-then-settle flicker. Scoped to `.visible` so
+  // it (re)plays when the class is added, since the button itself is always in the DOM now.
+  .login-action.visible & {
+    animation: crt-power-on 420ms ease-out;
+  }
+
+  &:hover:not(:disabled),
+  &:active:not(:disabled) {
+    background: #e6e6e6;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
   }
 }
 
-.microsoft-button {
-  --background: #0078d4;
-  --background-hover: #106ebe;
-  --background-activated: #005a9e;
-  --color: white;
-  font-weight: 600;
-  height: 50px;
-
-  ion-icon {
-    font-size: 1.2rem;
-    margin-right: 8px;
+@keyframes crt-power-on {
+  0% {
+    transform: scaleY(0.02);
+    opacity: 0.3;
+  }
+  55% {
+    transform: scaleY(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
   }
 }
 
 .error-text {
-  display: block;
-  margin: 0.5rem 0;
-  font-size: 0.875rem;
+  font-family: $mono-font;
+  font-size: 14px;
+  color: #ff6b6b;
+  margin: 0;
+  text-align: center;
+  padding: 0 20px;
 }
 
-// Responsive design
+.footer-brand {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  text-align: center;
+  font-family: $mono-font;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: $grey;
+}
+
 @media (max-width: 480px) {
-  .login-content {
-    padding: 16px;
-  }
-
-  .login-card ion-card-content {
-    padding: 24px 20px;
-  }
-
-  .logo-section {
-    margin-bottom: 24px;
-
-    .brand-name {
-      .line-1 {
-        font-size: 26px;
-      }
-
-      .line-2 {
-        font-size: 18px;
-      }
-    }
-
-    p {
-      font-size: 14px;
-    }
+  .terminal-line {
+    font-size: 22px;
   }
 }

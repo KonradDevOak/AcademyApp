@@ -1,19 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   IonContent,
-  IonCard,
-  IonCardContent,
-  IonButton,
-  IonText,
   IonSpinner,
-  IonIcon,
   LoadingController,
   ToastController
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { logoMicrosoft } from 'ionicons/icons';
 import { tap, catchError, of, filter } from 'rxjs';
 import { MsalExternalAuthService } from '@shared/iam-msal-external';
 import { MembersApiService } from '../../core/services/members-api.service';
@@ -26,15 +19,10 @@ import { MembersApiService } from '../../core/services/members-api.service';
   imports: [
     CommonModule,
     IonContent,
-    IonCard,
-    IonCardContent,
-    IonButton,
-    IonText,
-    IonSpinner,
-    IonIcon
+    IonSpinner
   ]
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   private msalAuthService = inject(MsalExternalAuthService);
   private membersApi = inject(MembersApiService);
   private router = inject(Router);
@@ -45,17 +33,113 @@ export class LoginComponent implements OnInit {
   isLoginFailed = false;
   errorMessage = '';
 
-  constructor() {
-    addIcons({ logoMicrosoft });
+  displayText = '';
+  showCursor = true;
+  showLoginAction = false;
+
+  // Length of the first (white) word for whichever phrase is currently being typed/deleted —
+  // the rest of displayText renders as the second (grey) word. See getters below.
+  private firstWordLength = 'Local'.length;
+
+  private animationTimeout?: ReturnType<typeof setTimeout>;
+
+  get displayTextFirstWord(): string {
+    return this.displayText.slice(0, this.firstWordLength);
+  }
+
+  get displayTextSecondWord(): string {
+    return this.displayText.slice(this.firstWordLength);
   }
 
   ngOnInit() {
     if (this.msalAuthService.isLoggedIn()) {
       this.handleSuccessfulLogin();
+      return;
+    }
+
+    if (this.prefersReducedMotion()) {
+      this.firstWordLength = 'Fitness'.length;
+      this.displayText = 'Fitness Club';
+      this.showCursor = false;
+      this.showLoginAction = true;
+      return;
+    }
+
+    this.runAnimation();
+  }
+
+  ngOnDestroy() {
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
     }
   }
 
-  async onLoginWithMicrosoft() {
+  private prefersReducedMotion(): boolean {
+    return typeof window !== 'undefined' &&
+      !!window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  private runAnimation() {
+    const steps: Array<() => Promise<void>> = [
+      () => this.wait(700),
+      () => {
+        this.firstWordLength = 'Local'.length;
+        return this.typeText('LocalBiz');
+      },
+      () => this.wait(900),
+      () => this.deleteText(),
+      () => {
+        this.firstWordLength = 'Fitness'.length;
+        return this.typeText('Fitness Club');
+      }
+    ];
+
+    steps
+      .reduce((chain, step) => chain.then(step), Promise.resolve())
+      .then(() => {
+        this.showCursor = false;
+        this.showLoginAction = true;
+      });
+  }
+
+  private typeText(text: string): Promise<void> {
+    return new Promise((resolve) => {
+      let i = this.displayText.length;
+      const typeChar = () => {
+        if (i >= text.length) {
+          resolve();
+          return;
+        }
+        this.displayText = text.slice(0, i + 1);
+        i++;
+        this.animationTimeout = setTimeout(typeChar, 90);
+      };
+      typeChar();
+    });
+  }
+
+  private deleteText(): Promise<void> {
+    return new Promise((resolve) => {
+      const deleteChar = () => {
+        if (this.displayText.length === 0) {
+          resolve();
+          return;
+        }
+        this.displayText = this.displayText.slice(0, -1);
+        this.animationTimeout = setTimeout(deleteChar, 45);
+      };
+      deleteChar();
+    });
+  }
+
+  private wait(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+      this.animationTimeout = setTimeout(resolve, ms);
+    });
+  }
+
+  async onLogin() {
     this.isLoading = true;
     this.isLoginFailed = false;
     this.errorMessage = '';

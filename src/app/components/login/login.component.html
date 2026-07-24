@@ -1,44 +1,21 @@
 <ion-content [fullscreen]="true" class="login-content">
-  <div class="login-container">
-    <div class="logo-section">
-      <svg class="brand-mark" width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="brandMarkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color: var(--ion-color-primary)" />
-            <stop offset="100%" style="stop-color: var(--ion-color-secondary)" />
-          </linearGradient>
-        </defs>
-        <rect width="72" height="72" rx="20" fill="url(#brandMarkGradient)" />
-        <text x="36" y="46" text-anchor="middle" font-size="28" font-weight="700" fill="#ffffff">LB</text>
-      </svg>
-
-      <h1 class="brand-name">
-        <span class="line-1">LocalBiz</span>
-        <span class="line-2">Club</span>
-      </h1>
-      <p>Twoje zajęcia, karnety i kluby w jednym miejscu</p>
+  <div class="terminal">
+    <div class="terminal-line">
+      <span class="word-white">{{ displayTextFirstWord }}</span><span class="word-grey">{{ displayTextSecondWord }}</span><span
+        class="cursor"
+        *ngIf="showCursor"
+      ></span>
     </div>
 
-    <ion-card class="login-card">
-      <ion-card-content>
-        <ion-button
-          expand="block"
-          color="primary"
-          class="microsoft-button"
-          (click)="onLoginWithMicrosoft()"
-          [disabled]="isLoading"
-        >
-          <ion-spinner name="circular" *ngIf="isLoading"></ion-spinner>
-          <span *ngIf="!isLoading">
-            <ion-icon name="logo-microsoft" slot="start"></ion-icon>
-            Zaloguj się / Zarejestruj się
-          </span>
-        </ion-button>
+    <div class="login-action" [class.visible]="showLoginAction">
+      <button class="crt-button" (click)="onLogin()" [disabled]="isLoading">
+        <ion-spinner name="lines-small" *ngIf="isLoading"></ion-spinner>
+        <span *ngIf="!isLoading">Zaloguj się / Zarejestruj się</span>
+      </button>
 
-        <ion-text color="danger" class="error-text" *ngIf="isLoginFailed">
-          {{ errorMessage }}
-        </ion-text>
-      </ion-card-content>
-    </ion-card>
+      <p class="error-text" *ngIf="isLoginFailed">&gt; błąd: {{ errorMessage }}</p>
+    </div>
   </div>
+
+  <div class="footer-brand">LocalBiz</div>
 </ion-content>
