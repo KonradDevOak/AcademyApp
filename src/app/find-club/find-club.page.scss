@@ -1,0 +1,20 @@
+.empty-state {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.location-hint p {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 1rem;
+  font-size: 0.85rem;
+}

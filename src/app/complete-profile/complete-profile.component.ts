@@ -62,7 +62,13 @@ export class CompleteProfileComponent {
     this.membersApi.completeProfile(this.form.value.displayName).subscribe({
       next: () => {
         this.isSaving = false;
-        this.router.navigate(['/tabs']);
+        // First-time members (no memberships yet) land on the club search/discovery flow instead of
+        // an empty tabs shell — see find-club.page.ts. Fails open to /tabs on error: worst case they
+        // reach the same "Nie masz jeszcze klubu" empty state via clubs.page.html's own CTA.
+        this.membersApi.getMyMemberships().subscribe({
+          next: (memberships) => this.router.navigate([memberships.length === 0 ? '/find-club' : '/tabs']),
+          error: () => this.router.navigate(['/tabs'])
+        });
       },
       error: async (error: unknown) => {
         console.error('complete-profile failed:', error);

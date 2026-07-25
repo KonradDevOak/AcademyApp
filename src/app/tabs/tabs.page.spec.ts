@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
 
 import { TabsPage } from './tabs.page';
 
@@ -10,7 +11,9 @@ describe('TabsPage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TabsPage],
-      providers: [provideRouter([])]
+      // provideHttpClient: TabsPage.ngOnInit() calls PushNotificationsService.init(), which injects
+      // NotificationsApiService -> HttpClient — without this the whole component fails to construct.
+      providers: [provideRouter([]), provideHttpClient()]
     }).compileComponents();
   });
 

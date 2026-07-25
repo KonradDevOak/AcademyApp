@@ -86,15 +86,16 @@ Wi-Fi (router z client isolation by to zablokował, USB nie):
    punktów 1-4.
 6. `npx cap sync android && npx cap run android` (lub `npx cap open android` → Run z Android Studio).
 
-**Zweryfikowane na żywym urządzeniu (Infinix X676C)**: cały bootstrap (`member-configuration` fetch),
-routing do `/login`, i otwarcie systemowej przeglądarki przez `onRedirectNavigate`/`Browser.open()` na
-prawdziwy ekran CIAM (tenant `ciamlocalbiz`, `localbiz.ciamlogin.com`) — dokładnie ten flow opisany
-jako `UNVERIFIED` w sekcji "Vendoring" niżej. Powrót przez `appUrlOpen`/`pl.localbiz.fitnessclub://
-auth-callback` po zalogowaniu **też się odpala poprawnie** (potwierdzone przez `adb logcat` — Android
-prawidłowo dopasowuje intent-filter i wznawia `MainActivity`), ale wymiana kodu na token w środku
-kończy się błędem — zob. `AADSTS9002326` w "Manualny krok CIAM w Azure Portal" niżej. Root cause
-znaleziony w `Sandbox/iac` (błędny platform type na redirect URI) i już naprawiony w Terraformie —
-zostaje tylko `terraform apply` w `Sandbox/iac`, żeby zmiana dotarła do tenantu `ciamlocalbiz`.
+**Zweryfikowane na żywym urządzeniu (Infinix X676C), CIAM login round-trip w pełni działający
+(2026-07-25)**: cały bootstrap (`member-configuration` fetch), routing do `/login`, otwarcie systemowej
+przeglądarki przez `onRedirectNavigate`/`Browser.open()` na prawdziwy ekran CIAM (tenant `ciamlocalbiz`,
+`localbiz.ciamlogin.com`), powrót przez `appUrlOpen`/`pl.localbiz.fitnessclub://auth-callback`, wymiana
+kodu na token (`handleRedirectPromise()`), i walidacja tego tokenu przez backend (`MemberBearer`) — cały
+łańcuch potwierdzony end-to-end aż do ekranu "Uzupełnij profil". Po drodze znalezione i naprawione dwa
+osobne błędy (jeden IaC, jeden backendowy, żaden w kodzie appki): `AADSTS9002326` (redirect URI
+zarejestrowany pod złą platformą w Terraformie, zob. "Manualny krok CIAM w Azure Portal" niżej) i
+`IDX40001` (biblioteka Microsoft.Identity.Web nie rozpoznawała formatu issuera `*.ciamlogin.com`, zob.
+"Auth — Entra External ID" niżej po szczegóły fixu w `Sandbox`).
 
 ## Auth — Entra External ID (CIAM), nie ten sam schemat co LocalBizWeb
 
@@ -105,6 +106,18 @@ storefrontów — jak karta lojalnościowa, nie osobne konto na klub).
 
 Config endpoint: `GET /api/member-configuration` (anonimowy, zwraca `msalConfig`/`apiConfig` — pobrany
 przy starcie appki przez `AppInitService`/`ExternalConfigService`).
+
+**`IDX40001` (issuer validation) — znaleziony i naprawiony 2026-07-25.** Pierwszy raz, kiedy realny
+token CIAM dotarł do backendu (zaraz po naprawie `AADSTS9002326` niżej), `MemberBearer` go odrzucał:
+"Issuer ... does not match any of the valid issuers provided for this application." Root cause: wbudowany
+w Microsoft.Identity.Web walidator (`AadIssuerValidator`) nie rozpoznaje formatu issuera domen
+`*.ciamlogin.com` (Entra External ID/CIAM) — mimo że `Instance`/`TenantId` w Key Vault były w 100%
+poprawne (potwierdzone porównaniem dokumentu OIDC discovery obu aliasów domeny z realnym `iss` z tokenu
+— identyczne). To nie był błąd konfiguracji, tylko luka w bibliotece. Fix (Sandbox,
+`Shared.Infrastructure/Auth/Extensions.cs`, wewnątrz rejestracji `MemberBearer`):
+`services.Configure<JwtBearerOptions>(MemberBearerScheme, options => options.TokenValidationParameters
+.ValidIssuers = [...])`, jawnie dodający ten jeden potwierdzony issuer zamiast polegać na niekompletnej
+wbudowanej liście — nie osłabia walidacji, tylko uzupełnia brakującą wartość.
 
 ## Vendoring `@shared/iam-msal-external`/`@shared/iam-msal-core`
 
@@ -174,21 +187,20 @@ wcześniejsza wersja tej notatki tak twierdziła. Jest w pełni zarządzany Terr
 `member_native_redirect_uris` (`Sandbox/iac/variables.tf`, wartość w `Sandbox/iac/env/{dev,prod}.tfvars`)
 → `modules/azure-ad-external/ad-application-spa.tf`.
 
-**Znaleziony i potwierdzony blocker (2026-07-24, `AADSTS9002326`), naprawiony w kodzie Terraform** —
+**Znaleziony, naprawiony i zweryfikowany blocker (2026-07-24/25, `AADSTS9002326`)** —
 `ad-application-spa.tf` rejestrował ten redirect URI w osobnym zasobie `azuread_application_redirect_uris`
 z `type = "PublicClient"` ("Mobile and desktop applications"), bo takie było (błędne) założenie w
 komentarzu przy tym kodzie. Ale wendorowany `msal-external-auth.service.ts` w tym repo nadal używa
 MSAL Browser, które wymienia kod na token przez `fetch()` wykonywany z poziomu WebView (origin
 `http://localhost`) — a Entra dopuszcza taką wymianę (cross-origin token redemption z poziomu
 przeglądarki) tylko dla redirect URI zarejestrowanych pod platformą **"Single-page application"**,
-niezależnie od tego, że to custom URI scheme, nie `https://`. Fix (już zaaplikowany w
+niezależnie od tego, że to custom URI scheme, nie `https://`. Fix (zaaplikowany w
 `Sandbox/iac/modules/azure-ad-external/ad-application-spa.tf`): `native_redirect_uris` scalone do
 tego samego bloku `type = "SPA"` co `spa_redirect_uris` (`concat(...)`), zamiast osobnego bloku
-PublicClient. **Wymaga `terraform apply` w `Sandbox/iac`, żeby zmiana faktycznie dotarła do Azure AD**
-— sama edycja `.tf` nic nie zmienia w tenantcie, dopóki ktoś nie odpali apply. Bez tego
-`handleRedirectPromise()` nadal będzie rzucać `ServerError: AADSTS9002326`, mimo że cała reszta flow
-(system browser, deep link, `appUrlOpen`) działa poprawnie — to nigdy nie był błąd w kodzie appki
-Clubhouse, tylko w konfiguracji app registration po stronie IaC.
+PublicClient. `terraform apply` w `Sandbox/iac` wykonany 2026-07-24 — **potwierdzone na żywym
+urządzeniu, że login przechodzi przez ten krok bez błędu**. Zaraz po tym fixie ujawnił się kolejny,
+osobny błąd (`IDX40001`, backendowa walidacja issuera) — zob. "Auth — Entra External ID" wyżej —
+naprawiony tego samego dnia; cały łańcuch logowania jest dziś w pełni zweryfikowany end-to-end.
 
 ## Brakujące endpointy backendu dodane przy okazji Task B/C/D (2026-07-18/21)
 
@@ -206,15 +218,19 @@ Clubhouse, tylko w konfiguracji app registration po stronie IaC.
 - `GET api/carnets/p24/payment-callback` (2026-07-21) — strona-lądowisko dla P24 checkout return-URL;
   zob. "P24 payment-callback zbudowane 2026-07-21" niżej.
 
-## Struktura appki (po Task B/C/D, 2026-07-21)
+## Struktura appki (po discovery klubów, 2026-07-25)
 
 ```
 src/app/
-├── app.routes.ts              # '' -> login, login, complete-profile (CustomerGuard), tabs
-├── components/login/          # CIAM login (jeden przycisk, bez legacy email/hasło formularza)
-├── complete-profile/          # POST members/complete-profile — pierwsze uzupełnienie profilu
+├── app.routes.ts              # '' -> login, login, complete-profile (CustomerGuard), find-club, tabs
+├── components/
+│   ├── login/                  # CIAM login (jeden przycisk, bez legacy email/hasło formularza)
+│   └── manual-join/             # "Mam kod od recepcji" — współdzielony przez clubs.page i find-club.page
+├── complete-profile/          # POST members/complete-profile — pierwsze uzupełnienie profilu; potem
+│                               # find-club (0 członkostw) albo tabs (1+), zob. "Znajdź klub" niżej
+├── find-club/                  # Wyszukiwarka/lista dostępnych klubów fitness — główny sposób dołączania
 ├── tabs/                      # ion-tabs shell — 4 taby: Kluby, Grafik, Karnet, Profil
-├── clubs/                     # "Moje kluby" — GET me/memberships, join (z retry po zgodach)/leave
+├── clubs/                     # "Moje kluby" — GET me/memberships, leave, CTA "Znajdź klub" → /find-club
 ├── club-detail/                # Hub klubu (clubs/:storefrontId) — linki do Zgody/Ankieta
 ├── consents/                   # Lista+akceptacja zgód (clubs/:storefrontId/consents, ?returnTo=join)
 ├── health-questionnaire/       # Ankieta zdrowotna (append-only) + gate zgody RODO art.9
@@ -222,11 +238,13 @@ src/app/
 ├── carnet/                     # Tab "Karnet" — aktualny karnet lub sign-up + akcje P24
 ├── tab1/                       # Profil — MsalExternalAuthService.getUserProfile()/logout()
 ├── core/
-│   ├── models/                 # member/classes/carnets .model.ts — kamelCase, zgodne z backendem
+│   ├── models/                 # member/classes/carnets/storefront .model.ts — kamelCase, zgodne z backendem
+│   ├── utils/consent-error.util.ts # isConsentRequiredError() — dzielony przez manual-join i find-club
 │   └── services/
 │       ├── members-api.service.ts       # api/members/* (rozszerzone o consents/health-questionnaire)
 │       ├── classes-api.service.ts       # api/classes/*
 │       ├── carnets-api.service.ts       # api/carnets/*
+│       ├── storefront-discovery.service.ts # GET api/storefronts/public (find-club) + geolokalizacja
 │       ├── notifications-api.service.ts # api/notifications/native-push-subscriptions
 │       ├── push-notifications.service.ts # wrapper @capacitor/push-notifications, patrz "Push" niżej
 │       ├── storefront-context.service.ts # który klub jest "aktywny" dla Grafik/Karnet, @capacitor/preferences
@@ -240,8 +258,45 @@ busa `storefronts/names-by-ids`, fail-open do `null` przy błędzie. Ekran "Moje
 klubu (`StorefrontContextService.pickStorefront`) pokazują realną nazwę, z fallbackiem na skrócony
 `storefrontId` gdy `null`.
 
-**Wciąż uproszczone**: "dołącz do klubu" to zwykłe pole tekstowe na `storefrontId` (GUID) — brak
-realnego mechanizmu odkrywania/zapraszania (QR/link/kod). Świadomie poza zakresem tego zadania.
+## Wyszukiwanie/dołączanie do klubu (`find-club`, 2026-07-25)
+
+Appka ma być **jedna appka na całą branżę fitness**, nie osobna appka na każdego klienta LocalBiz
+(nieopłacalne przy dystrybucji Android/iOS per klient) — więc dołączenie do klubu nie może dłużej
+polegać wyłącznie na ręcznym wpisaniu GUID-a od recepcji. `src/app/find-club/find-club.page.ts` to
+teraz **główny** sposób dołączania:
+
+- `IonSearchbar` + lista wyników z `StorefrontDiscoveryService.search()` (`GET /api/storefronts/public`,
+  zawsze ze stałym `businessType=Fitness&requireFitnessReadiness=true` — appka jest dedykowana branży
+  fitness, zob. `Sandbox/ai/BACKEND_CAPABILITIES.md` §22 i `Sandbox/src/Modules/Storefronts/CLAUDE.md`).
+- Domyślnie sortowane po dystansie (do 30km) — `StorefrontDiscoveryService.getCurrentPosition()` prosi
+  o uprawnienie `@capacitor/geolocation`, cicho zwraca `null` przy odmowie/niedostępności/timeout,
+  appka wtedy pada na sort alfabetyczny (`isUsingLocation` steruje komunikatem w UI).
+  **Gotcha znaleziony przy pisaniu testów**: obiekt pluginu Capacitora (`Geolocation` z
+  `@capacitor/geolocation`) to `Proxy`, którego `get`-trap zawsze zwraca świeży wrapper niezależnie od
+  przypisania właściwości — `spyOn(Geolocation, 'checkPermissions')` w Jasmine **nie działa** (podmiana
+  nigdy nie jest odczytana). Naprawione przez owinięcie pluginu w `InjectionToken`
+  (`GEOLOCATION_PLUGIN` w `storefront-discovery.service.ts`) — ten sam singleton w runtime (fabryka
+  zwraca realny `Geolocation`), ale podmienialny w testach przez zwykły provider. Ten sam wzorzec
+  potrzebny dla każdego przyszłego testu dotykającego bezpośrednio obiektu wtyczki Capacitora.
+- Przycisk "Dołącz" na każdym wyniku woła `MembersApiService.join()`, z tą samą logiką przekierowania
+  na zgody przy `member_consent_required` co dotychczas — wydzieloną do `isConsentRequiredError()`
+  (`core/utils/consent-error.util.ts`), używaną też przez `manual-join.component.ts`.
+- Panel "Mam kod od recepcji" (zwijany) pokazuje dotychczasowe ręczne pole na `storefrontId` — **nie
+  usunięte**, tylko przeniesione do współdzielonego `ManualJoinComponent`
+  (`components/manual-join/`), używanego identycznie w `clubs.page.html` (stan pusty/dodatkowa opcja)
+  i `find-club.page.html` (zwinięty panel).
+- Onboarding: `complete-profile.component.ts` po zapisaniu profilu sprawdza liczbę członkostw —
+  0 → `/find-club`, 1+ → `/tabs` (fails open do `/tabs` przy błędzie zapytania). Poza onboardingiem
+  `find-club` jest też dostępny z przycisku "Znajdź klub" na `clubs.page.html`.
+- **Backend**: nowe pole `Storefront.BusinessType` (enum `General`/`Fitness`, string w DB) — właściciel
+  ustawia je w LocalBizWeb (`storefront-settings` → "Profil firmy"). Storefront musi mieć zarówno
+  `BusinessType=Fitness`, jak i włączone usługi `"Grafik zajęć"`/`"Karnety i płatności"`/`"Klubowicze"`,
+  żeby pojawić się w wynikach (`requireFitnessReadiness=true`) — inaczej klubowicz mógłby dołączyć do
+  "klubu", który nie ma jeszcze uruchomionego grafiku/karnetów.
+- **`@capacitor/geolocation`** dodany do `package.json`; `ACCESS_COARSE_LOCATION`/`ACCESS_FINE_LOCATION`
+  w `AndroidManifest.xml`, `NSLocationWhenInUseUsageDescription` w iOS `Info.plist`. **Zweryfikowane
+  tylko przez `npx cap sync android` + `ng build`/testy Karma — brak jeszcze testu na fizycznym
+  urządzeniu** (osobny krok, jak reszta tego repo — zob. "Testing" niżej).
 
 **Nawigacja wielu klubów**: `StorefrontContextService` trzyma "aktywny" `storefrontId` dla tabów
 Grafik/Karnet — jeden klub: auto-wybór po cichu; wiele: `ActionSheetController` picker przy pierwszym
@@ -269,11 +324,19 @@ pierwotnie) — nie traktować jak siatki bezpieczeństwa. `.github/workflows/bu
 repo robi tylko `lint` + `ng build` (web bundle) — **nie** builduje/podpisuje/publikuje Android/iOS,
 to świadomie poza zakresem, większa inwestycja CI na później.
 
-**Stan weryfikacji na realnym urządzeniu** (zob. "Test na fizycznym urządzeniu Android przez USB",
-2026-07-24): `npx cap sync android`/`npx cap run android` uruchomione i działające, bootstrap +
-otwarcie CIAM w system browserze potwierdzone. Wciąż niepotwierdzone: dokończenie CIAM round-tripu
-(powrót przez deep link), push notifications, P24 checkout, cokolwiek na iOS — pełna, aktualna lista:
-"Znane luki / do zrobienia" niżej.
+**Stan weryfikacji na realnym urządzeniu** (zob. "Test na fizycznym urządzeniu Android przez USB"):
+cały CIAM login round-trip (2026-07-24/25, patrz "Auth — Entra External ID" i "Manualny krok CIAM"
+wyżej) zweryfikowany end-to-end. Wciąż niepotwierdzone: discovery klubów (`find-club`) na żywym
+urządzeniu, push notifications, P24 checkout, cokolwiek na iOS — pełna, aktualna lista: "Znane luki /
+do zrobienia" niżej.
+
+**Karma (2026-07-25)**: 18 speców, wszystkie zielone (`npm test` / `ng test --watch=false
+--browsers=ChromeHeadless`) — 3 boilerplate sprzed tego zadania (`app.component`, `tab1.page`,
+`tabs.page` — ostatni wymagał doklejenia `provideHttpClient()`, bo `TabsPage.ngOnInit()` woła
+`PushNotificationsService`→`NotificationsApiService`→`HttpClient`) + nowe dla discovery klubów:
+`storefront-discovery.service.spec.ts`, `find-club.page.spec.ts`, `clubs.page.spec.ts`. Nadal nie
+liczyć tego jako realnej siatki bezpieczeństwa — nie ma pokrycia dla większości appki (schedule/carnet/
+consents/health-questionnaire), tylko dla kodu dotkniętego tym zadaniem.
 
 ## Push notifications — natywny FCM (decyzja 2026-07-21, nie web-push)
 
@@ -314,18 +377,14 @@ Firebase/prawdziwych sekretów APNs w Key Vault): prawdziwy prompt uprawnień pu
 FCM/APNs, realna dostawa po triggerze (np. odwołanie sesji), i cały P24 checkout→deep-link round-trip
 (wymaga też punktu 2 z `faza-7-next-steps.md` — żywa weryfikacja P24 w sandboxie, wciąż otwarta).
 
-## Znane luki / do zrobienia (2026-07-21)
+## Znane luki / do zrobienia (2026-07-25)
 
-- **CIAM login round-trip zweryfikowany end-to-end (2026-07-24), zablokowany na `AADSTS9002326`,
-  fix scommitowany, czeka na `terraform apply`** — na żywym urządzeniu (USB, zob. "Test na fizycznym
-  urządzeniu Android przez USB") appka poprawnie odpala system browser, loguje się, redirectuje przez
-  deep link, i Android poprawnie wznawia appkę przez `appUrlOpen`. Wymiana kodu na token w
-  `handleRedirectPromise()` kończyła się błędem Entra (tenant `ciamlocalbiz`) — root cause: redirect
-  URI `pl.localbiz.fitnessclub://auth-callback` był w `Sandbox/iac` zarejestrowany pod platformą
-  "Mobile and desktop applications" (PublicClient) zamiast "Single-page application". Naprawione w
-  `Sandbox/iac/modules/azure-ad-external/ad-application-spa.tf` (scalone do bloku `type = "SPA"`) —
-  zob. "Manualny krok CIAM w Azure Portal" wyżej. **Wymaga `terraform apply` w `Sandbox/iac`**, żeby
-  faktycznie zadziałało na żywym tenantcie — sam commit kodu nic nie zmienia w Azure AD.
+- **Discovery klubów (`find-club`) niezweryfikowana na fizycznym urządzeniu** — zbudowana, przechodzi
+  `ng build`/lint/testy Karma i `npx cap sync android`, ale prompt uprawnień geolokalizacji, realny
+  sort po dystansie i cały flow onboardingu (`complete-profile` → `find-club` → dołączenie → ewentualne
+  zgody) nie były jeszcze przetestowane na żywym urządzeniu (kolejny krok po CIAM, zob. "Test na
+  fizycznym urządzeniu Android przez USB" wyżej). Backendowe testy (Unit/Integration/EndToEnd w
+  Sandbox) zielone przeciw realnemu Postgresowi.
 - **P24 sandbox nadal "documented, not live-verified"** (`Sandbox/src/Modules/Carnets/CLAUDE.md`) —
   realne pieniądze, nie testować na produkcyjnym storefroncie przed potwierdzeniem.
 - **Zestaw pytań ankiety zdrowotnej** (`health-questionnaire.page.ts`) to rozsądne minimum wymyślone na

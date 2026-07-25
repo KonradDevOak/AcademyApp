@@ -1,0 +1,57 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>Znajdź klub</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-searchbar
+    placeholder="Szukaj klubu po nazwie lub adresie"
+    debounce="0"
+    (ionInput)="onSearchChange($event.detail.value)"
+  ></ion-searchbar>
+
+  <ion-text color="medium" class="location-hint">
+    <p>
+      <ion-icon name="location-outline"></ion-icon>
+      {{ isUsingLocation ? 'Kluby w pobliżu (do 30 km)' : 'Lokalizacja niedostępna — lista alfabetyczna' }}
+    </p>
+  </ion-text>
+
+  <div class="loading-state" *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <ion-list *ngIf="!isLoading && results.length > 0">
+    <ion-item *ngFor="let club of results">
+      <ion-label>
+        <h2>{{ club.name }}</h2>
+        <p *ngIf="club.address">{{ club.address }}</p>
+        <p *ngIf="club.distanceKm !== null">{{ club.distanceKm | number: '1.0-1' }} km</p>
+      </ion-label>
+      <ion-button
+        slot="end"
+        [disabled]="joiningId === club.id"
+        (click)="join(club.id)"
+      >
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        {{ joiningId === club.id ? 'Dołączanie…' : 'Dołącz' }}
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <div class="empty-state" *ngIf="!isLoading && results.length === 0">
+    <ion-text color="medium">
+      <p>Nie znaleziono żadnego klubu.</p>
+    </ion-text>
+  </div>
+
+  <ion-button expand="block" fill="clear" (click)="showManualJoin = !showManualJoin" class="ion-margin-top">
+    <ion-icon [name]="showManualJoin ? 'chevron-up-outline' : 'chevron-down-outline'" slot="start"></ion-icon>
+    Mam kod od recepcji
+  </ion-button>
+
+  <div *ngIf="showManualJoin" class="ion-padding-top">
+    <app-manual-join (joined)="onJoinedManually()"></app-manual-join>
+  </div>
+</ion-content>

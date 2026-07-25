@@ -5,24 +5,10 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-card>
-    <ion-card-content>
-      <form [formGroup]="joinForm" (ngSubmit)="join()">
-        <ion-item>
-          <ion-label position="stacked">Dołącz do klubu</ion-label>
-          <ion-input
-            type="text"
-            formControlName="storefrontId"
-            placeholder="Identyfikator klubu od recepcji"
-          ></ion-input>
-        </ion-item>
-        <ion-button expand="block" type="submit" [disabled]="!joinForm.valid" class="ion-margin-top">
-          <ion-icon name="add-outline" slot="start"></ion-icon>
-          Dołącz
-        </ion-button>
-      </form>
-    </ion-card-content>
-  </ion-card>
+  <ion-button expand="block" fill="outline" (click)="goToFindClub()" class="ion-margin-bottom">
+    <ion-icon name="search-outline" slot="start"></ion-icon>
+    Znajdź klub
+  </ion-button>
 
   <ion-list *ngIf="!isLoading && memberships.length > 0">
     <ion-item *ngFor="let membership of memberships" [routerLink]="['/tabs/clubs', membership.storefrontId]" button>
@@ -40,7 +26,13 @@
 
   <div class="empty-state" *ngIf="!isLoading && memberships.length === 0">
     <ion-text color="medium">
-      <p>Nie należysz jeszcze do żadnego klubu.</p>
+      <p>Nie masz jeszcze klubu. Skorzystaj z wyszukiwarki powyżej, żeby go znaleźć.</p>
     </ion-text>
   </div>
+
+  <ion-card>
+    <ion-card-content>
+      <app-manual-join (joined)="loadMemberships()"></app-manual-join>
+    </ion-card-content>
+  </ion-card>
 </ion-content>

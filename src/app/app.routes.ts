@@ -18,6 +18,11 @@ export const routes: Routes = [
       import('./complete-profile/complete-profile.component').then(m => m.CompleteProfileComponent)
   },
   {
+    path: 'find-club',
+    canActivate: [CustomerGuard],
+    loadComponent: () => import('./find-club/find-club.page').then(m => m.FindClubPage)
+  },
+  {
     path: 'tabs',
     loadChildren: () => import('./tabs/tabs.routes').then((m) => m.routes),
   },

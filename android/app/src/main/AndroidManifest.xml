@@ -63,4 +63,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- @capacitor/geolocation — "find a club" discovery sorts by distance when granted, falls back
+         to alphabetical sorting otherwise (see storefront-discovery.service.ts). Coarse is enough for
+         a 30km club-radius search; fine is requested too since the plugin's permission prompt bundles
+         both and Android doesn't let an app ask for "coarse only" via this API. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 </manifest>

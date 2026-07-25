@@ -1,8 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   IonHeader,
   IonToolbar,
@@ -12,18 +10,17 @@ import {
   IonCardContent,
   IonItem,
   IonLabel,
-  IonInput,
   IonButton,
   IonList,
   IonIcon,
   IonText,
-  AlertController,
-  ToastController
+  AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { peopleOutline, addOutline, exitOutline, chevronForwardOutline } from 'ionicons/icons';
+import { peopleOutline, searchOutline, exitOutline, chevronForwardOutline } from 'ionicons/icons';
 import { MembersApiService } from '../core/services/members-api.service';
 import { MembershipDto } from '../core/models/member.model';
+import { ManualJoinComponent } from '../components/manual-join/manual-join.component';
 
 @Component({
   selector: 'app-clubs',
@@ -31,7 +28,6 @@ import { MembershipDto } from '../core/models/member.model';
   styleUrls: ['clubs.page.scss'],
   imports: [
     CommonModule,
-    ReactiveFormsModule,
     RouterLink,
     IonHeader,
     IonToolbar,
@@ -41,29 +37,23 @@ import { MembershipDto } from '../core/models/member.model';
     IonCardContent,
     IonItem,
     IonLabel,
-    IonInput,
     IonButton,
     IonList,
     IonIcon,
-    IonText
+    IonText,
+    ManualJoinComponent
   ],
 })
 export class ClubsPage implements OnInit {
   private membersApi = inject(MembersApiService);
-  private formBuilder = inject(FormBuilder);
   private alertController = inject(AlertController);
-  private toastController = inject(ToastController);
   private router = inject(Router);
 
   memberships: MembershipDto[] = [];
   isLoading = true;
-  joinForm: FormGroup;
 
   constructor() {
-    addIcons({ peopleOutline, addOutline, exitOutline, chevronForwardOutline });
-    this.joinForm = this.formBuilder.group({
-      storefrontId: ['', [Validators.required]]
-    });
+    addIcons({ peopleOutline, searchOutline, exitOutline, chevronForwardOutline });
   }
 
   ngOnInit() {
@@ -84,47 +74,8 @@ export class ClubsPage implements OnInit {
     });
   }
 
-  join() {
-    if (!this.joinForm.valid) {
-      return;
-    }
-
-    const storefrontId = this.joinForm.value.storefrontId;
-    this.membersApi.join(storefrontId).subscribe({
-      next: async () => {
-        this.joinForm.reset();
-        this.loadMemberships();
-        const toast = await this.toastController.create({
-          message: 'Dołączono do klubu!',
-          duration: 2000,
-          color: 'success',
-          position: 'top'
-        });
-        await toast.present();
-      },
-      error: async (error: HttpErrorResponse) => {
-        if (this.isConsentRequiredError(error)) {
-          await this.router.navigate(['/tabs/clubs', storefrontId, 'consents'], {
-            queryParams: { returnTo: 'join' }
-          });
-          return;
-        }
-
-        console.error('Failed to join storefront:', error);
-        const toast = await this.toastController.create({
-          message: 'Nie udało się dołączyć. Sprawdź identyfikator klubu.',
-          duration: 3000,
-          color: 'danger',
-          position: 'top'
-        });
-        await toast.present();
-      }
-    });
-  }
-
-  private isConsentRequiredError(error: HttpErrorResponse): boolean {
-    const errors = error?.error?.errors;
-    return Array.isArray(errors) && errors.some((e: { code?: string }) => e.code === 'member_consent_required');
+  goToFindClub() {
+    this.router.navigateByUrl('/find-club');
   }
 
   async confirmLeave(storefrontId: string) {
