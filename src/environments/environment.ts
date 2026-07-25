@@ -7,6 +7,10 @@ export const environment = {
   // locally), so only this bootstrap URL matters here.
   // Android emulator can't reach the host machine via `localhost` — swap to `http://10.0.2.2:5000`
   // (bypassing nginx) when testing on a real emulator/device.
+  // Physical device over USB: run `adb reverse tcp:4214 tcp:4214` so the device's own
+  // `localhost:4214` is forwarded over the USB/adb link to this port on the host — no Wi-Fi,
+  // no LAN IP, no firewall involved. Re-run the adb reverse after every USB reconnect.
   apiUrl: 'http://localhost:4214'
   // apiUrl: 'http://10.0.2.2:5000'
+  // apiUrl: 'http://192.168.0.177:4214'  // LAN IP variant, only if going over Wi-Fi instead
 };

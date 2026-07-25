@@ -7,6 +7,12 @@ LocalBiz. Wyekstrahowana 2026-07-18 z `Sandbox/src/Clients/Mobile` (dawniej opis
 właściciela — w praktyce zawierała martwy kod po nieudanym pivocie w stronę weryfikacji autentyczności
 produktów; ten kod został usunięty, nie zmigrowany).
 
+**Nazewnictwo — repo vs. tożsamość appki (2026-07-24)**: "Clubhouse" to nazwa repo/projektu, nie
+zmienia się. Rzeczywista tożsamość natywna appki (bundle id/`applicationId`, display name, custom
+URL scheme) była na krótko rebrandowana na `pl.localbiz.clubhouse`/"Clubhouse", ale to zostało
+cofnięte z powrotem na `pl.localbiz.fitnessclub`/"FitnessClub" — to jest ostateczny, docelowy stan
+(nie stary/martwy kod do posprzątania). Zob. "Rebrand natywny" niżej po aktualne wartości.
+
 Trzy frontendy platformy LocalBiz, wszystkie mówiące z jednym backendem w repo `Sandbox`:
 
 | Appka | Repo | Odbiorca |
@@ -40,6 +46,20 @@ niczego zależnego od natywnych pluginów Capacitora (`@capacitor/browser`, `@ca
 się więc obejrzeć wizualnie w `ionic serve`, ale round-trip nigdy się nie zamknie bez realnego
 urządzenia/emulatora.
 
+**`ng build` domyślnie jest "production"** — `angular.json`'s `architect.build.configurations` ma
+`"defaultConfiguration": "production"`, więc zwykłe `npm run build` **zawsze** robi `fileReplacements`
+(`environment.ts` → `environment.prod.ts`), niezależnie od tego, co wpiszesz do `environment.ts`. Do
+testów na urządzeniu/emulatorze (nie na produkcyjnym backendzie) zawsze trzeba jawnie:
+```bash
+npm run build -- --configuration development
+```
+Pominięcie tego objawia się białym ekranem po starcie appki — bootstrap próbuje `fetch()` na
+`https://api.localbiz.pl`, co na urządzeniu deweloperskim kończy się `net::ERR_NAME_NOT_RESOLVED`
+połkniętym przez ogólny `TypeError: Failed to fetch` w konsoli (widoczne tylko przez zdalny debugging
+WebView — `chrome://inspect` albo CDP na `webview_devtools_remote_<pid>`, nie przez zwykłe `adb
+logcat`). `npx cap sync`/`npx cap run` same w sobie **nie** robią `ng build` — kopiują to, co już jest
+w `www/`, więc łatwo przeoczyć, że kopiują stary/zły build.
+
 ## Backend URL — środowiskowy, nie runtime-owy
 
 W przeciwieństwie do LocalBizWeb/Admin/Showcase (serwowane same-origin z backendem przez nginx/SWA
@@ -48,6 +68,33 @@ environment.ts`/`environment.prod.ts` mają jawny `apiUrl` (`http://localhost:50
 `https://api.localbiz.pl` prod). Android emulator: podmień na `http://10.0.2.2:5000` (loopback z
 emulatora do hosta ma inny adres niż `localhost`). Backendowe CORS musi dopuszczać origin WebView'a
 (domyślnie `https://localhost` na Androidzie/iOS dla Capacitora) — niesprawdzone, patrz "Known gaps".
+
+### Test na fizycznym urządzeniu Android przez USB (zweryfikowane 2026-07-24)
+
+Zamiast emulatora/Wi-Fi — kabel USB + `adb reverse`, bez LAN IP, firewalla ani zależności od sieci
+Wi-Fi (router z client isolation by to zablokował, USB nie):
+
+1. USB debugging włączone na telefonie, `adb devices` widzi urządzenie jako `device`.
+2. `adb reverse tcp:4214 tcp:4214` — przekierowuje `localhost:4214` na telefonie do `:4214` na hoście
+   (nginx dev proxy, `Sandbox/dev/nginx.conf`). Trzeba powtórzyć po każdym nowym podłączeniu kabla.
+3. `environment.ts`'s `apiUrl` zostaje `http://localhost:4214` (nie LAN IP, nie `10.0.2.2` — te są dla
+   Wi-Fi/emulatora, zob. komentarze w pliku).
+4. `android/app/src/main/res/xml/network_security_config.xml` musi mieć wyjątek
+   `cleartextTrafficPermitted="true"` dla domeny `localhost`, nie tylko dla `10.0.2.2` (emulator) —
+   inaczej Android blokuje cały ruch `http://` z WebView do backendu mimo poprawnego `adb reverse`.
+5. `npm run build -- --configuration development` (zob. wyżej) — inaczej biały ekran mimo poprawnych
+   punktów 1-4.
+6. `npx cap sync android && npx cap run android` (lub `npx cap open android` → Run z Android Studio).
+
+**Zweryfikowane na żywym urządzeniu (Infinix X676C)**: cały bootstrap (`member-configuration` fetch),
+routing do `/login`, i otwarcie systemowej przeglądarki przez `onRedirectNavigate`/`Browser.open()` na
+prawdziwy ekran CIAM (tenant `ciamlocalbiz`, `localbiz.ciamlogin.com`) — dokładnie ten flow opisany
+jako `UNVERIFIED` w sekcji "Vendoring" niżej. Powrót przez `appUrlOpen`/`pl.localbiz.fitnessclub://
+auth-callback` po zalogowaniu **też się odpala poprawnie** (potwierdzone przez `adb logcat` — Android
+prawidłowo dopasowuje intent-filter i wznawia `MainActivity`), ale wymiana kodu na token w środku
+kończy się błędem — zob. `AADSTS9002326` w "Manualny krok CIAM w Azure Portal" niżej. Root cause
+znaleziony w `Sandbox/iac` (błędny platform type na redirect URI) i już naprawiony w Terraformie —
+zostaje tylko `terraform apply` w `Sandbox/iac`, żeby zmiana dotarła do tenantu `ciamlocalbiz`.
 
 ## Auth — Entra External ID (CIAM), nie ten sam schemat co LocalBizWeb
 
@@ -88,11 +135,19 @@ praktyce żadnego importu z niego (tylko nieużywana wzmianka w `package.json`'s
    `onRedirectNavigate: (url) => { Browser.open({ url }); return false; }`, co zatrzymuje wewnętrzną
    nawigację MSAL i zamiast tego otwiera `@capacitor/browser`'owy system browser. Powrót łapie
    `@capacitor/app`'s `App.addListener('appUrlOpen', ...)` na `NATIVE_REDIRECT_URI =
-   'pl.localbiz.clubhouse://auth-callback'`, po czym `handleRedirectPromise(fragment)` kończy wymianę
+   'pl.localbiz.fitnessclub://auth-callback'`, po czym `handleRedirectPromise(fragment)` kończy wymianę
    kodu na tokeny (MSAL nadal robi całą kryptografię — PKCE/state/nonce — sam).
-   **UNVERIFIED**: brak środowiska z emulatorem/urządzeniem w tej sesji do przetestowania. To
-   najwyższego ryzyka nieprzetestowany element całego zadania — zweryfikować przed jakimkolwiek
-   demo/produkcją.
+   **Zweryfikowane na żywym urządzeniu 2026-07-24, znaleziony blocker**: `onRedirectNavigate`/
+   `Browser.open()` poprawnie otwiera system browser na ekranie CIAM, logowanie się kończy, Entra
+   poprawnie redirectuje przez `pl.localbiz.fitnessclub://auth-callback`, i Android poprawnie wznawia
+   appkę przez `appUrlOpen` (widoczne w `adb logcat` jako `START ... dat=pl.localbiz.fitnessclub://
+   auth-callback/`). Ale `handleRedirectPromise()` rzuca `ServerError: AADSTS9002326 — Cross-origin
+   token redemption is permitted only for the 'Single-Page Application' client-type. Request origin:
+   'http://localhost'` — bo ten `fetch()` do endpointu tokenowego wykonuje się z poziomu JS w WebView
+   (origin `http://localhost`), a Entra pozwala na taką wymianę kodu na token z poziomu przeglądarki
+   tylko dla redirect URI zarejestrowanego pod platformą **"Single-page application"**. To nie jest
+   kwestia kodu appki — root cause i fix (Terraform, `Sandbox/iac`) w "Manualny krok CIAM w Azure
+   Portal" niżej.
 2. **`doLogout()` uproszczony** — czyści tylko lokalny cache MSAL (`clearCache`/`setActiveAccount(null)`)
    zamiast `logoutPopup()` (ten sam problem WebView co login). Świadomy kompromis: nie kończy sesji
    hostowanej po stronie Entra, więc kolejne logowanie może cicho się SSO-wać z powrotem przez cookie
@@ -103,14 +158,37 @@ praktyce żadnego importu z niego (tylko nieużywana wzmianka w `package.json`'s
    `libs/shared/iam-msal-external/src/services/` do `src/environments/` — świadome sprzężenie
    wendorowanej biblioteki z appką-hostem, nieuniknione przy tym podejściu.
 
-## Manualny krok CIAM w Azure Portal (blokujący, nie do zautomatyzowania)
+## Manualny krok CIAM w Azure Portal (blokujący, nie do zautomatyzowania) + redirect URI (IaC)
+
+**Tenant zmieniony (2026-07-24)**: `sandboxdevo` został usunięty, obecny CIAM tenant to
+`ciamlocalbiz` (login domain `localbiz.ciamlogin.com`) — wszystkie odniesienia do `sandboxdevo` w tym
+repo i w `Sandbox/src/Modules/Members/CLAUDE.md` są nieaktualne, sprawdzaj `ciamlocalbiz`.
 
 Zob. `Sandbox/src/Modules/Members/CLAUDE.md` → "IaC — krok ręczny": w Azure Portal (tenant
-`sandboxdevo`) trzeba ręcznie utworzyć User Flow Sign-up/Sign-in i powiązać go z app registration
-Members. **Dodatkowo dla tej appki**: redirect URI `pl.localbiz.clubhouse://auth-callback` musi zostać
-dodany jako dozwolony redirect URI na tym samym app registration (obok istniejących web redirect URIs
-dla Showcase/LocalBizWeb) — inaczej Entra odrzuci callback z "invalid redirect URI" niezależnie od tego,
-jak poprawny jest kod appki. Żaden test logowania end-to-end nie zadziała bez obu tych kroków.
+`ciamlocalbiz`) trzeba ręcznie utworzyć User Flow Sign-up/Sign-in i powiązać go z app registration
+Members — **to jedyny krok, którego Terraform naprawdę nie robi**. Żaden test logowania end-to-end
+nie zadziała bez niego.
+
+**Redirect URI `pl.localbiz.fitnessclub://auth-callback` NIE jest manualnym krokiem** — mimo że
+wcześniejsza wersja tej notatki tak twierdziła. Jest w pełni zarządzany Terraformem, w `Sandbox/iac`:
+`member_native_redirect_uris` (`Sandbox/iac/variables.tf`, wartość w `Sandbox/iac/env/{dev,prod}.tfvars`)
+→ `modules/azure-ad-external/ad-application-spa.tf`.
+
+**Znaleziony i potwierdzony blocker (2026-07-24, `AADSTS9002326`), naprawiony w kodzie Terraform** —
+`ad-application-spa.tf` rejestrował ten redirect URI w osobnym zasobie `azuread_application_redirect_uris`
+z `type = "PublicClient"` ("Mobile and desktop applications"), bo takie było (błędne) założenie w
+komentarzu przy tym kodzie. Ale wendorowany `msal-external-auth.service.ts` w tym repo nadal używa
+MSAL Browser, które wymienia kod na token przez `fetch()` wykonywany z poziomu WebView (origin
+`http://localhost`) — a Entra dopuszcza taką wymianę (cross-origin token redemption z poziomu
+przeglądarki) tylko dla redirect URI zarejestrowanych pod platformą **"Single-page application"**,
+niezależnie od tego, że to custom URI scheme, nie `https://`. Fix (już zaaplikowany w
+`Sandbox/iac/modules/azure-ad-external/ad-application-spa.tf`): `native_redirect_uris` scalone do
+tego samego bloku `type = "SPA"` co `spa_redirect_uris` (`concat(...)`), zamiast osobnego bloku
+PublicClient. **Wymaga `terraform apply` w `Sandbox/iac`, żeby zmiana faktycznie dotarła do Azure AD**
+— sama edycja `.tf` nic nie zmienia w tenantcie, dopóki ktoś nie odpali apply. Bez tego
+`handleRedirectPromise()` nadal będzie rzucać `ServerError: AADSTS9002326`, mimo że cała reszta flow
+(system browser, deep link, `appUrlOpen`) działa poprawnie — to nigdy nie był błąd w kodzie appki
+Clubhouse, tylko w konfiguracji app registration po stronie IaC.
 
 ## Brakujące endpointy backendu dodane przy okazji Task B/C/D (2026-07-18/21)
 
@@ -173,11 +251,16 @@ są zawsze per-konkretny-klub, osiągane z `ClubDetailPage`.
 ## Rebrand natywny
 
 `capacitor.config.ts`/`android/app/build.gradle`'s `applicationId`/`strings.xml`/iOS
-`PRODUCT_BUNDLE_IDENTIFIER` → `pl.localbiz.clubhouse`. **Nie zmieniono**: Android `namespace` w
-`build.gradle` zostaje `io.ionic.starter` (musi zgadzać się z faktyczną deklaracją `package` w
-`MainActivity.java`, która wciąż mówi `com.getcapacitor.myapp` — kosmetyczne/porządkowe, nie wpływa na
-tożsamość appki w sklepie, wymagałoby przeniesienia plików Javy, nie zrobione w tym zadaniu). Podpisywanie
-(signing config) Android/iOS — nie skonfigurowane, osobny krok użytkownika przed publikacją.
+`PRODUCT_BUNDLE_IDENTIFIER` → `pl.localbiz.fitnessclub`, `appName`/display name → "FitnessClub".
+**Historia (2026-07-24)**: appka była na krótko rebrandowana na `pl.localbiz.clubhouse`/"Clubhouse"
+(zgodnie z ówczesną nazwą repo), ale to zostało cofnięte z powrotem na `fitnessclub` — to jest
+ostateczna, docelowa tożsamość appki, mimo że repo samo w sobie nadal nazywa się `Clubhouse`. Wszystkie
+identyfikatory (bundle id, custom URL scheme dla deep linków, redirect URI w Azure) muszą się zgadzać
+na `pl.localbiz.fitnessclub`. **Nie zmieniono**: Android `namespace` w `build.gradle` zostaje
+`io.ionic.starter` (musi zgadzać się z faktyczną deklaracją `package` w `MainActivity.java`, która
+wciąż mówi `com.getcapacitor.myapp` — kosmetyczne/porządkowe, nie wpływa na tożsamość appki w sklepie,
+wymagałoby przeniesienia plików Javy, nie zrobione w tym zadaniu). Podpisywanie (signing config)
+Android/iOS — nie skonfigurowane, osobny krok użytkownika przed publikacją.
 
 ## Testing
 
@@ -186,9 +269,11 @@ pierwotnie) — nie traktować jak siatki bezpieczeństwa. `.github/workflows/bu
 repo robi tylko `lint` + `ng build` (web bundle) — **nie** builduje/podpisuje/publikuje Android/iOS,
 to świadomie poza zakresem, większa inwestycja CI na później.
 
-**Co nie zostało i nie mogło zostać zweryfikowane w żadnej sesji dotąd** (brak emulatora/urządzenia w
-środowisku) — pełna, aktualna lista: "Znane luki / do zrobienia" niżej. W skrócie: cały CIAM login
-round-trip, `npx cap sync android`/`ios`, i wszystko zależne od realnego urządzenia (push, P24 checkout).
+**Stan weryfikacji na realnym urządzeniu** (zob. "Test na fizycznym urządzeniu Android przez USB",
+2026-07-24): `npx cap sync android`/`npx cap run android` uruchomione i działające, bootstrap +
+otwarcie CIAM w system browserze potwierdzone. Wciąż niepotwierdzone: dokończenie CIAM round-tripu
+(powrót przez deep link), push notifications, P24 checkout, cokolwiek na iOS — pełna, aktualna lista:
+"Znane luki / do zrobienia" niżej.
 
 ## Push notifications — natywny FCM (decyzja 2026-07-21, nie web-push)
 
@@ -217,7 +302,7 @@ trzeba ręcznie wkleić do Key Vault po `terraform apply` (jak FCM/wFirma), kod 
 `await CarnetPaymentCallbackService.waitForReturn()` po `Browser.open()`, zamiast odświeżać stan
 karnetu od razu. Nowy serwis `core/services/carnet-payment-callback.service.ts` (mirror
 `msal-external-auth.service.ts` — własny `App.addListener('appUrlOpen', ...)`, własny prefiks
-`pl.localbiz.clubhouse://payment-callback`), nowy intent-filter host w
+`pl.localbiz.fitnessclub://payment-callback`), nowy intent-filter host w
 `android/app/src/main/AndroidManifest.xml` (iOS nic nie wymaga — `Info.plist` rejestruje tylko schemat,
 nie host). Backend: `GET api/carnets/p24/payment-callback` (`MemberCarnetsController`, `[AllowAnonymous]`)
 serwuje statyczną stronę-lądowisko przekierowującą na ten deep link; `p24carnets--returnUrl` (Terraform)
@@ -231,18 +316,25 @@ FCM/APNs, realna dostawa po triggerze (np. odwołanie sesji), i cały P24 checko
 
 ## Znane luki / do zrobienia (2026-07-21)
 
-- **CIAM login round-trip nadal niezweryfikowany end-to-end** — status User Flow w Azure Portalu
-  (tenant `sandboxdevo`) niepewny, użytkownik sam to sprawdza (zob. `Sandbox/src/Modules/Members/
-  CLAUDE.md` → "IaC — krok ręczny"). Backend/frontend obu stron gotowe, ale bez tego żaden realny test
-  logowania nie zadziała niezależnie od jakości kodu.
+- **CIAM login round-trip zweryfikowany end-to-end (2026-07-24), zablokowany na `AADSTS9002326`,
+  fix scommitowany, czeka na `terraform apply`** — na żywym urządzeniu (USB, zob. "Test na fizycznym
+  urządzeniu Android przez USB") appka poprawnie odpala system browser, loguje się, redirectuje przez
+  deep link, i Android poprawnie wznawia appkę przez `appUrlOpen`. Wymiana kodu na token w
+  `handleRedirectPromise()` kończyła się błędem Entra (tenant `ciamlocalbiz`) — root cause: redirect
+  URI `pl.localbiz.fitnessclub://auth-callback` był w `Sandbox/iac` zarejestrowany pod platformą
+  "Mobile and desktop applications" (PublicClient) zamiast "Single-page application". Naprawione w
+  `Sandbox/iac/modules/azure-ad-external/ad-application-spa.tf` (scalone do bloku `type = "SPA"`) —
+  zob. "Manualny krok CIAM w Azure Portal" wyżej. **Wymaga `terraform apply` w `Sandbox/iac`**, żeby
+  faktycznie zadziałało na żywym tenantcie — sam commit kodu nic nie zmienia w Azure AD.
 - **P24 sandbox nadal "documented, not live-verified"** (`Sandbox/src/Modules/Carnets/CLAUDE.md`) —
   realne pieniądze, nie testować na produkcyjnym storefroncie przed potwierdzeniem.
 - **Zestaw pytań ankiety zdrowotnej** (`health-questionnaire.page.ts`) to rozsądne minimum wymyślone na
   potrzeby v1 (3 toggle + notatka), nie ustalony z klientką zestaw — `AnswersJson` jest opaque po stronie
   backendu, więc zmiana formularza później nie wymaga migracji.
-- **`npx cap sync android`/`ios` nieuruchomione w tej sesji** (brak SDK/Xcode) — strukturalna poprawność
-  `AndroidManifest.xml`/`Info.plist`/`build.gradle` po dodaniu `@capacitor/push-notifications`
-  niepotwierdzona.
+- **`npx cap sync ios` nadal nieuruchomione** (brak Xcode) — strukturalna poprawność `Info.plist` po
+  dodaniu `@capacitor/push-notifications` niepotwierdzona. Android **zweryfikowany 2026-07-24** (zob.
+  "Test na fizycznym urządzeniu Android przez USB") — `AndroidManifest.xml`/`build.gradle` buildują się
+  i instalują poprawnie na realnym urządzeniu.
 - **CORS dla iOS** — dev CORS dopuszcza `http://localhost` (Android `androidScheme: 'http'`), ale
   domyślny schemat Capacitor dla iOS (`capacitor://localhost`) nie jest dziś na liście
   `member_native_app_cors_origins` (`Sandbox/iac/env/*.tfvars`) — do sprawdzenia przed testami na iOS.
