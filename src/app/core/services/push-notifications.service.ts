@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
 import { ToastController } from '@ionic/angular/standalone';
 import { NotificationsApiService } from './notifications-api.service';
+import { environment } from '../../../environments/environment';
 
 // Native FCM (Android) / APNs (iOS) push — deliberately NOT the browser Web-Push/VAPID flow the
 // backend also has, since a Capacitor WebView doesn't guarantee delivery-while-closed the way a real
@@ -16,7 +17,7 @@ export class PushNotificationsService {
   private initialized = false;
 
   async init(): Promise<void> {
-    if (this.initialized || !Capacitor.isNativePlatform()) return;
+    if (this.initialized || !Capacitor.isNativePlatform() || !environment.pushNotificationsEnabled) return;
     this.initialized = true;
 
     const permission = await PushNotifications.checkPermissions();

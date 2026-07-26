@@ -2,14 +2,14 @@
 
 ## Co to jest
 
-Clubhouse — natywna appka klubowicza (Android/iOS, Ionic 8 + Capacitor 7 + Angular 20) platformy
+FitnessClub — natywna appka klubowicza (Android/iOS, Ionic 8 + Capacitor 7 + Angular 20) platformy
 LocalBiz. Wyekstrahowana 2026-07-18 z `Sandbox/src/Clients/Mobile` (dawniej opisywana jako appka
 właściciela — w praktyce zawierała martwy kod po nieudanym pivocie w stronę weryfikacji autentyczności
 produktów; ten kod został usunięty, nie zmigrowany).
 
-**Nazewnictwo — repo vs. tożsamość appki (2026-07-24)**: "Clubhouse" to nazwa repo/projektu, nie
+**Nazewnictwo — repo vs. tożsamość appki (2026-07-24)**: "FitnessClub" to nazwa repo/projektu, nie
 zmienia się. Rzeczywista tożsamość natywna appki (bundle id/`applicationId`, display name, custom
-URL scheme) była na krótko rebrandowana na `pl.localbiz.clubhouse`/"Clubhouse", ale to zostało
+URL scheme) była na krótko rebrandowana na `pl.localbiz.fitnessClub`/"FitnessClub", ale to zostało
 cofnięte z powrotem na `pl.localbiz.fitnessclub`/"FitnessClub" — to jest ostateczny, docelowy stan
 (nie stary/martwy kod do posprzątania). Zob. "Rebrand natywny" niżej po aktualne wartości.
 
@@ -19,7 +19,7 @@ Trzy frontendy platformy LocalBiz, wszystkie mówiące z jednym backendem w repo
 |---|---|---|
 | LocalBizWeb | `Sandbox/src/Clients/LocalBizWeb` | właściciel klubu (panel `/club`: grafik, karnety) |
 | Showcase | `Workspace/Showcase` (osobne repo) | odwiedzający — publiczna wizytówka, **bez logowania** |
-| **Clubhouse** | `Workspace/Clubhouse` (to repo) | klubowicz — logowanie, grafik, karnety, zgody |
+| **FitnessClub** | `Workspace/FitnessClub` (to repo) | klubowicz — logowanie, grafik, karnety, zgody |
 
 Pełny kontrakt backendu (Members/Classes/Carnets/Notifications, endpointy member-facing):
 `Sandbox/ai/BACKEND_CAPABILITIES.md` + per-moduł `CLAUDE.md` w `Sandbox/src/Modules/*/CLAUDE.md`.
@@ -307,9 +307,9 @@ są zawsze per-konkretny-klub, osiągane z `ClubDetailPage`.
 
 `capacitor.config.ts`/`android/app/build.gradle`'s `applicationId`/`strings.xml`/iOS
 `PRODUCT_BUNDLE_IDENTIFIER` → `pl.localbiz.fitnessclub`, `appName`/display name → "FitnessClub".
-**Historia (2026-07-24)**: appka była na krótko rebrandowana na `pl.localbiz.clubhouse`/"Clubhouse"
+**Historia (2026-07-24)**: appka była na krótko rebrandowana na `pl.localbiz.fitnessClub`/"FitnessClub"
 (zgodnie z ówczesną nazwą repo), ale to zostało cofnięte z powrotem na `fitnessclub` — to jest
-ostateczna, docelowa tożsamość appki, mimo że repo samo w sobie nadal nazywa się `Clubhouse`. Wszystkie
+ostateczna, docelowa tożsamość appki, mimo że repo samo w sobie nadal nazywa się `FitnessClub`. Wszystkie
 identyfikatory (bundle id, custom URL scheme dla deep linków, redirect URI w Azure) muszą się zgadzać
 na `pl.localbiz.fitnessclub`. **Nie zmieniono**: Android `namespace` w `build.gradle` zostaje
 `io.ionic.starter` (musi zgadzać się z faktyczną deklaracją `package` w `MainActivity.java`, która

@@ -20,7 +20,7 @@ export const GEOLOCATION_PLUGIN = new InjectionToken<typeof Geolocation>('GEOLOC
   factory: () => Geolocation
 });
 
-// Clubhouse is the Fitness-vertical app — every discovery request is scoped to storefronts that both
+// FitnessClub is the Fitness-vertical app — every discovery request is scoped to storefronts that both
 // declare BusinessType=Fitness AND have every Services label a member needs already enabled (grafik +
 // karnety + lista klubowiczów). See Sandbox's BrowsePublicStorefrontsHandler for the actual filtering.
 const FITNESS_BUSINESS_TYPE = 'Fitness';

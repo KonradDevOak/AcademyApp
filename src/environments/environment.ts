@@ -10,7 +10,14 @@ export const environment = {
   // Physical device over USB: run `adb reverse tcp:4214 tcp:4214` so the device's own
   // `localhost:4214` is forwarded over the USB/adb link to this port on the host — no Wi-Fi,
   // no LAN IP, no firewall involved. Re-run the adb reverse after every USB reconnect.
-  apiUrl: 'http://localhost:4214'
+  apiUrl: 'http://localhost:4214',
   // apiUrl: 'http://10.0.2.2:5000'
   // apiUrl: 'http://192.168.0.177:4214'  // LAN IP variant, only if going over Wi-Fi instead
+
+  // No real Firebase project/`google-services.json` provisioned yet (see CLAUDE.md "Push
+  // notifications" — FCM credentials still unconfirmed). Without it, `PushNotifications.register()`
+  // calls `FirebaseMessaging.getInstance()` natively, which throws `IllegalStateException` on a
+  // background thread and crashes the whole app — a JS try/catch can't stop it, since the exception
+  // never makes it back across the plugin bridge. Flip to `true` once `google-services.json` is real.
+  pushNotificationsEnabled: false
 };
