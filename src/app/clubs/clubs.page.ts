@@ -1,24 +1,27 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
   IonTitle,
   IonContent,
+  IonGrid,
+  IonRow,
+  IonCol,
   IonCard,
+  IonCardHeader,
+  IonCardTitle,
   IonCardContent,
-  IonItem,
-  IonLabel,
   IonButton,
-  IonList,
   IonIcon,
   IonText,
   AlertController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { peopleOutline, searchOutline, exitOutline, chevronForwardOutline } from 'ionicons/icons';
+import { peopleOutline, searchOutline, exitOutline, checkmarkCircle } from 'ionicons/icons';
 import { MembersApiService } from '../core/services/members-api.service';
+import { StorefrontContextService } from '../core/services/storefront-context.service';
 import { MembershipDto } from '../core/models/member.model';
 import { ManualJoinComponent } from '../components/manual-join/manual-join.component';
 
@@ -28,17 +31,18 @@ import { ManualJoinComponent } from '../components/manual-join/manual-join.compo
   styleUrls: ['clubs.page.scss'],
   imports: [
     CommonModule,
-    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonContent,
+    IonGrid,
+    IonRow,
+    IonCol,
     IonCard,
+    IonCardHeader,
+    IonCardTitle,
     IonCardContent,
-    IonItem,
-    IonLabel,
     IonButton,
-    IonList,
     IonIcon,
     IonText,
     ManualJoinComponent
@@ -46,14 +50,16 @@ import { ManualJoinComponent } from '../components/manual-join/manual-join.compo
 })
 export class ClubsPage implements OnInit {
   private membersApi = inject(MembersApiService);
+  private storefrontContext = inject(StorefrontContextService);
   private alertController = inject(AlertController);
   private router = inject(Router);
 
   memberships: MembershipDto[] = [];
   isLoading = true;
+  activeStorefrontId: string | null = null;
 
   constructor() {
-    addIcons({ peopleOutline, searchOutline, exitOutline, chevronForwardOutline });
+    addIcons({ peopleOutline, searchOutline, exitOutline, checkmarkCircle });
   }
 
   ngOnInit() {
@@ -63,9 +69,10 @@ export class ClubsPage implements OnInit {
   loadMemberships() {
     this.isLoading = true;
     this.membersApi.getMyMemberships().subscribe({
-      next: (memberships) => {
+      next: async (memberships) => {
         this.memberships = memberships;
         this.isLoading = false;
+        this.activeStorefrontId = await this.storefrontContext.getPersistedIfValid(memberships);
       },
       error: (error: unknown) => {
         console.error('Failed to load memberships:', error);
@@ -76,6 +83,27 @@ export class ClubsPage implements OnInit {
 
   goToFindClub() {
     this.router.navigateByUrl('/find-club');
+  }
+
+  // Tapping a tile both marks it as the active club (for Grafik/Karnet) and decides where to land:
+  // straight to Grafik once consents are out of the way, otherwise the club hub (Zgody/Ankieta) as today.
+  async selectClub(membership: MembershipDto) {
+    await this.storefrontContext.select(membership.storefrontId);
+    this.activeStorefrontId = membership.storefrontId;
+
+    this.membersApi.getPendingConsents(membership.storefrontId).subscribe({
+      next: (consents) => {
+        if (consents.length === 0) {
+          this.router.navigateByUrl('/tabs/schedule');
+        } else {
+          this.router.navigate(['/tabs/clubs', membership.storefrontId]);
+        }
+      },
+      error: (error: unknown) => {
+        console.error('Failed to load pending consents:', error);
+        this.router.navigate(['/tabs/clubs', membership.storefrontId]);
+      }
+    });
   }
 
   async confirmLeave(storefrontId: string) {

@@ -74,6 +74,7 @@ export class CarnetPage implements OnInit {
   private loadingController = inject(LoadingController);
 
   storefrontId: string | null = null;
+  activeStorefrontName: string | null = null;
   hasNoClubs = false;
   isLoading = true;
   carnet: CarnetDto | null = null;
@@ -100,6 +101,7 @@ export class CarnetPage implements OnInit {
       next: async (memberships) => {
         const storefrontId = await this.storefrontContext.resolve(memberships);
         this.storefrontId = storefrontId;
+        this.activeStorefrontName = memberships.find((m) => m.storefrontId === storefrontId)?.storefrontName ?? null;
         this.hasNoClubs = memberships.length === 0;
 
         if (!storefrontId) {

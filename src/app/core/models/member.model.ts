@@ -9,6 +9,7 @@ export interface MembershipDto {
   storefrontId: string;
   joinedAt: string;
   storefrontName: string | null;
+  businessType?: string | null;
 }
 
 export interface PendingConsentDto {

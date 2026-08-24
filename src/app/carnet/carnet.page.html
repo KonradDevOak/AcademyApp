@@ -2,6 +2,9 @@
   <ion-toolbar color="primary">
     <ion-title>Karnet</ion-title>
   </ion-toolbar>
+  <ion-toolbar *ngIf="activeStorefrontName">
+    <ion-title size="small">{{ activeStorefrontName }}</ion-title>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">

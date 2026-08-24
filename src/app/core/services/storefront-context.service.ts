@@ -63,6 +63,14 @@ export class StorefrontContextService {
     return this.pickStorefront(memberships);
   }
 
+  // Read-only variant of resolve(): never auto-selects a single membership and never opens the picker.
+  // Used to check "is a club already chosen" without forcing a choice — e.g. deciding whether to land
+  // on Grafik straight after login/app restart, or highlighting the active tile on "Moje kluby".
+  async getPersistedIfValid(memberships: MembershipDto[]): Promise<string | null> {
+    await this.restore();
+    return this.current && memberships.some((m) => m.storefrontId === this.current) ? this.current : null;
+  }
+
   async pickStorefront(memberships: MembershipDto[]): Promise<string | null> {
     return new Promise((resolve) => {
       this.actionSheetController

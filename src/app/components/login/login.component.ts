@@ -10,6 +10,7 @@ import {
 import { tap, catchError, of, filter } from 'rxjs';
 import { MsalExternalAuthService } from '@shared/iam-msal-external';
 import { MembersApiService } from '../../core/services/members-api.service';
+import { StorefrontContextService } from '../../core/services/storefront-context.service';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +26,7 @@ import { MembersApiService } from '../../core/services/members-api.service';
 export class LoginComponent implements OnInit, OnDestroy {
   private msalAuthService = inject(MsalExternalAuthService);
   private membersApi = inject(MembersApiService);
+  private storefrontContext = inject(StorefrontContextService);
   private router = inject(Router);
   private loadingController = inject(LoadingController);
   private toastController = inject(ToastController);
@@ -186,12 +188,28 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (!member || !member.profileCompletedAt) {
           this.router.navigate(['/complete-profile']);
         } else {
-          this.router.navigate(['/tabs']);
+          this.routeToActiveClubOrTabs();
         }
       },
       error: (error: unknown) => {
         console.error('GET members/me failed after login:', error);
         this.router.navigate(['/complete-profile']);
+      }
+    });
+  }
+
+  // Skips the "Moje kluby" landing tab straight to Grafik when a club is already the remembered
+  // active one (set by tapping a tile on "Moje kluby") — covers both fresh login and app-restart
+  // (ngOnInit calls handleSuccessfulLogin() the same way when the MSAL session is already live).
+  private routeToActiveClubOrTabs() {
+    this.membersApi.getMyMemberships().subscribe({
+      next: async (memberships) => {
+        const activeStorefrontId = await this.storefrontContext.getPersistedIfValid(memberships);
+        this.router.navigate([activeStorefrontId ? '/tabs/schedule' : '/tabs']);
+      },
+      error: (error: unknown) => {
+        console.error('Failed to load memberships after login:', error);
+        this.router.navigate(['/tabs']);
       }
     });
   }

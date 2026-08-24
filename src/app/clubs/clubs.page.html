@@ -10,19 +10,44 @@
     Znajdź klub
   </ion-button>
 
-  <ion-list *ngIf="!isLoading && memberships.length > 0">
-    <ion-item *ngFor="let membership of memberships" [routerLink]="['/tabs/clubs', membership.storefrontId]" button>
-      <ion-icon name="people-outline" slot="start"></ion-icon>
-      <ion-label>
-        <h2>{{ membership.storefrontName ?? 'Klub ' + membership.storefrontId.substring(0, 8) }}</h2>
-        <p>Dołączono: {{ membership.joinedAt | date: 'dd.MM.yyyy' }}</p>
-      </ion-label>
-      <ion-button fill="clear" color="danger" (click)="$event.stopPropagation(); confirmLeave(membership.storefrontId)">
-        <ion-icon name="exit-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-icon name="chevron-forward-outline" slot="end" color="medium"></ion-icon>
-    </ion-item>
-  </ion-list>
+  <ion-grid *ngIf="!isLoading && memberships.length > 0">
+    <ion-row>
+      <ion-col size="6" *ngFor="let membership of memberships">
+        <ion-card
+          button
+          class="club-tile"
+          [class.selected]="membership.storefrontId === activeStorefrontId"
+          (click)="selectClub(membership)"
+        >
+          <ion-icon
+            *ngIf="membership.storefrontId === activeStorefrontId"
+            name="checkmark-circle"
+            color="success"
+            class="active-badge"
+          ></ion-icon>
+          <ion-button
+            fill="clear"
+            color="danger"
+            size="small"
+            class="leave-button"
+            (click)="$event.stopPropagation(); confirmLeave(membership.storefrontId)"
+          >
+            <ion-icon name="exit-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-card-header>
+            <ion-icon name="people-outline"></ion-icon>
+            <ion-card-title>{{ membership.storefrontName ?? 'Klub ' + membership.storefrontId.substring(0, 8) }}</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <p>Dołączono: {{ membership.joinedAt | date: 'dd.MM.yyyy' }}</p>
+            <p *ngIf="membership.businessType && membership.businessType !== 'Fitness'">
+              <ion-text color="warning">Ten klub zmienił profil działalności i może nie być już aktywnym klubem fitness.</ion-text>
+            </p>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <div class="empty-state" *ngIf="!isLoading && memberships.length === 0">
     <ion-text color="medium">

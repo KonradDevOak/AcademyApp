@@ -16,7 +16,7 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { documentTextOutline, checkmarkCircleOutline, openOutline } from 'ionicons/icons';
+import { documentTextOutline, checkmarkCircleOutline, checkmarkCircle, openOutline } from 'ionicons/icons';
 import { Browser } from '@capacitor/browser';
 import { MembersApiService } from '../core/services/members-api.service';
 import { PendingConsentDto } from '../core/models/member.model';
@@ -54,7 +54,7 @@ export class ConsentsPage implements OnInit {
   isSubmitting = false;
 
   constructor() {
-    addIcons({ documentTextOutline, checkmarkCircleOutline, openOutline });
+    addIcons({ documentTextOutline, checkmarkCircleOutline, checkmarkCircle, openOutline });
   }
 
   ngOnInit() {

@@ -2,6 +2,9 @@
   <ion-toolbar color="primary">
     <ion-title>Grafik zajęć</ion-title>
   </ion-toolbar>
+  <ion-toolbar *ngIf="activeStorefrontName">
+    <ion-title size="small">{{ activeStorefrontName }}</ion-title>
+  </ion-toolbar>
   <ion-toolbar>
     <ion-segment [(ngModel)]="segment" [ngModelOptions]="{ standalone: true }">
       <ion-segment-button value="sessions">
@@ -34,10 +37,6 @@
   </div>
 
   <ng-container *ngIf="!isLoading && !hasNoClubs && storefrontId">
-    <ion-button fill="clear" size="small" (click)="changeClub()" class="ion-margin-start">
-      Zmień klub
-    </ion-button>
-
     <ion-list *ngIf="segment === 'sessions'">
       <ion-item *ngFor="let session of sessions">
         <ion-icon name="calendar-outline" slot="start"></ion-icon>

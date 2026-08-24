@@ -34,9 +34,10 @@
       </ion-item>
     </ion-list>
 
-    <div class="empty-state" *ngIf="pendingConsents.length === 0">
-      <ion-text color="medium">
-        <p>Nie ma żadnych oczekujących zgód.</p>
+    <div class="all-done" *ngIf="pendingConsents.length === 0 || allAccepted">
+      <ion-icon name="checkmark-circle" color="success"></ion-icon>
+      <ion-text color="success">
+        <p>Zgody zaakceptowane</p>
       </ion-text>
     </div>
 

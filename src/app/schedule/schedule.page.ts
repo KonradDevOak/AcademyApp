@@ -29,7 +29,6 @@ import { ClassesApiService } from '../core/services/classes-api.service';
 import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
 import { MakeupCreditDto, MemberSessionDto, MyEnrollmentDto } from '../core/models/classes.model';
-import { MembershipDto } from '../core/models/member.model';
 
 type ScheduleSegment = 'sessions' | 'enrollments' | 'makeupCredits';
 
@@ -67,6 +66,7 @@ export class SchedulePage implements OnInit {
   private toastController = inject(ToastController);
 
   storefrontId: string | null = null;
+  activeStorefrontName: string | null = null;
   hasNoClubs = false;
   isLoading = true;
   segment: ScheduleSegment = 'sessions';
@@ -89,6 +89,7 @@ export class SchedulePage implements OnInit {
       next: async (memberships) => {
         const storefrontId = await this.storefrontContext.resolve(memberships);
         this.storefrontId = storefrontId;
+        this.activeStorefrontName = memberships.find((m) => m.storefrontId === storefrontId)?.storefrontName ?? null;
         this.hasNoClubs = memberships.length === 0;
 
         if (!storefrontId) {
@@ -137,17 +138,6 @@ export class SchedulePage implements OnInit {
 
   refresh(event: RefresherCustomEvent) {
     this.load(event);
-  }
-
-  async changeClub() {
-    const memberships = await new Promise<MembershipDto[]>((resolve) =>
-      this.membersApi.getMyMemberships().subscribe({ next: resolve, error: () => resolve([]) })
-    );
-    const chosen = await this.storefrontContext.pickStorefront(memberships);
-    if (chosen) {
-      this.storefrontId = chosen;
-      this.loadScheduleData(chosen);
-    }
   }
 
   enrollmentFor(sessionId: string): MyEnrollmentDto | undefined {
