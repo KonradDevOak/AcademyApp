@@ -1,10 +1,18 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Preferences } from '@capacitor/preferences';
 import { ActionSheetController } from '@ionic/angular/standalone';
 import { MembershipDto } from '../models/member.model';
+import { StorefrontImageDto } from '../models/storefront.model';
+import { MembershipsCacheService } from './memberships-cache.service';
 
 const STORAGE_KEY = 'selected-storefront-id';
+
+export interface ActiveClubBackground {
+  dark: StorefrontImageDto | null;
+  light: StorefrontImageDto | null;
+}
 
 // Grafik/Karnet are storefront-scoped, but a member can belong to several clubs — this holds "which
 // club am I currently looking at" so those tabs don't force a picker tap on every visit for the common
@@ -12,10 +20,26 @@ const STORAGE_KEY = 'selected-storefront-id';
 @Injectable({ providedIn: 'root' })
 export class StorefrontContextService {
   private readonly actionSheetController = inject(ActionSheetController);
+  private readonly membershipsCache = inject(MembershipsCacheService);
   private readonly subject = new BehaviorSubject<string | null>(null);
   private restored = false;
 
   readonly selectedStorefrontId$ = this.subject.asObservable();
+
+  // Drives the app-wide background layer (app.component) and reacts to both "which club is active"
+  // and "did that club's membership data (incl. images) change" — e.g. once MembershipsCacheService
+  // finishes its first fetch, or after a refresh(). Null while no club is active or the active id no
+  // longer matches a current membership (e.g. just left that club).
+  readonly activeClubBackground$ = combineLatest([this.selectedStorefrontId$, this.membershipsCache.memberships$]).pipe(
+    map(([storefrontId, memberships]): ActiveClubBackground | null => {
+      const membership = memberships.find((m) => m.storefrontId === storefrontId);
+      if (!membership) return null;
+      return {
+        dark: membership.clubBackgroundDarkImage ?? null,
+        light: membership.clubBackgroundLightImage ?? null
+      };
+    })
+  );
 
   get current(): string | null {
     return this.subject.value;

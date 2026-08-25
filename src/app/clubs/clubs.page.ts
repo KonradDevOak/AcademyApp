@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
@@ -20,10 +20,14 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { peopleOutline, searchOutline, exitOutline, checkmarkCircle } from 'ionicons/icons';
+import { Subscription } from 'rxjs';
 import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
+import { MembershipsCacheService } from '../core/services/memberships-cache.service';
+import { ThemeService } from '../core/services/theme.service';
 import { MembershipDto } from '../core/models/member.model';
 import { ManualJoinComponent } from '../components/manual-join/manual-join.component';
+import { pickBackgroundImage } from '../core/utils/club-background.util';
 
 @Component({
   selector: 'app-clubs',
@@ -48,37 +52,69 @@ import { ManualJoinComponent } from '../components/manual-join/manual-join.compo
     ManualJoinComponent
   ],
 })
-export class ClubsPage implements OnInit {
+export class ClubsPage implements OnInit, OnDestroy {
   private membersApi = inject(MembersApiService);
   private storefrontContext = inject(StorefrontContextService);
+  private membershipsCache = inject(MembershipsCacheService);
+  private themeService = inject(ThemeService);
   private alertController = inject(AlertController);
   private router = inject(Router);
+  private themeSubscription?: Subscription;
 
   memberships: MembershipDto[] = [];
   isLoading = true;
   activeStorefrontId: string | null = null;
+  isDarkTheme = false;
 
   constructor() {
     addIcons({ peopleOutline, searchOutline, exitOutline, checkmarkCircle });
   }
 
   ngOnInit() {
+    this.themeSubscription = this.themeService.preference$.subscribe((preference) => {
+      this.isDarkTheme = this.themeService.isDarkFor(preference);
+    });
     this.loadMemberships();
   }
 
-  loadMemberships() {
+  ngOnDestroy() {
+    this.themeSubscription?.unsubscribe();
+  }
+
+  // Cache-first (see MembershipsCacheService) — used for the initial load so the tile grid can render
+  // instantly from a warm cache instead of always waiting on a network round-trip.
+  async loadMemberships() {
     this.isLoading = true;
-    this.membersApi.getMyMemberships().subscribe({
-      next: async (memberships) => {
-        this.memberships = memberships;
-        this.isLoading = false;
-        this.activeStorefrontId = await this.storefrontContext.getPersistedIfValid(memberships);
-      },
-      error: (error: unknown) => {
-        console.error('Failed to load memberships:', error);
-        this.isLoading = false;
-      }
-    });
+    try {
+      this.memberships = await this.membershipsCache.getOrRefresh();
+      this.activeStorefrontId = await this.storefrontContext.getPersistedIfValid(this.memberships);
+    } catch (error: unknown) {
+      console.error('Failed to load memberships:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // Bypasses the cache — used after an action that actually changed the membership list (join/leave),
+  // so the new/removed tile shows up immediately instead of waiting out the cache's staleness window.
+  async refreshMemberships() {
+    this.isLoading = true;
+    try {
+      this.memberships = await this.membershipsCache.refresh();
+      this.activeStorefrontId = await this.storefrontContext.getPersistedIfValid(this.memberships);
+    } catch (error: unknown) {
+      console.error('Failed to refresh memberships:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  backgroundFor(membership: MembershipDto): string | null {
+    return pickBackgroundImage(
+      membership.clubBackgroundDarkImage ?? null,
+      membership.clubBackgroundLightImage ?? null,
+      this.isDarkTheme
+    );
   }
 
   goToFindClub() {
@@ -124,7 +160,7 @@ export class ClubsPage implements OnInit {
 
   private leave(storefrontId: string) {
     this.membersApi.leave(storefrontId).subscribe({
-      next: () => this.loadMemberships(),
+      next: () => this.refreshMemberships(),
       error: (error: unknown) => console.error('Failed to leave storefront:', error)
     });
   }

@@ -1,20 +1,20 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
-    <ion-title>Grafik zajęć</ion-title>
-  </ion-toolbar>
-  <ion-toolbar *ngIf="activeStorefrontName">
-    <ion-title size="small">{{ activeStorefrontName }}</ion-title>
+    <ion-title>
+      Grafik zajęć
+      <div class="storefront-label" *ngIf="activeStorefrontName">{{ activeStorefrontName }}</div>
+    </ion-title>
   </ion-toolbar>
   <ion-toolbar>
     <ion-segment [(ngModel)]="segment" [ngModelOptions]="{ standalone: true }">
-      <ion-segment-button value="sessions">
-        <ion-label>Zajęcia</ion-label>
-      </ion-segment-button>
       <ion-segment-button value="enrollments">
         <ion-label>Moje zapisy</ion-label>
       </ion-segment-button>
       <ion-segment-button value="makeupCredits">
-        <ion-label>Odrobienia</ion-label>
+        <ion-label>Do odrobienia</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="sessions">
+        <ion-label>Zajęcia</ion-label>
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
@@ -37,39 +37,6 @@
   </div>
 
   <ng-container *ngIf="!isLoading && !hasNoClubs && storefrontId">
-    <ion-list *ngIf="segment === 'sessions'">
-      <ion-item *ngFor="let session of sessions">
-        <ion-icon name="calendar-outline" slot="start"></ion-icon>
-        <ion-label class="ion-text-wrap">
-          <h2>{{ session.classTypeName }}</h2>
-          <p>{{ session.date }} • {{ session.startTime.substring(0, 5) }}–{{ session.endTime.substring(0, 5) }} • {{ session.trainerName }}</p>
-          <p>{{ session.roomName }} • wolne miejsca: {{ session.seatsRemaining }}/{{ session.capacity }}</p>
-        </ion-label>
-
-        <ng-container *ngIf="enrollmentFor(session.id) as enrollment; else notEnrolled">
-          <ion-badge slot="end" [color]="isWaitlisted(enrollment) ? 'warning' : 'success'">
-            {{ isWaitlisted(enrollment) ? 'lista rezerwowa' : 'zapisano' }}
-          </ion-badge>
-          <ion-button slot="end" fill="clear" (click)="unenroll(enrollment)">Wypisz</ion-button>
-          <ion-button slot="end" fill="clear" color="medium" (click)="reportAbsence(enrollment)" *ngIf="!isWaitlisted(enrollment)">
-            Zgłoś nieobecność
-          </ion-button>
-        </ng-container>
-        <ng-template #notEnrolled>
-          <ion-button slot="end" *ngIf="session.seatsRemaining > 0" (click)="enroll(session)">Zapisz się</ion-button>
-          <ion-button slot="end" fill="outline" *ngIf="session.seatsRemaining <= 0" (click)="joinWaitlist(session)">
-            Lista rezerwowa
-          </ion-button>
-        </ng-template>
-      </ion-item>
-
-      <div class="empty-state ion-padding" *ngIf="sessions.length === 0">
-        <ion-text color="medium">
-          <p>Brak zajęć w najbliższych 14 dniach.</p>
-        </ion-text>
-      </div>
-    </ion-list>
-
     <ion-list *ngIf="segment === 'enrollments'">
       <ion-item *ngFor="let enrollment of enrollments">
         <ion-icon name="people-outline" slot="start"></ion-icon>
@@ -99,6 +66,39 @@
       <div class="empty-state ion-padding" *ngIf="makeupCredits.length === 0">
         <ion-text color="medium">
           <p>Brak dostępnych odrobień.</p>
+        </ion-text>
+      </div>
+    </ion-list>
+
+    <ion-list *ngIf="segment === 'sessions'">
+      <ion-item *ngFor="let session of sessions">
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        <ion-label class="ion-text-wrap">
+          <h2>{{ session.classTypeName }}</h2>
+          <p>{{ session.date }} • {{ session.startTime.substring(0, 5) }}–{{ session.endTime.substring(0, 5) }} • {{ session.trainerName }}</p>
+          <p>{{ session.roomName }} • wolne miejsca: {{ session.seatsRemaining }}/{{ session.capacity }}</p>
+        </ion-label>
+
+        <ng-container *ngIf="enrollmentFor(session.id) as enrollment; else notEnrolled">
+          <ion-badge slot="end" [color]="isWaitlisted(enrollment) ? 'warning' : 'success'">
+            {{ isWaitlisted(enrollment) ? 'lista rezerwowa' : 'zapisano' }}
+          </ion-badge>
+          <ion-button slot="end" fill="clear" (click)="unenroll(enrollment)">Wypisz</ion-button>
+          <ion-button slot="end" fill="clear" color="medium" (click)="reportAbsence(enrollment)" *ngIf="!isWaitlisted(enrollment)">
+            Zgłoś nieobecność
+          </ion-button>
+        </ng-container>
+        <ng-template #notEnrolled>
+          <ion-button slot="end" *ngIf="session.seatsRemaining > 0" (click)="enroll(session)">Zapisz się</ion-button>
+          <ion-button slot="end" fill="outline" *ngIf="session.seatsRemaining <= 0" (click)="joinWaitlist(session)">
+            Lista rezerwowa
+          </ion-button>
+        </ng-template>
+      </ion-item>
+
+      <div class="empty-state ion-padding" *ngIf="sessions.length === 0">
+        <ion-text color="medium">
+          <p>Brak zajęć w najbliższych 14 dniach.</p>
         </ion-text>
       </div>
     </ion-list>

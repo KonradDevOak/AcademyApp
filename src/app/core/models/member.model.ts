@@ -1,3 +1,5 @@
+import { StorefrontImageDto } from './storefront.model';
+
 export interface MemberDto {
   id: string;
   email: string;
@@ -10,6 +12,10 @@ export interface MembershipDto {
   joinedAt: string;
   storefrontName: string | null;
   businessType?: string | null;
+  // Owner-uploaded per-club background images (FileHub "backgrounds/club"), null until uploaded or
+  // when the backend's Storefronts/FileHub lookup fails — see StorefrontContextService.
+  clubBackgroundDarkImage?: StorefrontImageDto | null;
+  clubBackgroundLightImage?: StorefrontImageDto | null;
 }
 
 export interface PendingConsentDto {

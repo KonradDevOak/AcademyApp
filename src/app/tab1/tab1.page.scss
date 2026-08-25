@@ -1,5 +1,7 @@
+// Lets app-club-background (app.component.html) show through when the active club has a background
+// image — a no-op when it doesn't, since the layer then renders no background-image at all.
 .profile-content {
-  --background: #f8f9fa;
+  --background: transparent;
 }
 
 .profile-container {
@@ -179,10 +181,6 @@
 
 // Dark mode support
 @media (prefers-color-scheme: dark) {
-  .profile-content {
-    --background: #1a1a1a;
-  }
-
   .profile-card,
   .stats-card,
   .menu-card {

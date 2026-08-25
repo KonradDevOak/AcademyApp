@@ -1,3 +1,9 @@
+// Lets app-club-background (app.component.html) show through when the active club has a background
+// image — a no-op when it doesn't, since the layer then renders no background-image at all.
+ion-content {
+  --background: transparent;
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -5,4 +11,10 @@
   gap: 8px;
   text-align: center;
   margin-top: 32px;
+}
+
+.storefront-label {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.85;
 }

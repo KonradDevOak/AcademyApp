@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { catchError, forkJoin, of } from 'rxjs';
 import {
   IonHeader,
   IonToolbar,
@@ -70,6 +71,7 @@ export class SchedulePage implements OnInit {
   hasNoClubs = false;
   isLoading = true;
   segment: ScheduleSegment = 'sessions';
+  private hasSetInitialSegment = false;
 
   sessions: MemberSessionDto[] = [];
   enrollments: MyEnrollmentDto[] = [];
@@ -112,28 +114,74 @@ export class SchedulePage implements OnInit {
     const from = this.formatDate(new Date());
     const to = this.formatDate(this.addDays(new Date(), 14));
 
-    this.classesApi.getSessions(storefrontId, from, to).subscribe({
-      next: (sessions) => (this.sessions = sessions),
-      error: (error: unknown) => console.error('Failed to load sessions:', error)
-    });
+    forkJoin({
+      sessions: this.classesApi.getSessions(storefrontId, from, to).pipe(
+        catchError((error: unknown) => {
+          console.error('Failed to load sessions:', error);
+          return of([] as MemberSessionDto[]);
+        })
+      ),
+      enrollments: this.classesApi.getMyEnrollments(storefrontId).pipe(
+        catchError((error: unknown) => {
+          console.error('Failed to load enrollments:', error);
+          return of([] as MyEnrollmentDto[]);
+        })
+      ),
+      makeupCredits: this.classesApi.getMyMakeupCredits(storefrontId).pipe(
+        catchError((error: unknown) => {
+          console.error('Failed to load makeup credits:', error);
+          return of([] as MakeupCreditDto[]);
+        })
+      )
+    }).subscribe(({ sessions, enrollments, makeupCredits }) => {
+      this.sessions = sessions;
+      this.enrollments = enrollments;
+      this.makeupCredits = makeupCredits;
 
-    this.classesApi.getMyEnrollments(storefrontId).subscribe({
-      next: (enrollments) => (this.enrollments = enrollments),
-      error: (error: unknown) => console.error('Failed to load enrollments:', error)
-    });
-
-    this.classesApi.getMyMakeupCredits(storefrontId).subscribe({
-      next: (credits) => {
-        this.makeupCredits = credits;
-        this.isLoading = false;
-        refresherEvent?.target.complete();
-      },
-      error: (error: unknown) => {
-        console.error('Failed to load makeup credits:', error);
-        this.isLoading = false;
-        refresherEvent?.target.complete();
+      if (!this.hasSetInitialSegment) {
+        this.segment = this.computeDefaultSegment();
+        this.hasSetInitialSegment = true;
       }
+
+      this.isLoading = false;
+      refresherEvent?.target.complete();
     });
+  }
+
+  private computeDefaultSegment(): ScheduleSegment {
+    const confirmedEnrollments = this.enrollments.filter((e) => e.status === 'Confirmed');
+    const availableCredits = this.makeupCredits.filter((c) => c.status === 'Available');
+
+    if (confirmedEnrollments.length === 0 && availableCredits.length === 0) {
+      return 'sessions';
+    }
+
+    if (confirmedEnrollments.length > 0 && availableCredits.length === 0) {
+      return 'enrollments';
+    }
+
+    if (confirmedEnrollments.length === 0 && availableCredits.length > 0) {
+      return 'makeupCredits';
+    }
+
+    const nearestEnrollmentDate = this.nearestDate(
+      confirmedEnrollments.map((e) => this.sessionDateTime(e.sessionId)).filter((d): d is Date => d !== null)
+    );
+    const nearestCreditExpiry = this.nearestDate(availableCredits.map((c) => new Date(c.expiresAt)));
+
+    if (nearestEnrollmentDate && nearestCreditExpiry) {
+      return nearestEnrollmentDate.getTime() <= nearestCreditExpiry.getTime() ? 'enrollments' : 'makeupCredits';
+    }
+    return nearestEnrollmentDate ? 'enrollments' : nearestCreditExpiry ? 'makeupCredits' : 'enrollments';
+  }
+
+  private sessionDateTime(sessionId: string): Date | null {
+    const session = this.sessions.find((s) => s.id === sessionId);
+    return session ? new Date(`${session.date}T${session.startTime}`) : null;
+  }
+
+  private nearestDate(dates: Date[]): Date | null {
+    return dates.length === 0 ? null : new Date(Math.min(...dates.map((d) => d.getTime())));
   }
 
   refresh(event: RefresherCustomEvent) {

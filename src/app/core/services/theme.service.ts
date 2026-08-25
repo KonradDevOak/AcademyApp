@@ -44,8 +44,13 @@ export class ThemeService {
     await Preferences.set({ key: STORAGE_KEY, value: preference });
   }
 
+  // Public so callers outside the toggle itself (club tile/background image selection) can resolve
+  // "is dark theme currently in effect" without duplicating the 'system' -> matchMedia logic.
+  isDarkFor(preference: ThemePreference): boolean {
+    return preference === 'system' ? this.media.matches : preference === 'dark';
+  }
+
   private apply(preference: ThemePreference): void {
-    const isDark = preference === 'system' ? this.media.matches : preference === 'dark';
-    document.documentElement.classList.toggle(DARK_CLASS, isDark);
+    document.documentElement.classList.toggle(DARK_CLASS, this.isDarkFor(preference));
   }
 }

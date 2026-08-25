@@ -1,0 +1,5 @@
+<div
+  class="club-background"
+  *ngIf="{ url: backgroundUrl$ | async } as vm"
+  [style.backgroundImage]="vm.url ? 'url(' + vm.url + ')' : null"
+></div>

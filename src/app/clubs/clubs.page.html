@@ -5,10 +5,16 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-button expand="block" fill="outline" (click)="goToFindClub()" class="ion-margin-bottom">
-    <ion-icon name="search-outline" slot="start"></ion-icon>
-    Znajdź klub
-  </ion-button>
+  <ion-grid class="find-club-grid ion-margin-bottom">
+    <ion-row>
+      <ion-col size="12">
+        <ion-button expand="block" fill="solid" color="primary" (click)="goToFindClub()">
+          <ion-icon name="search-outline" slot="start"></ion-icon>
+          Znajdź klub
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
   <ion-grid *ngIf="!isLoading && memberships.length > 0">
     <ion-row>
@@ -17,6 +23,8 @@
           button
           class="club-tile"
           [class.selected]="membership.storefrontId === activeStorefrontId"
+          [class.has-background]="backgroundFor(membership)"
+          [style.backgroundImage]="backgroundFor(membership) ? 'url(' + backgroundFor(membership) + ')' : null"
           (click)="selectClub(membership)"
         >
           <ion-icon
@@ -57,7 +65,7 @@
 
   <ion-card>
     <ion-card-content>
-      <app-manual-join (joined)="loadMemberships()"></app-manual-join>
+      <app-manual-join (joined)="refreshMemberships()"></app-manual-join>
     </ion-card-content>
   </ion-card>
 </ion-content>

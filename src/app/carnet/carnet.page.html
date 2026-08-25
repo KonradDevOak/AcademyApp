@@ -1,9 +1,9 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
-    <ion-title>Karnet</ion-title>
-  </ion-toolbar>
-  <ion-toolbar *ngIf="activeStorefrontName">
-    <ion-title size="small">{{ activeStorefrontName }}</ion-title>
+    <ion-title>
+      Karnet
+      <div class="storefront-label" *ngIf="activeStorefrontName">{{ activeStorefrontName }}</div>
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 

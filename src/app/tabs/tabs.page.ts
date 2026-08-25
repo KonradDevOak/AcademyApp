@@ -3,6 +3,7 @@ import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/angu
 import { addIcons } from 'ionicons';
 import { people, person, calendarOutline, cardOutline } from 'ionicons/icons';
 import { PushNotificationsService } from '../core/services/push-notifications.service';
+import { MembershipsCacheService } from '../core/services/memberships-cache.service';
 
 @Component({
   selector: 'app-tabs',
@@ -12,6 +13,7 @@ import { PushNotificationsService } from '../core/services/push-notifications.se
 })
 export class TabsPage implements OnInit {
   private pushNotifications = inject(PushNotificationsService);
+  private membershipsCache = inject(MembershipsCacheService);
 
   constructor() {
     addIcons({ people, person, calendarOutline, cardOutline });
@@ -21,5 +23,10 @@ export class TabsPage implements OnInit {
     // Fires only after CustomerGuard (on the parent 'tabs' route) has already confirmed login — the
     // permission prompt should only ever appear for an authenticated member.
     this.pushNotifications.init().catch((error: unknown) => console.error('Push init failed:', error));
+
+    // Cache-first (see MembershipsCacheService) — populates StorefrontContextService's
+    // activeClubBackground$ for every tab up front, instead of only once the Kluby tab happens to be
+    // visited (clubs.page does its own load too, but that page may never mount this session).
+    this.membershipsCache.getOrRefresh().catch((error: unknown) => console.error('Memberships load failed:', error));
   }
 }

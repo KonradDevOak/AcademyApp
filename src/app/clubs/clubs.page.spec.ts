@@ -4,30 +4,37 @@ import { of } from 'rxjs';
 import { ClubsPage } from './clubs.page';
 import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
+import { MembershipsCacheService } from '../core/services/memberships-cache.service';
 import { MembershipDto } from '../core/models/member.model';
+import { StorefrontImageDto } from '../core/models/storefront.model';
 
 describe('ClubsPage', () => {
   let fixture: ComponentFixture<ClubsPage>;
   let component: ClubsPage;
   let membersApi: jasmine.SpyObj<MembersApiService>;
   let storefrontContext: jasmine.SpyObj<StorefrontContextService>;
+  let membershipsCache: jasmine.SpyObj<MembershipsCacheService>;
   let router: Router;
 
   beforeEach(async () => {
-    membersApi = jasmine.createSpyObj('MembersApiService', ['getMyMemberships', 'join', 'leave', 'getPendingConsents']);
-    membersApi.getMyMemberships.and.returnValue(of([]));
+    membersApi = jasmine.createSpyObj('MembersApiService', ['join', 'leave', 'getPendingConsents']);
     membersApi.getPendingConsents.and.returnValue(of([]));
 
     storefrontContext = jasmine.createSpyObj('StorefrontContextService', ['select', 'getPersistedIfValid']);
     storefrontContext.select.and.resolveTo();
     storefrontContext.getPersistedIfValid.and.resolveTo(null);
 
+    membershipsCache = jasmine.createSpyObj('MembershipsCacheService', ['getOrRefresh', 'refresh']);
+    membershipsCache.getOrRefresh.and.resolveTo([]);
+    membershipsCache.refresh.and.resolveTo([]);
+
     await TestBed.configureTestingModule({
       imports: [ClubsPage],
       providers: [
         provideRouter([]),
         { provide: MembersApiService, useValue: membersApi },
-        { provide: StorefrontContextService, useValue: storefrontContext }
+        { provide: StorefrontContextService, useValue: storefrontContext },
+        { provide: MembershipsCacheService, useValue: membershipsCache }
       ]
     }).compileComponents();
 
@@ -44,7 +51,8 @@ describe('ClubsPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('loads an empty membership list and exposes a CTA to find-club', () => {
+  it('loads an empty membership list and exposes a CTA to find-club', async () => {
+    await fixture.whenStable();
     expect(component.memberships).toEqual([]);
     expect(component.isLoading).toBeFalse();
 
@@ -53,45 +61,59 @@ describe('ClubsPage', () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith('/find-club');
   });
 
-  it('reloads memberships after the shared manual-join component reports a successful join', () => {
+  it('loads memberships from the cache (cache-first)', async () => {
     const membership: MembershipDto = {
       storefrontId: 'club-1',
       storefrontName: 'Fit Club',
       joinedAt: new Date().toISOString()
     };
-    membersApi.getMyMemberships.and.returnValue(of([membership]));
+    membershipsCache.getOrRefresh.and.resolveTo([membership]);
 
-    component.loadMemberships();
+    await component.loadMemberships();
 
     expect(component.memberships.length).toBe(1);
   });
 
-  it('warns when a joined club is no longer classified as Fitness', () => {
+  it('refreshMemberships() bypasses the cache via MembershipsCacheService.refresh()', async () => {
+    const membership: MembershipDto = {
+      storefrontId: 'club-1',
+      storefrontName: 'Fit Club',
+      joinedAt: new Date().toISOString()
+    };
+    membershipsCache.refresh.and.resolveTo([membership]);
+
+    await component.refreshMemberships();
+
+    expect(membershipsCache.refresh).toHaveBeenCalled();
+    expect(component.memberships.length).toBe(1);
+  });
+
+  it('warns when a joined club is no longer classified as Fitness', async () => {
     const membership: MembershipDto = {
       storefrontId: 'club-1',
       storefrontName: 'Duosera',
       joinedAt: new Date().toISOString(),
       businessType: 'Retail'
     };
-    membersApi.getMyMemberships.and.returnValue(of([membership]));
+    membershipsCache.getOrRefresh.and.resolveTo([membership]);
 
-    component.loadMemberships();
+    await component.loadMemberships();
     fixture.detectChanges();
 
     const warning: HTMLElement = fixture.nativeElement.querySelector('ion-text[color="warning"]');
     expect(warning.textContent).toContain('zmienił profil działalności');
   });
 
-  it('does not warn when a joined club is still classified as Fitness', () => {
+  it('does not warn when a joined club is still classified as Fitness', async () => {
     const membership: MembershipDto = {
       storefrontId: 'club-1',
       storefrontName: 'Fit Club',
       joinedAt: new Date().toISOString(),
       businessType: 'Fitness'
     };
-    membersApi.getMyMemberships.and.returnValue(of([membership]));
+    membershipsCache.getOrRefresh.and.resolveTo([membership]);
 
-    component.loadMemberships();
+    await component.loadMemberships();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('ion-text[color="warning"]')).toBeNull();
@@ -135,12 +157,39 @@ describe('ClubsPage', () => {
       storefrontName: 'Fit Club',
       joinedAt: new Date().toISOString()
     };
-    membersApi.getMyMemberships.and.returnValue(of([membership]));
+    membershipsCache.getOrRefresh.and.resolveTo([membership]);
     storefrontContext.getPersistedIfValid.and.resolveTo('club-1');
 
-    component.loadMemberships();
-    await fixture.whenStable();
+    await component.loadMemberships();
 
     expect(component.activeStorefrontId).toBe('club-1');
+  });
+
+  it('backgroundFor() resolves the tile image for the current theme via pickBackgroundImage', () => {
+    const dark: StorefrontImageDto = { id: 'd1', url: 'https://example.com/dark.png', fileName: 'bg-dark.png' };
+    const light: StorefrontImageDto = { id: 'l1', url: 'https://example.com/light.png', fileName: 'bg-light.png' };
+    const membership: MembershipDto = {
+      storefrontId: 'club-1',
+      storefrontName: 'Fit Club',
+      joinedAt: new Date().toISOString(),
+      clubBackgroundDarkImage: dark,
+      clubBackgroundLightImage: light
+    };
+
+    component.isDarkTheme = true;
+    expect(component.backgroundFor(membership)).toBe(dark.url);
+
+    component.isDarkTheme = false;
+    expect(component.backgroundFor(membership)).toBe(light.url);
+  });
+
+  it('backgroundFor() returns null when the club has no background images', () => {
+    const membership: MembershipDto = {
+      storefrontId: 'club-1',
+      storefrontName: 'Fit Club',
+      joinedAt: new Date().toISOString()
+    };
+
+    expect(component.backgroundFor(membership)).toBeNull();
   });
 });

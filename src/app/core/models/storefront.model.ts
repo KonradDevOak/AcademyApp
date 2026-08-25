@@ -13,3 +13,24 @@ export interface StorefrontDiscoveryResultDto {
   // sorting (no GPS available/permission denied).
   distanceKm: number | null;
 }
+
+// A single owner-uploaded image, as resolved by the backend to a signed URL — same shape backend-side
+// as GalleryImageDto (Sandbox's StorefrontPublicProfileDto).
+export interface StorefrontImageDto {
+  id: string;
+  url: string;
+  fileName: string;
+}
+
+// Minimal projection of Sandbox's StorefrontPublicProfileDto — see GET /api/storefronts/{id}/public
+// (StorefrontProfileService.getPublicProfile). Only the fields actually used today; the backend DTO has
+// many more (gallery/carousel images, delivery, payment availability, etc.) that this app doesn't need
+// yet — extend this interface as/when a consumer needs another field, don't mirror it speculatively.
+export interface StorefrontPublicProfileDto {
+  id: string;
+  name: string;
+  // Owner-curated per-club background, split by filename prefix (bg-dark/bg-light) — null until the
+  // owner uploads a matching file in File Manager. No consuming screen renders these yet.
+  clubBackgroundDarkImage: StorefrontImageDto | null;
+  clubBackgroundLightImage: StorefrontImageDto | null;
+}
