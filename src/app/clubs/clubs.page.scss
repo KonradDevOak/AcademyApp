@@ -4,6 +4,17 @@ ion-content {
   --background: transparent;
 }
 
+// ion-content's own `ion-padding` class now owns the edge inset (16px). Zero out the grids' native
+// padding here so it doesn't stack on top of that; ion-col keeps its own padding as the gutter
+// between the two tile columns.
+ion-grid {
+  --ion-grid-padding: 0;
+}
+
+.find-club-grid {
+  margin-bottom: 12px;
+}
+
 .empty-state {
   display: flex;
   justify-content: center;

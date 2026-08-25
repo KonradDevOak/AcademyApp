@@ -18,3 +18,101 @@ ion-content {
   font-weight: 400;
   opacity: 0.85;
 }
+
+// Kafelkowy styl segmentu zamiast domyślnego, podkreślanego segmentu Ionic — usuwa też wymuszany przez
+// Ionic min-width/uppercase/nowrap na ion-segment-button, przez które polskie etykiety się nie mieściły.
+.schedule-segment {
+  --background: transparent;
+  padding: 4px 12px 8px;
+  gap: 8px;
+}
+
+.schedule-segment ion-segment-button {
+  --background: var(--ion-color-light, #f4f5f8);
+  --background-checked: var(--ion-color-primary);
+  --color: var(--ion-color-medium-shade, #666666);
+  --color-checked: var(--ion-color-primary-contrast, #ffffff);
+  --indicator-height: 0;
+  --indicator-box-shadow: none;
+  --border-radius: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --margin-start: 4px;
+  --margin-end: 4px;
+
+  flex: 1 1 0;
+  min-width: 0 !important;
+  text-transform: none !important;
+  white-space: normal !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  height: auto;
+  min-height: 44px;
+
+  &:first-child {
+    --margin-start: 0;
+  }
+  &:last-child {
+    --margin-end: 0;
+  }
+}
+
+// ion-label jest slotted light-DOM contentem; Ionic ustawia mu white-space/text-overflow bezpośrednio
+// w regule ::slotted() w shadow DOM — stąd !important, zwykła zewnętrzna reguła by tego nie przebiła.
+.schedule-segment ion-label {
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow: visible !important;
+  text-align: center;
+}
+
+// Kafelkowy styl wierszy list (zapisy/odrobienia/zajęcia) — ten sam wzorzec "karty" co .club-tile
+// (clubs.page.scss) i .profile-card/.stats-card (tab1.page.scss): border-radius + box-shadow na hoście.
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: transparent;
+  padding: 0;
+}
+
+.schedule-tile {
+  // --border-radius zaokrągla tylko wewnętrzny .item-native ion-item'u, nie sam host — dlatego plain
+  // border-radius na hoście też jest potrzebny, żeby box-shadow podążał za zaokrąglonym kształtem.
+  --border-radius: 16px;
+  --background: var(--ion-item-background, var(--ion-background-color, #fff));
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 64px;
+
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  // ::part(native) to udokumentowany Shadow Part ion-item'a — jedyny sposób, żeby wymusić flex-wrap na
+  // jego wewnętrznym rzędzie, tak by przyciski/badge w slot="end" zawijały się pod etykietę na wąskich
+  // ekranach zamiast być ucinane.
+  &::part(native) {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+.session-tile::part(native) {
+  align-items: flex-start;
+}
+
+.session-tile ion-label {
+  flex: 1 1 auto;
+  min-width: 60%;
+}
+
+.session-tile ion-badge,
+.session-tile ion-button {
+  margin-top: 4px;
+}

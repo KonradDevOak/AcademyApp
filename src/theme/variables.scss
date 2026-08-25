@@ -1,2 +1,9 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+
+:root {
+  // App-wide edge-of-screen content padding standard. `.ion-padding` already reads this Ionic var
+  // with a 16px fallback — this makes that value an explicit, documented app convention instead of
+  // an unstated default. Apply via class="ion-padding" on each top-level page's <ion-content>.
+  --ion-padding: 16px;
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -22,7 +22,9 @@ import {
   IonRefresherContent,
   ActionSheetController,
   ToastController,
-  RefresherCustomEvent
+  RefresherCustomEvent,
+  createGesture,
+  Gesture
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { calendarOutline, peopleOutline, timeOutline, alertCircleOutline } from 'ionicons/icons';
@@ -59,12 +61,18 @@ type ScheduleSegment = 'sessions' | 'enrollments' | 'makeupCredits';
     IonRefresherContent
   ]
 })
-export class SchedulePage implements OnInit {
+export class SchedulePage implements OnInit, AfterViewInit, OnDestroy {
   private classesApi = inject(ClassesApiService);
   private membersApi = inject(MembersApiService);
   private storefrontContext = inject(StorefrontContextService);
   private actionSheetController = inject(ActionSheetController);
   private toastController = inject(ToastController);
+
+  @ViewChild('scheduleContent', { read: ElementRef })
+  private contentRef?: ElementRef<HTMLElement>;
+
+  private swipeGesture?: Gesture;
+  private readonly segmentOrder: ScheduleSegment[] = ['enrollments', 'makeupCredits', 'sessions'];
 
   storefrontId: string | null = null;
   activeStorefrontName: string | null = null;
@@ -83,6 +91,41 @@ export class SchedulePage implements OnInit {
 
   ngOnInit() {
     this.load();
+  }
+
+  ngAfterViewInit() {
+    if (!this.contentRef) {
+      return;
+    }
+
+    this.swipeGesture = createGesture({
+      el: this.contentRef.nativeElement,
+      gestureName: 'schedule-segment-swipe',
+      direction: 'x',
+      threshold: 15,
+      gesturePriority: 20, // niżej niż ion-refresher (31) — pull-to-refresh zawsze wygrywa
+      onEnd: (detail) => {
+        const farEnough = Math.abs(detail.deltaX) > 40;
+        const fastEnough = Math.abs(detail.velocityX) > 0.3;
+        if (!farEnough && !fastEnough) {
+          return;
+        }
+        this.goToAdjacentSegment(detail.deltaX < 0 ? 1 : -1);
+      }
+    });
+    this.swipeGesture.enable(true);
+  }
+
+  ngOnDestroy() {
+    this.swipeGesture?.destroy();
+  }
+
+  private goToAdjacentSegment(step: 1 | -1) {
+    const index = this.segmentOrder.indexOf(this.segment);
+    const nextIndex = index + step;
+    if (nextIndex >= 0 && nextIndex < this.segmentOrder.length) {
+      this.segment = this.segmentOrder[nextIndex];
+    }
   }
 
   private load(refresherEvent?: RefresherCustomEvent) {

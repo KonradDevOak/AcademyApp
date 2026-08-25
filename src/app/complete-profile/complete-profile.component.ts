@@ -21,6 +21,7 @@ import { MembersApiService } from '../core/services/members-api.service';
 @Component({
   selector: 'app-complete-profile',
   templateUrl: './complete-profile.component.html',
+  styleUrls: ['./complete-profile.component.scss'],
   standalone: true,
   imports: [
     CommonModule,

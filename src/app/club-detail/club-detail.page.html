@@ -7,13 +7,13 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <div class="ion-text-center" *ngIf="isLoading">
     <ion-spinner></ion-spinner>
   </div>
 
   <ng-container *ngIf="!isLoading && membership">
-    <ion-text color="medium" class="ion-padding">
+    <ion-text color="medium">
       <p>Dołączono: {{ membership.joinedAt | date: 'dd.MM.yyyy' }}</p>
     </ion-text>
 
