@@ -71,6 +71,13 @@ ion-content {
 
 // Kafelkowy styl wierszy list (zapisy/odrobienia/zajęcia) — ten sam wzorzec "karty" co .club-tile
 // (clubs.page.scss) i .profile-card/.stats-card (tab1.page.scss): border-radius + box-shadow na hoście.
+// ion-segment-view domyślnie ma tylko min-height od ion-segment-content (1px) — bez jawnej
+// wysokości panele swipe'owalnych tabów zapadałyby się do wysokości samej zawartości zamiast
+// wypełniać ion-content, przez co scroll-snap między nimi nie miałby z czego korzystać.
+ion-segment-view {
+  height: 100%;
+}
+
 .schedule-list {
   display: flex;
   flex-direction: column;

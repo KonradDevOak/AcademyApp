@@ -7,20 +7,20 @@
   </ion-toolbar>
   <ion-toolbar>
     <ion-segment [(ngModel)]="segment" [ngModelOptions]="{ standalone: true }" class="schedule-segment">
-      <ion-segment-button value="enrollments">
+      <ion-segment-button value="enrollments" content-id="enrollments">
         <ion-label>Moje zapisy</ion-label>
       </ion-segment-button>
-      <ion-segment-button value="makeupCredits">
+      <ion-segment-button value="makeupCredits" content-id="makeupCredits">
         <ion-label>Do odrobienia</ion-label>
       </ion-segment-button>
-      <ion-segment-button value="sessions">
+      <ion-segment-button value="sessions" content-id="sessions">
         <ion-label>Zajęcia</ion-label>
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding" #scheduleContent>
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -36,71 +36,82 @@
     <ion-button routerLink="/tabs/clubs">Moje kluby</ion-button>
   </div>
 
-  <ng-container *ngIf="!isLoading && !hasNoClubs && storefrontId">
-    <ion-list *ngIf="segment === 'enrollments'" class="schedule-list">
-      <ion-item *ngFor="let enrollment of enrollments" class="schedule-tile" lines="none">
-        <ion-icon name="people-outline" slot="start"></ion-icon>
-        <ion-label>
-          <h2>{{ enrollment.status }}</h2>
-          <p>Zapisano: {{ enrollment.enrolledAt | date: 'dd.MM.yyyy HH:mm' }}</p>
-        </ion-label>
-      </ion-item>
+  <!-- Zawsze zamontowany (nigdy *ngIf) — ion-segment wiąże się ze swoim ion-segment-view raz,
+       synchronicznie przy connectedCallback/componentDidLoad; gdyby ten element pojawiał się
+       dopiero po async load (isLoading), ion-segment na stałe zapamiętałby brak powiązania i
+       zarówno klik w segment-button, jak i swipe (przez ionSegmentViewScroll) przestałyby
+       synchronizować aktywny tab z przewijaną zawartością. -->
+  <ion-segment-view [hidden]="isLoading || !storefrontId">
+    <ion-segment-content id="enrollments">
+      <ion-list class="schedule-list">
+        <ion-item *ngFor="let enrollment of enrollments" class="schedule-tile" lines="none">
+          <ion-icon name="people-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h2>{{ enrollment.status }}</h2>
+            <p>Zapisano: {{ enrollment.enrolledAt | date: 'dd.MM.yyyy HH:mm' }}</p>
+          </ion-label>
+        </ion-item>
 
-      <div class="empty-state" *ngIf="enrollments.length === 0">
-        <ion-text color="medium">
-          <p>Brak zapisów.</p>
-        </ion-text>
-      </div>
-    </ion-list>
+        <div class="empty-state" *ngIf="enrollments.length === 0">
+          <ion-text color="medium">
+            <p>Brak zapisów.</p>
+          </ion-text>
+        </div>
+      </ion-list>
+    </ion-segment-content>
 
-    <ion-list *ngIf="segment === 'makeupCredits'" class="schedule-list">
-      <ion-item *ngFor="let credit of makeupCredits" class="schedule-tile" lines="none">
-        <ion-icon name="time-outline" slot="start"></ion-icon>
-        <ion-label>
-          <h2>{{ credit.status }}</h2>
-          <p>Ważne do: {{ credit.expiresAt | date: 'dd.MM.yyyy' }}</p>
-        </ion-label>
-        <ion-button slot="end" (click)="redeemMakeupCredit(credit)">Wykorzystaj</ion-button>
-      </ion-item>
+    <ion-segment-content id="makeupCredits">
+      <ion-list class="schedule-list">
+        <ion-item *ngFor="let credit of makeupCredits" class="schedule-tile" lines="none">
+          <ion-icon name="time-outline" slot="start"></ion-icon>
+          <ion-label>
+            <h2>{{ credit.status }}</h2>
+            <p>Ważne do: {{ credit.expiresAt | date: 'dd.MM.yyyy' }}</p>
+          </ion-label>
+          <ion-button slot="end" (click)="redeemMakeupCredit(credit)">Wykorzystaj</ion-button>
+        </ion-item>
 
-      <div class="empty-state" *ngIf="makeupCredits.length === 0">
-        <ion-text color="medium">
-          <p>Brak dostępnych odrobień.</p>
-        </ion-text>
-      </div>
-    </ion-list>
+        <div class="empty-state" *ngIf="makeupCredits.length === 0">
+          <ion-text color="medium">
+            <p>Brak dostępnych odrobień.</p>
+          </ion-text>
+        </div>
+      </ion-list>
+    </ion-segment-content>
 
-    <ion-list *ngIf="segment === 'sessions'" class="schedule-list">
-      <ion-item *ngFor="let session of sessions" class="schedule-tile session-tile" lines="none">
-        <ion-icon name="calendar-outline" slot="start"></ion-icon>
-        <ion-label class="ion-text-wrap">
-          <h2>{{ session.classTypeName }}</h2>
-          <p>{{ session.date }} • {{ session.startTime.substring(0, 5) }}–{{ session.endTime.substring(0, 5) }} • {{ session.trainerName }}</p>
-          <p>{{ session.roomName }} • wolne miejsca: {{ session.seatsRemaining }}/{{ session.capacity }}</p>
-        </ion-label>
+    <ion-segment-content id="sessions">
+      <ion-list class="schedule-list">
+        <ion-item *ngFor="let session of sessions" class="schedule-tile session-tile" lines="none">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            <h2>{{ session.classTypeName }}</h2>
+            <p>{{ session.date }} • {{ session.startTime.substring(0, 5) }}–{{ session.endTime.substring(0, 5) }} • {{ session.trainerName }}</p>
+            <p>{{ session.roomName }} • wolne miejsca: {{ session.seatsRemaining }}/{{ session.capacity }}</p>
+          </ion-label>
 
-        <ng-container *ngIf="enrollmentFor(session.id) as enrollment; else notEnrolled">
-          <ion-badge slot="end" [color]="isWaitlisted(enrollment) ? 'warning' : 'success'">
-            {{ isWaitlisted(enrollment) ? 'lista rezerwowa' : 'zapisano' }}
-          </ion-badge>
-          <ion-button slot="end" fill="clear" (click)="unenroll(enrollment)">Wypisz</ion-button>
-          <ion-button slot="end" fill="clear" color="medium" (click)="reportAbsence(enrollment)" *ngIf="!isWaitlisted(enrollment)">
-            Zgłoś nieobecność
-          </ion-button>
-        </ng-container>
-        <ng-template #notEnrolled>
-          <ion-button slot="end" *ngIf="session.seatsRemaining > 0" (click)="enroll(session)">Zapisz się</ion-button>
-          <ion-button slot="end" fill="outline" *ngIf="session.seatsRemaining <= 0" (click)="joinWaitlist(session)">
-            Lista rezerwowa
-          </ion-button>
-        </ng-template>
-      </ion-item>
+          <ng-container *ngIf="enrollmentFor(session.id) as enrollment; else notEnrolled">
+            <ion-badge slot="end" [color]="isWaitlisted(enrollment) ? 'warning' : 'success'">
+              {{ isWaitlisted(enrollment) ? 'lista rezerwowa' : 'zapisano' }}
+            </ion-badge>
+            <ion-button slot="end" fill="clear" (click)="unenroll(enrollment)">Wypisz</ion-button>
+            <ion-button slot="end" fill="clear" color="medium" (click)="reportAbsence(enrollment)" *ngIf="!isWaitlisted(enrollment)">
+              Zgłoś nieobecność
+            </ion-button>
+          </ng-container>
+          <ng-template #notEnrolled>
+            <ion-button slot="end" *ngIf="session.seatsRemaining > 0" (click)="enroll(session)">Zapisz się</ion-button>
+            <ion-button slot="end" fill="outline" *ngIf="session.seatsRemaining <= 0" (click)="joinWaitlist(session)">
+              Lista rezerwowa
+            </ion-button>
+          </ng-template>
+        </ion-item>
 
-      <div class="empty-state" *ngIf="sessions.length === 0">
-        <ion-text color="medium">
-          <p>Brak zajęć w najbliższych 14 dniach.</p>
-        </ion-text>
-      </div>
-    </ion-list>
-  </ng-container>
+        <div class="empty-state" *ngIf="sessions.length === 0">
+          <ion-text color="medium">
+            <p>Brak zajęć w najbliższych 14 dniach.</p>
+          </ion-text>
+        </div>
+      </ion-list>
+    </ion-segment-content>
+  </ion-segment-view>
 </ion-content>
