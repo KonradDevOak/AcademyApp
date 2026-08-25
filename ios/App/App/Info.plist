@@ -58,5 +58,7 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Używamy Twojej lokalizacji, aby pokazać najbliższe kluby.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Potrzebujemy dostępu do aparatu, aby zeskanować kod QR klubu.</string>
 </dict>
 </plist>

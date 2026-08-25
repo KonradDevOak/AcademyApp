@@ -16,7 +16,8 @@ import {
   IonButton,
   IonIcon,
   IonText,
-  AlertController
+  AlertController,
+  ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { peopleOutline, searchOutline, exitOutline, checkmarkCircle } from 'ionicons/icons';
@@ -58,6 +59,7 @@ export class ClubsPage implements OnInit, OnDestroy {
   private membershipsCache = inject(MembershipsCacheService);
   private themeService = inject(ThemeService);
   private alertController = inject(AlertController);
+  private toastController = inject(ToastController);
   private router = inject(Router);
   private themeSubscription?: Subscription;
 
@@ -161,7 +163,15 @@ export class ClubsPage implements OnInit, OnDestroy {
   private leave(storefrontId: string) {
     this.membersApi.leave(storefrontId).subscribe({
       next: () => this.refreshMemberships(),
-      error: (error: unknown) => console.error('Failed to leave storefront:', error)
+      error: (error: unknown) => {
+        console.error('Failed to leave storefront:', error);
+        this.showToast('Nie udało się opuścić klubu. Spróbuj ponownie.', 'danger');
+      }
     });
+  }
+
+  private async showToast(message: string, color: 'success' | 'danger') {
+    const toast = await this.toastController.create({ message, duration: 3000, color, position: 'top' });
+    await toast.present();
   }
 }

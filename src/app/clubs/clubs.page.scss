@@ -87,8 +87,17 @@ ion-grid {
 
 .leave-button {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 4px;
+  right: 4px;
   margin: 0;
-  z-index: 1;
+  // Must exceed .has-background ion-card-header/content's z-index: 1 (above) — otherwise, once
+  // that content grows tall enough (e.g. the business-type-changed warning paragraph), it paints
+  // over this button's hit area and swallows clicks meant for it instead of triggering confirmLeave().
+  z-index: 2;
+  // Icon-only ion-button at its default size renders below the 44px touch-target minimum (iOS HIG /
+  // Material) — pin both explicitly instead of trusting the platform-mode default.
+  --padding-start: 10px;
+  --padding-end: 10px;
+  min-width: 44px;
+  min-height: 44px;
 }

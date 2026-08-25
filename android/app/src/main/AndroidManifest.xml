@@ -56,6 +56,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <!-- @capacitor-mlkit/barcode-scanning — required so the plugin's ready-to-use scan() UI can
+             download the barcode_ui ML Kit model on demand (see manual-join.component.ts). -->
+        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="barcode_ui" />
     </application>
 
     <!-- Permissions -->
@@ -70,4 +74,7 @@
          both and Android doesn't let an app ask for "coarse only" via this API. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- @capacitor-mlkit/barcode-scanning — scanning a club's QR code to join it (manual-join.component.ts). -->
+    <uses-permission android:name="android.permission.CAMERA" />
 </manifest>

@@ -1,14 +1,4 @@
-<form [formGroup]="joinForm" (ngSubmit)="join()">
-  <ion-item>
-    <ion-label position="stacked">Dołącz do klubu</ion-label>
-    <ion-input
-      type="text"
-      formControlName="storefrontId"
-      placeholder="Identyfikator klubu od recepcji"
-    ></ion-input>
-  </ion-item>
-  <ion-button expand="block" type="submit" [disabled]="!joinForm.valid || isJoining" class="ion-margin-top">
-    <ion-icon name="add-outline" slot="start"></ion-icon>
-    {{ isJoining ? 'Dołączanie…' : 'Dołącz' }}
-  </ion-button>
-</form>
+<ion-button expand="block" (click)="scan()" [disabled]="isScanning">
+  <ion-icon name="qr-code-outline" slot="start"></ion-icon>
+  {{ isScanning ? 'Skanowanie…' : 'Skanuj kod QR klubu' }}
+</ion-button>

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ExternalConfigService } from '@shared/iam-msal-external';
 import { StorefrontPublicProfileDto } from '../models/storefront.model';
@@ -17,5 +17,16 @@ export class StorefrontProfileService {
   getPublicProfile(storefrontId: string): Observable<StorefrontPublicProfileDto> {
     const baseUri = this.configService.getConfig()?.apiConfig?.uri ?? '';
     return this.http.get<StorefrontPublicProfileDto>(`${baseUri}/api/storefronts/${storefrontId}/public`);
+  }
+
+  // Resolves the same public-safe profile by a storefront's own linked domain instead of its id —
+  // e.g. a domain scanned from the QR code the owner already generates in LocalBizWeb's "Kod QR"
+  // section, which encodes nothing but https://{their-domain}. Same anonymous endpoint
+  // (ResolveStorefrontHandler) Showcase already uses to resolve a tenant by Host header.
+  resolveByDomain(domain: string): Observable<StorefrontPublicProfileDto> {
+    const baseUri = this.configService.getConfig()?.apiConfig?.uri ?? '';
+    return this.http.get<StorefrontPublicProfileDto>(`${baseUri}/api/storefronts/resolve`, {
+      params: new HttpParams().set('domain', domain)
+    });
   }
 }

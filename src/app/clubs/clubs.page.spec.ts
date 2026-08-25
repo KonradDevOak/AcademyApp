@@ -1,9 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ToastController } from '@ionic/angular/standalone';
+import { of, throwError } from 'rxjs';
 import { ClubsPage } from './clubs.page';
 import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
+import { StorefrontProfileService } from '../core/services/storefront-profile.service';
 import { MembershipsCacheService } from '../core/services/memberships-cache.service';
 import { MembershipDto } from '../core/models/member.model';
 import { StorefrontImageDto } from '../core/models/storefront.model';
@@ -14,6 +17,7 @@ describe('ClubsPage', () => {
   let membersApi: jasmine.SpyObj<MembersApiService>;
   let storefrontContext: jasmine.SpyObj<StorefrontContextService>;
   let membershipsCache: jasmine.SpyObj<MembershipsCacheService>;
+  let toastController: jasmine.SpyObj<ToastController>;
   let router: Router;
 
   beforeEach(async () => {
@@ -28,13 +32,24 @@ describe('ClubsPage', () => {
     membershipsCache.getOrRefresh.and.resolveTo([]);
     membershipsCache.refresh.and.resolveTo([]);
 
+    const toast = jasmine.createSpyObj('HTMLIonToastElement', ['present']);
+    toast.present.and.resolveTo();
+    toastController = jasmine.createSpyObj('ToastController', ['create']);
+    toastController.create.and.resolveTo(toast);
+
+    // Not exercised by any test here — just needs to satisfy the embedded <app-manual-join>'s DI
+    // (ManualJoinComponent injects it to resolve a scanned QR code's domain to a storefrontId).
+    const storefrontProfile = jasmine.createSpyObj('StorefrontProfileService', ['resolveByDomain']);
+
     await TestBed.configureTestingModule({
       imports: [ClubsPage],
       providers: [
         provideRouter([]),
         { provide: MembersApiService, useValue: membersApi },
         { provide: StorefrontContextService, useValue: storefrontContext },
-        { provide: MembershipsCacheService, useValue: membershipsCache }
+        { provide: StorefrontProfileService, useValue: storefrontProfile },
+        { provide: MembershipsCacheService, useValue: membershipsCache },
+        { provide: ToastController, useValue: toastController }
       ]
     }).compileComponents();
 
@@ -191,5 +206,26 @@ describe('ClubsPage', () => {
     };
 
     expect(component.backgroundFor(membership)).toBeNull();
+  });
+
+  it('leave() refreshes memberships on success', () => {
+    membersApi.leave.and.returnValue(of(void 0));
+
+    component['leave']('club-1');
+
+    expect(membersApi.leave).toHaveBeenCalledWith('club-1');
+    expect(membershipsCache.refresh).toHaveBeenCalled();
+  });
+
+  it('leave() shows a danger toast and does not refresh memberships when the API call fails', () => {
+    membersApi.leave.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    membershipsCache.refresh.calls.reset();
+
+    component['leave']('club-1');
+
+    expect(toastController.create).toHaveBeenCalledWith(
+      jasmine.objectContaining({ color: 'danger' })
+    );
+    expect(membershipsCache.refresh).not.toHaveBeenCalled();
   });
 });

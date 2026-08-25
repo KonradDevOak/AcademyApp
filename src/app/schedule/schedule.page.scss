@@ -123,3 +123,12 @@ ion-segment-view {
 .session-tile ion-button {
   margin-top: 4px;
 }
+
+// Sits inside ion-label as the first child, before <h2> — ion-label's projected content is normal
+// block flow (not flex), so this naturally renders as its own full-width line above the class name
+// instead of squeezing into the slot="end" row and fighting it for space (see schedule.page.html).
+.enrollment-not-open {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+  margin: 0 0 4px;
+}

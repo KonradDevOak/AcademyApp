@@ -84,6 +84,10 @@
         <ion-item *ngFor="let session of sessions" class="schedule-tile session-tile" lines="none">
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
           <ion-label class="ion-text-wrap">
+            <p class="enrollment-not-open"
+               *ngIf="!enrollmentFor(session.id) && session.seatsRemaining > 0 && !session.canEnrollManually">
+              Zapisy otworzą się {{ session.manualEnrollmentOpensAt | date: 'dd.MM HH:mm' }}
+            </p>
             <h2>{{ session.classTypeName }}</h2>
             <p>{{ session.date }} • {{ session.startTime.substring(0, 5) }}–{{ session.endTime.substring(0, 5) }} • {{ session.trainerName }}</p>
             <p>{{ session.roomName }} • wolne miejsca: {{ session.seatsRemaining }}/{{ session.capacity }}</p>
@@ -99,10 +103,12 @@
             </ion-button>
           </ng-container>
           <ng-template #notEnrolled>
-            <ion-button slot="end" *ngIf="session.seatsRemaining > 0" (click)="enroll(session)">Zapisz się</ion-button>
-            <ion-button slot="end" fill="outline" *ngIf="session.seatsRemaining <= 0" (click)="joinWaitlist(session)">
-              Lista rezerwowa
-            </ion-button>
+            <ng-container *ngIf="session.seatsRemaining > 0; else waitlistBranch">
+              <ion-button slot="end" *ngIf="session.canEnrollManually" (click)="enroll(session)">Zapisz się</ion-button>
+            </ng-container>
+            <ng-template #waitlistBranch>
+              <ion-button slot="end" fill="outline" (click)="joinWaitlist(session)">Lista rezerwowa</ion-button>
+            </ng-template>
           </ng-template>
         </ion-item>
 

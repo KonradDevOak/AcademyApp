@@ -11,6 +11,8 @@ export interface MemberSessionDto {
   endTime: string;
   capacity: number;
   seatsRemaining: number;
+  canEnrollManually: boolean;
+  manualEnrollmentOpensAt: string;
 }
 
 export interface MyEnrollmentDto {

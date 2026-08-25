@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { FindClubPage } from './find-club.page';
 import { StorefrontDiscoveryService } from '../core/services/storefront-discovery.service';
 import { MembersApiService } from '../core/services/members-api.service';
+import { StorefrontProfileService } from '../core/services/storefront-profile.service';
 import { StorefrontDiscoveryResultDto } from '../core/models/storefront.model';
 
 describe('FindClubPage', () => {
@@ -44,11 +45,16 @@ describe('FindClubPage', () => {
     const toastController = jasmine.createSpyObj('ToastController', ['create']);
     toastController.create.and.resolveTo(toast);
 
+    // Not exercised by any test here — just needs to satisfy the embedded <app-manual-join>'s DI
+    // (ManualJoinComponent injects it to resolve a scanned QR code's domain to a storefrontId).
+    const storefrontProfile = jasmine.createSpyObj('StorefrontProfileService', ['resolveByDomain']);
+
     await TestBed.configureTestingModule({
       imports: [FindClubPage],
       providers: [
         { provide: StorefrontDiscoveryService, useValue: discovery },
         { provide: MembersApiService, useValue: membersApi },
+        { provide: StorefrontProfileService, useValue: storefrontProfile },
         { provide: Router, useValue: router },
         { provide: ToastController, useValue: toastController }
       ]
@@ -123,7 +129,7 @@ describe('FindClubPage', () => {
     expect(component.joiningId).toBeNull();
   }));
 
-  it('toggles the manual join ("Mam kod od recepcji") panel', fakeAsync(() => {
+  it('toggles the manual join ("Zeskanuj kod QR klubu") panel', fakeAsync(() => {
     fixture.detectChanges();
     tick(300);
 

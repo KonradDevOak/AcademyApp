@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, forkJoin, of } from 'rxjs';
 import {
   IonHeader,
@@ -32,6 +33,7 @@ import { ClassesApiService } from '../core/services/classes-api.service';
 import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
 import { MakeupCreditDto, MemberSessionDto, MyEnrollmentDto } from '../core/models/classes.model';
+import { getErrorCode } from '../core/utils/consent-error.util';
 
 type ScheduleSegment = 'sessions' | 'enrollments' | 'makeupCredits';
 
@@ -80,6 +82,16 @@ export class SchedulePage implements OnInit {
   sessions: MemberSessionDto[] = [];
   enrollments: MyEnrollmentDto[] = [];
   makeupCredits: MakeupCreditDto[] = [];
+
+  // Backend error codes from Modules.Classes.Core/Classes/Exceptions/, all mapped to the same generic
+  // shape by ExceptionToResponseMapper — kept here rather than in the shared consent-error util since
+  // they're specific to this page's enroll/waitlist/makeup-credit endpoints, not reused elsewhere.
+  private readonly enrollErrorMessages: Record<string, string> = {
+    auto_enrollment_window_still_open: 'Zapisy na te zajęcia jeszcze się nie otworzyły.',
+    member_booking_blocked: 'Twoje konto ma zablokowane zapisy — sprawdź płatność za karnet.',
+    session_full: 'Brak wolnych miejsc — spróbuj zapisać się na listę rezerwową.',
+    already_enrolled: 'Jesteś już zapisany/a na te zajęcia.'
+  };
 
   constructor() {
     addIcons({ calendarOutline, peopleOutline, timeOutline, alertCircleOutline });
@@ -203,14 +215,20 @@ export class SchedulePage implements OnInit {
   enroll(session: MemberSessionDto) {
     this.classesApi.enroll(session.id).subscribe({
       next: () => this.loadScheduleData(this.storefrontId!),
-      error: async () => this.showToast('Nie udało się zapisać. Spróbuj ponownie.', 'danger')
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to enroll:', error);
+        this.showToast(this.enrollErrorMessage(error, 'Nie udało się zapisać. Spróbuj ponownie.'), 'danger');
+      }
     });
   }
 
   joinWaitlist(session: MemberSessionDto) {
     this.classesApi.joinWaitlist(session.id).subscribe({
       next: () => this.loadScheduleData(this.storefrontId!),
-      error: async () => this.showToast('Nie udało się dołączyć do listy rezerwowej.', 'danger')
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to join waitlist:', error);
+        this.showToast(this.enrollErrorMessage(error, 'Nie udało się dołączyć do listy rezerwowej.'), 'danger');
+      }
     });
   }
 
@@ -221,7 +239,10 @@ export class SchedulePage implements OnInit {
 
     action.subscribe({
       next: () => this.loadScheduleData(this.storefrontId!),
-      error: async () => this.showToast('Nie udało się wypisać. Spróbuj ponownie.', 'danger')
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to unenroll:', error);
+        this.showToast(this.enrollErrorMessage(error, 'Nie udało się wypisać. Spróbuj ponownie.'), 'danger');
+      }
     });
   }
 
@@ -231,7 +252,10 @@ export class SchedulePage implements OnInit {
         await this.showToast('Zgłoszono nieobecność.', 'success');
         this.loadScheduleData(this.storefrontId!);
       },
-      error: async () => this.showToast('Nie udało się zgłosić nieobecności.', 'danger')
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to report absence:', error);
+        this.showToast(this.enrollErrorMessage(error, 'Nie udało się zgłosić nieobecności.'), 'danger');
+      }
     });
   }
 
@@ -253,7 +277,10 @@ export class SchedulePage implements OnInit {
                 this.showToast('Odrobienie wykorzystane.', 'success');
                 this.loadScheduleData(this.storefrontId!);
               },
-              error: () => this.showToast('Nie udało się wykorzystać odrobienia.', 'danger')
+              error: (error: HttpErrorResponse) => {
+                console.error('Failed to redeem makeup credit:', error);
+                this.showToast(this.enrollErrorMessage(error, 'Nie udało się wykorzystać odrobienia.'), 'danger');
+              }
             });
           }
         })),
@@ -261,6 +288,11 @@ export class SchedulePage implements OnInit {
       ]
     });
     await actionSheet.present();
+  }
+
+  private enrollErrorMessage(error: HttpErrorResponse, fallback: string): string {
+    const code = getErrorCode(error);
+    return (code && this.enrollErrorMessages[code]) ?? fallback;
   }
 
   private async showToast(message: string, color: 'success' | 'danger') {
