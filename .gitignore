@@ -63,3 +63,9 @@ xcuserdata/
 
 .env
 .env.local
+
+# Android release signing — generated once locally (keytool), never committed.
+# See CLAUDE.md → "Pipeline wydawniczy" / android/app/build.gradle signingConfigs.
+android/keystore.properties
+*.jks
+*.keystore

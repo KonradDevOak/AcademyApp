@@ -2,22 +2,29 @@
   <ion-tab-bar slot="bottom">
     <ion-tab-button tab="clubs" href="/tabs/clubs">
       <ion-icon aria-hidden="true" name="people"></ion-icon>
-      <ion-label>Moje kluby</ion-label>
+      <ion-label>{{ 'tabs.clubs' | translate }}</ion-label>
     </ion-tab-button>
 
-    <ion-tab-button tab="schedule" href="/tabs/schedule">
-      <ion-icon aria-hidden="true" name="calendar-outline"></ion-icon>
-      <ion-label>Grafik</ion-label>
-    </ion-tab-button>
+    @if (vertical() === 'academy') {
+      <ion-tab-button tab="academy-children" href="/tabs/academy-children">
+        <ion-icon aria-hidden="true" name="body-outline"></ion-icon>
+        <ion-label>{{ 'tabs.academyChildren' | translate }}</ion-label>
+      </ion-tab-button>
+    } @else {
+      <ion-tab-button tab="schedule" href="/tabs/schedule">
+        <ion-icon aria-hidden="true" name="calendar-outline"></ion-icon>
+        <ion-label>{{ 'tabs.schedule' | translate }}</ion-label>
+      </ion-tab-button>
 
-    <ion-tab-button tab="carnet" href="/tabs/carnet">
-      <ion-icon aria-hidden="true" name="card-outline"></ion-icon>
-      <ion-label>Karnet</ion-label>
-    </ion-tab-button>
+      <ion-tab-button tab="carnet" href="/tabs/carnet">
+        <ion-icon aria-hidden="true" name="card-outline"></ion-icon>
+        <ion-label>{{ 'tabs.carnet' | translate }}</ion-label>
+      </ion-tab-button>
+    }
 
     <ion-tab-button tab="profile" href="/tabs/profile">
       <ion-icon aria-hidden="true" name="person"></ion-icon>
-      <ion-label>Profil</ion-label>
+      <ion-label>{{ 'tabs.profile' | translate }}</ion-label>
     </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>

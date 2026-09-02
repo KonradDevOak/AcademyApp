@@ -45,6 +45,24 @@ export const routes: Routes = [
         loadComponent: () =>
           import('../tab1/tab1.page').then((m) => m.Tab1Page),
       },
+      // Academy vertical (BusinessType=SportsSchool). The tab bar shows these instead of
+      // schedule/carnet when the active club is a sports academy — see tabs.page. G1 ships placeholder
+      // pages; G2 replaces their content. `clubs`/`profile` are shared with the fitness vertical.
+      {
+        path: 'academy-children',
+        loadComponent: () =>
+          import('../academy/children/academy-children.page').then((m) => m.AcademyChildrenPage),
+      },
+      {
+        path: 'academy-children/onboarding',
+        loadComponent: () =>
+          import('../academy/onboarding/academy-onboarding.page').then((m) => m.AcademyOnboardingPage),
+      },
+      {
+        path: 'academy-children/:athleteId',
+        loadComponent: () =>
+          import('../academy/child-detail/academy-child-detail.page').then((m) => m.AcademyChildDetailPage),
+      },
       {
         path: '',
         redirectTo: 'clubs',

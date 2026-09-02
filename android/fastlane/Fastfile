@@ -1,0 +1,23 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build a signed release .aab and publish it to the Google Play production track"
+  lane :deploy_production do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "."
+    )
+
+    upload_to_play_store(
+      track: "production",
+      aab: "app/build/outputs/bundle/release/app-release.aab",
+      # First release for a new applicationId must be uploaded manually through Play
+      # Console (see CLAUDE.md → Faza 2 pkt 4) before this lane can succeed — the Play
+      # Developer API rejects an initial publish for an app with no prior release.
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end

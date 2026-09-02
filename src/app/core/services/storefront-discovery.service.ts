@@ -1,6 +1,7 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Geolocation } from '@capacitor/geolocation';
 import { ExternalConfigService } from '@shared/iam-msal-external';
 import { StorefrontDiscoveryResultDto } from '../models/storefront.model';
@@ -9,6 +10,12 @@ export interface Coordinates {
   latitude: number;
   longitude: number;
 }
+
+// Which vertical(s) to search. 'all' (the default) fans out one request per vertical and merges the
+// results — the backend's businessType param takes a single value, so a cross-vertical list needs two
+// calls. FitnessClub is multi-vertical: a parent looking for a sports academy and a member looking for
+// a fitness club both land on the same find-club screen.
+export type DiscoveryVertical = 'fitness' | 'academy' | 'all';
 
 // Capacitor plugin objects (like `Geolocation`) are a Proxy whose `get` trap always returns a fresh
 // wrapper function regardless of any property assignment — `spyOn(Geolocation, 'checkPermissions')`
@@ -20,10 +27,12 @@ export const GEOLOCATION_PLUGIN = new InjectionToken<typeof Geolocation>('GEOLOC
   factory: () => Geolocation
 });
 
-// FitnessClub is the Fitness-vertical app — every discovery request is scoped to storefronts that both
-// declare BusinessType=Fitness AND have every Services label a member needs already enabled (grafik +
-// karnety + lista klubowiczów). See Sandbox's BrowsePublicStorefrontsHandler for the actual filtering.
-const FITNESS_BUSINESS_TYPE = 'Fitness';
+// Each vertical's discovery scope: a BusinessType plus its "actually joinable" readiness gate (every
+// Services label a member/parent needs already enabled). See Sandbox's BrowsePublicStorefrontsHandler.
+const VERTICAL_QUERY: Record<'fitness' | 'academy', Record<string, string>> = {
+  fitness: { businessType: 'Fitness', requireFitnessReadiness: 'true' },
+  academy: { businessType: 'SportsSchool', requireAcademyReadiness: 'true' }
+};
 
 @Injectable({ providedIn: 'root' })
 export class StorefrontDiscoveryService {
@@ -31,12 +40,40 @@ export class StorefrontDiscoveryService {
   private configService = inject(ExternalConfigService);
   private geolocation = inject(GEOLOCATION_PLUGIN);
 
-  search(options: { search?: string; coordinates?: Coordinates | null }): Observable<StorefrontDiscoveryResultDto[]> {
+  search(options: {
+    search?: string;
+    coordinates?: Coordinates | null;
+    vertical?: DiscoveryVertical;
+  }): Observable<StorefrontDiscoveryResultDto[]> {
+    const vertical = options.vertical ?? 'all';
+    const targets: ('fitness' | 'academy')[] = vertical === 'all' ? ['fitness', 'academy'] : [vertical];
+
+    const requests = targets.map((target) => this.searchVertical(target, options));
+    return forkJoin(requests).pipe(
+      map((lists) => this.mergeResults(lists.reduce((all, list) => all.concat(list), [])))
+    );
+  }
+
+  // Each vertical's request is already sorted server-side (by distance when coordinates were given,
+  // otherwise alphabetically); re-apply the same order across the merged list so a two-vertical search
+  // doesn't show fitness clubs then academies as two separate blocks.
+  private mergeResults(results: StorefrontDiscoveryResultDto[]): StorefrontDiscoveryResultDto[] {
+    const haveDistance = results.length > 0 && results.every((r) => r.distanceKm !== null);
+    return [...results].sort((a, b) =>
+      haveDistance ? a.distanceKm! - b.distanceKm! : a.name.localeCompare(b.name, 'pl')
+    );
+  }
+
+  private searchVertical(
+    target: 'fitness' | 'academy',
+    options: { search?: string; coordinates?: Coordinates | null }
+  ): Observable<StorefrontDiscoveryResultDto[]> {
     const baseUri = this.configService.getConfig()?.apiConfig?.uri ?? '';
 
-    let params = new HttpParams()
-      .set('businessType', FITNESS_BUSINESS_TYPE)
-      .set('requireFitnessReadiness', 'true');
+    let params = new HttpParams();
+    for (const [key, value] of Object.entries(VERTICAL_QUERY[target])) {
+      params = params.set(key, value);
+    }
     if (options.search) params = params.set('search', options.search);
     if (options.coordinates) {
       params = params

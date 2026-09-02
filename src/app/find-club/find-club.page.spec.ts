@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastController } from '@ionic/angular/standalone';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { FindClubPage } from './find-club.page';
 import { StorefrontDiscoveryService } from '../core/services/storefront-discovery.service';
@@ -52,6 +53,7 @@ describe('FindClubPage', () => {
     await TestBed.configureTestingModule({
       imports: [FindClubPage],
       providers: [
+        provideTranslateService(),
         { provide: StorefrontDiscoveryService, useValue: discovery },
         { provide: MembersApiService, useValue: membersApi },
         { provide: StorefrontProfileService, useValue: storefrontProfile },
@@ -127,6 +129,25 @@ describe('FindClubPage', () => {
       { queryParams: { returnTo: 'join' } }
     );
     expect(component.joiningId).toBeNull();
+  }));
+
+  it('shows a vertical badge per result based on businessType', fakeAsync(() => {
+    discovery.search.and.returnValue(
+      of([
+        { ...sampleResults[0], id: 'fit', businessType: 'Fitness' },
+        { ...sampleResults[0], id: 'acad', businessType: 'SportsSchool' }
+      ])
+    );
+    fixture.detectChanges();
+    tick(300);
+    fixture.detectChanges();
+
+    const badges = Array.from(
+      fixture.nativeElement.querySelectorAll('.vertical-badge')
+    ).map((el) => (el as HTMLElement).textContent?.trim());
+
+    // NoOp translate loader echoes the key.
+    expect(badges).toEqual(['findClub.badge.fitness', 'findClub.badge.academy']);
   }));
 
   it('toggles the manual join ("Zeskanuj kod QR klubu") panel', fakeAsync(() => {

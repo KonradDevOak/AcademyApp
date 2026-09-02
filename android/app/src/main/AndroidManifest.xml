@@ -45,6 +45,28 @@
                 <data android:scheme="@string/custom_url_scheme" android:host="payment-callback" />
             </intent-filter>
 
+            <!-- Parent-invitation deep link (Modules.Academy). Custom-scheme fallback host, matched
+                 by DeepLinkService's CUSTOM_SCHEME_PREFIX; the backend landing page
+                 (AcademyInviteController) redirects the mobile browser here. Its own filter entry
+                 because Android intent-filter data matching is host-scoped. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/custom_url_scheme" android:host="invite" />
+            </intent-filter>
+
+            <!-- Same link as an Android App Link: once verified (blocked today on the release
+                 signing cert / Play App Signing — the /.well-known/assetlinks.json served by the
+                 backend has no fingerprint yet), the https URL opens the app directly and the
+                 landing page above is only shown when the app is not installed. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="api.localbiz.pl" android:pathPrefix="/api/academy/invite" />
+            </intent-filter>
+
         </activity>
 
         <provider

@@ -29,6 +29,9 @@ export interface StorefrontImageDto {
 export interface StorefrontPublicProfileDto {
   id: string;
   name: string;
+  // Vertical discriminator (backend StorefrontBusinessType, e.g. "Fitness" / "SportsSchool") — used
+  // by ActiveVerticalService as a fallback when a membership row carries no businessType.
+  businessType: string;
   // Owner-curated per-club background, split by filename prefix (bg-dark/bg-light) — null until the
   // owner uploads a matching file in File Manager. No consuming screen renders these yet.
   clubBackgroundDarkImage: StorefrontImageDto | null;

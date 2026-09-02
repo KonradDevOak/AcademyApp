@@ -8,6 +8,9 @@ import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
 import { AppInitService } from '@shared/iam-msal-external';
 import { authTokenInterceptor } from './app/interceptors/auth-token.interceptor';
 import { ThemeService } from './app/core/services/theme.service';
@@ -24,6 +27,15 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withInterceptors([authTokenInterceptor])),
+    // Runtime i18n (ngx-translate) — same setup as LocalBizWeb. Polish is the only shipped language;
+    // there is no in-app language switcher. `en.json` exists as a parallel file for future use. The
+    // http loader reads the bundled asset (assets/i18n/<lang>.json in www/), so it works offline; the
+    // auth interceptor skips it (URL has no '/api/').
+    provideTranslateService({
+      lang: 'pl',
+      fallbackLang: 'pl',
+      loader: provideTranslateHttpLoader({ prefix: 'assets/i18n/', suffix: '.json' }),
+    }),
     provideAppInitializer(() => {
       const appInitService = inject(AppInitService);
       return appInitService.init()();

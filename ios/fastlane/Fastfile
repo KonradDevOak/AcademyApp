@@ -1,0 +1,11 @@
+default_platform(:ios)
+
+# TODO: Apple Developer Program nie jest jeszcze założone (zob. CLAUDE.md → "Pipeline
+# wydawniczy" Faza 1/2). Ten plik to świadomy pusty scaffold pod przyszłą automatyzację
+# TestFlight/App Store — NIE jest dziś wpięty do żadnego workflow CI.
+platform :ios do
+  desc "Build a signed release .ipa and publish it to TestFlight"
+  lane :deploy_testflight do
+    UI.user_error!("iOS release lane not configured yet — see CLAUDE.md Faza 1/2 (Apple Developer Program).")
+  end
+end

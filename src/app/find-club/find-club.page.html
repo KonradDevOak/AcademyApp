@@ -26,6 +26,9 @@
     <ion-item *ngFor="let club of results">
       <ion-label>
         <h2>{{ club.name }}</h2>
+        <p class="vertical-badge">
+          {{ (club.businessType === 'SportsSchool' ? 'findClub.badge.academy' : 'findClub.badge.fitness') | translate }}
+        </p>
         <p *ngIf="club.address">{{ club.address }}</p>
         <p *ngIf="club.distanceKm !== null">{{ club.distanceKm | number: '1.0-1' }} km</p>
       </ion-label>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- iOS Universal Links for the parent-invitation deep link (Modules.Academy). Pairs with the
+	     backend's /.well-known/apple-app-site-association. Requires the "Associated Domains"
+	     capability on the App ID in the Apple Developer portal + this file wired as
+	     CODE_SIGN_ENTITLEMENTS in the Xcode target — a manual step, like the CIAM user-flow setup.
+	     Until then the custom-scheme fallback + landing page cover it. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:api.localbiz.pl</string>
+	</array>
+</dict>
+</plist>

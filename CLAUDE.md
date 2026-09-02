@@ -228,8 +228,9 @@ src/app/
 │   └── manual-join/             # "Mam kod od recepcji" — współdzielony przez clubs.page i find-club.page
 ├── complete-profile/          # POST members/complete-profile — pierwsze uzupełnienie profilu; potem
 │                               # find-club (0 członkostw) albo tabs (1+), zob. "Znajdź klub" niżej
-├── find-club/                  # Wyszukiwarka/lista dostępnych klubów fitness — główny sposób dołączania
-├── tabs/                      # ion-tabs shell — 4 taby: Kluby, Grafik, Karnet, Profil
+├── find-club/                  # Wyszukiwarka/lista dostępnych klubów — wielowertykałowa (fitness + akademia)
+├── tabs/                      # ion-tabs shell — warunkowy zestaw tabów per wertykał (zob. "Wielowertykałowość")
+├── academy/                    # Wertykał "Akademia sportowa" — lista dzieci / onboarding / detal (6 segmentów)
 ├── clubs/                     # "Moje kluby" — GET me/memberships, leave, CTA "Znajdź klub" → /find-club
 ├── club-detail/                # Hub klubu (clubs/:storefrontId) — linki do Zgody/Ankieta
 ├── consents/                   # Lista+akceptacja zgód (clubs/:storefrontId/consents, ?returnTo=join)
@@ -244,7 +245,9 @@ src/app/
 │       ├── members-api.service.ts       # api/members/* (rozszerzone o consents/health-questionnaire)
 │       ├── classes-api.service.ts       # api/classes/*
 │       ├── carnets-api.service.ts       # api/carnets/*
-│       ├── storefront-discovery.service.ts # GET api/storefronts/public (find-club) + geolokalizacja
+│       ├── storefront-discovery.service.ts # GET api/storefronts/public (find-club, multi-wertykał) + geolokalizacja
+│       ├── academy-api.service.ts        # api/academy/me/* (wertykał Akademii, MemberBearer)
+│       ├── active-vertical.service.ts    # 'fitness' | 'academy' z MembershipDto.businessType aktywnego klubu
 │       ├── notifications-api.service.ts # api/notifications/native-push-subscriptions
 │       ├── push-notifications.service.ts # wrapper @capacitor/push-notifications, patrz "Push" niżej
 │       ├── storefront-context.service.ts # który klub jest "aktywny" dla Grafik/Karnet, @capacitor/preferences
@@ -265,9 +268,12 @@ Appka ma być **jedna appka na całą branżę fitness**, nie osobna appka na ka
 polegać wyłącznie na ręcznym wpisaniu GUID-a od recepcji. `src/app/find-club/find-club.page.ts` to
 teraz **główny** sposób dołączania:
 
-- `IonSearchbar` + lista wyników z `StorefrontDiscoveryService.search()` (`GET /api/storefronts/public`,
-  zawsze ze stałym `businessType=Fitness&requireFitnessReadiness=true` — appka jest dedykowana branży
-  fitness, zob. `Sandbox/ai/BACKEND_CAPABILITIES.md` §22 i `Sandbox/src/Modules/Storefronts/CLAUDE.md`).
+- `IonSearchbar` + lista wyników z `StorefrontDiscoveryService.search()` (`GET /api/storefronts/public`).
+  Serwis jest **wielowertykałowy** (`vertical: 'fitness' | 'academy' | 'all'`, domyślnie `'all'`): dla
+  `'all'` odpala po jednym żądaniu na wertykał (`businessType=Fitness&requireFitnessReadiness=true` oraz
+  `businessType=SportsSchool&requireAcademyReadiness=true`) i scala wyniki (backendowy `businessType`
+  przyjmuje jedną wartość). Każda karta wyniku ma badge wertykału po `result.businessType`. Zob.
+  `Sandbox/ai/BACKEND_CAPABILITIES.md` §22 i `Sandbox/src/Modules/Storefronts/CLAUDE.md`.
 - Domyślnie sortowane po dystansie (do 30km) — `StorefrontDiscoveryService.getCurrentPosition()` prosi
   o uprawnienie `@capacitor/geolocation`, cicho zwraca `null` przy odmowie/niedostępności/timeout,
   appka wtedy pada na sort alfabetyczny (`isUsingLocation` steruje komunikatem w UI).
@@ -303,6 +309,64 @@ Grafik/Karnet — jeden klub: auto-wybór po cichu; wiele: `ActionSheetControlle
 wejściu w sesji, zapamiętany w `@capacitor/preferences`. Zgody/Ankieta nie potrzebują tego kontekstu —
 są zawsze per-konkretny-klub, osiągane z `ClubDetailPage`.
 
+## Wielowertykałowość (Klub fitness + Akademia sportowa)
+
+Appka obsługuje dwa wertykały platformy: Klub fitness (istniejący) i Akademię sportową
+(`Sandbox/src/Modules/Academy`, KS Master Gang — dzieci, akrobatyka/sztuki walki, panel rodzica).
+Jedna appka, jeden bundle `pl.localbiz.fitnessclub`, jedna rejestracja CIAM.
+
+- **Rozpoznanie aktywnego wertykału**: `ActiveVerticalService.activeVertical$` (`'fitness' | 'academy'`)
+  = `MembershipDto.businessType` klubu wskazanego przez `StorefrontContextService.selectedStorefrontId$`.
+  `businessType` jest już batchowane na `GET /members/me/memberships` i cache'owane
+  (`MembershipsCacheService`) — **żadnego dodatkowego zapytania**. Cokolwiek nieznanego (brak aktywnego
+  klubu, `businessType == null` z fail-open backendu) → `'fitness'` (zachowuje pierwotne zachowanie).
+- **Warunkowy pasek tabów**: `tabs.page.html` renderuje zestaw `ion-tab-button` per wertykał — fitness:
+  Kluby / Grafik / Karnet / Profil; akademia: Kluby / Moje dzieci / Profil. `clubs`/`profile` są
+  wspólne. Trasy `academy-children`, `academy-children/onboarding`, `academy-children/:athleteId`
+  w `tabs.routes.ts`.
+- **Ekrany Akademii** (`src/app/academy/`): `academy-children.page` (lista dzieci — imię, grupa,
+  dyscypliny, „Dodaj dziecko"), `academy-onboarding.page` (formularz „Dodaj dziecko" →
+  `POST me/athletes`), `academy-child-detail.page` (6 segmentów `ion-segment`/`ion-segment-view` wzór
+  `schedule.page` — Zawodnik / Opiekun [telefon edytowalny → `PATCH me/guardian`] / Harmonogram [tylko
+  przy przypisanej grupie, II.3] / Frekwencja [„wrzesień 2026: 4/11"] / Płatności [OPŁACONO/DO ZAPŁATY] /
+  Pasy [chip w kolorze `colorHex`]). Ładowanie danych: RxJS `forkJoin` + `catchError` (repo nie używa
+  `rxResource`). Etykiety enumów backendu → klucze i18n przez `academy/academy-labels.ts`.
+- **Serwis API**: `academy-api.service.ts` — `api/academy/me/*` + `invitations/accept`, wzór
+  `CarnetsApiService`. Modele: `core/models/academy.model.ts`.
+- **Deep link zaproszenia (G3)**: `DeepLinkService` (`core/services/`) — pierwszy centralny router
+  deep linków w appce: jeden `appUrlOpen` + cold start przez `App.getLaunchUrl()` (appka odpalona
+  linkiem, nie wznowiona), plugin `@capacitor/app` przez `CAPACITOR_APP` token (wzór `GEOLOCATION_PLUGIN`).
+  Rozpoznaje custom scheme `pl.localbiz.fitnessclub://invite/academy?token=…&storefrontId=…` (backendowa
+  strona-przelotka `GET api/academy/invite`) **oraz** ten sam URL https jako App Link. Wołany raz
+  z `AppComponent`. Dwa starsze listenery `appUrlOpen` (`auth-callback`, `payment-callback`) zostały
+  świadomie nietknięte — inne hosty, oba zweryfikowane na urządzeniu, konsolidacja to osobny task.
+- **`AcademyInvitePage`** (`src/app/academy/invite/`, trasa `academy-invite` w `app.routes.ts` **poza
+  `tabs` i bez `CustomerGuard`** — rodzic bywa wylogowany): samodzielny flow login CIAM → opcjonalne
+  „Twoje imię" (gdy `profileCompletedAt == null`) → inline lista zgód (`member_consent_required`) →
+  `join` → `invitations/accept` → redirect `/tabs/academy-children/onboarding`. `token`+`storefrontId`
+  w `@capacitor/preferences` (`pending-academy-invite`) — przeżywa round-trip logowania i cold start.
+  Zero zmian w `complete-profile.component` / `consents.page`.
+- **App Links / Universal Links** (`AndroidManifest.xml` `autoVerify="true"` na
+  `https://api.localbiz.pl/api/academy/invite`, `ios/App/App/App.entitlements`): podpięte, ale
+  **weryfikacja nieaktywna** — Android czeka na `assetlinks.json` z odciskiem klucza podpisującego
+  release (ten sam blocker co „Pipeline wydawniczy"), iOS na capability „Associated Domains" w Apple
+  Developer portal + wpięcie `App.entitlements` w target Xcode (`CODE_SIGN_ENTITLEMENTS`, krok ręczny
+  jak „Manualny krok CIAM"). Do tego czasu custom scheme + strona-przelotka w pełni działają.
+- Plan całości: `Sandbox/docs/Akrobatyka/plan-realizacji.md`.
+
+## Internacjonalizacja (i18n)
+
+Wprowadzona w G1 (wcześniej appka nie miała żadnego mechanizmu — twarde polskie litera​ły). ngx-translate
+v18, ten sam setup co LocalBizWeb: `provideTranslateService` + `provideTranslateHttpLoader` w `main.ts`,
+pliki `src/assets/i18n/{pl,en}.json`. `pl` na sztywno, **bez przełącznika języka w UI**; `en.json`
+istnieje jako plik równoległy pod przyszłe potrzeby. Loader czyta zbundlowany asset (`assets/i18n/` w
+`www/` → też w `android/app/src/main/assets/public/`), więc działa offline; interceptor auth go pomija
+(URL bez `/api/`).
+
+**Zakres**: na kluczach są **tylko nowe stringi** (Akademia + dotknięte fragmenty `find-club`). Stary
+kod Klubu (~14 komponentów) zostaje na twardych litera​łach — migracja stopniowa przy okazji edycji
+danego pliku, nie jednorazowo.
+
 ## Rebrand natywny
 
 `capacitor.config.ts`/`android/app/build.gradle`'s `applicationId`/`strings.xml`/iOS
@@ -315,14 +379,48 @@ na `pl.localbiz.fitnessclub`. **Nie zmieniono**: Android `namespace` w `build.gr
 `io.ionic.starter` (musi zgadzać się z faktyczną deklaracją `package` w `MainActivity.java`, która
 wciąż mówi `com.getcapacitor.myapp` — kosmetyczne/porządkowe, nie wpływa na tożsamość appki w sklepie,
 wymagałoby przeniesienia plików Javy, nie zrobione w tym zadaniu). Podpisywanie (signing config)
-Android/iOS — nie skonfigurowane, osobny krok użytkownika przed publikacją.
+iOS — nie skonfigurowane, osobny krok użytkownika przed publikacją. Android — `signingConfigs.release`
+w `android/app/build.gradle` jest okablowany (2026-08-26), ale bez realnego keystore'a wciąż buduje
+się niepodpisany, zob. "Pipeline wydawniczy" niżej.
+
+## Pipeline wydawniczy (Android → Google Play, 2026-08-26)
+
+Zaprojektowany i okablowany, **jeszcze nieuruchomiony end-to-end** (blokuje: konto Google Play Console,
+wygenerowanie keystore'a, `terraform apply` w `Sandbox/iac`). Pełny plan (z linkami/krokami do Play
+Console) w `/home/konraddabrowski/.claude/plans/jak-wdro-y-aplikacj-angular-bubbly-lightning.md`.
+
+- **Strategia gałęzi**: wprowadzona `develop` (lokalnie, nie wypchnięta) — feature branch → PR do
+  `develop` → PR `develop → master` = release gate, wzorowane na
+  `Showcase/.github/workflows/deploy-prod.yml`. Zakres celowo: **pełna automatyzacja aż do produkcji**
+  (nie tylko internal/beta track) — świadomy wybór użytkownika, mimo ryzyka błędnej auto-publikacji.
+- **`.github/workflows/release-android.yml`** (nowy) — trigger `pull_request closed` na `master` +
+  guard `head_ref == 'develop' && merged == true`. `azure/login` (OIDC, bez GitHub Secrets) → pobiera
+  keystore/hasła/Play service account JSON z Azure Key Vault → `cap sync android` → `fastlane android
+  deploy_production` (`android/fastlane/Fastfile`, `upload_to_play_store` track `production`).
+- **`android/app/build.gradle`** — `signingConfigs.release` czyta `android/keystore.properties`
+  (gitignored, tworzony ręcznie raz przez `keytool`) lokalnie, albo `ANDROID_KEYSTORE_*` env (z Key
+  Vault) w CI. Bez żadnego z nich buduje się bez podpisu (`assembleDebug` niezmienione).
+- **Terraform (`Sandbox/iac`, osobne repo)** — nowy moduł `modules/fitnessclub-github-sp/` (OIDC SP,
+  scoped do **Key Vault Secrets User**, nie subskrypcyjny Contributor jak `showcase-github-sp`) +
+  `modules/azure-keyvault/fitnessclub-settings.tf` (5 nowych sekretów: keystore/hasła/alias/Play
+  service account JSON). Gated w root `main.tf` na `var.fitnessclub_github_repository != ""` — moduł
+  nic nie tworzy, dopóki `env/prod.tfvars`'s `fitnessclub_github_repository` (dziś `""`) nie zostanie
+  uzupełnione realną ścieżką repo. `terraform validate`/`fmt` przeszły lokalnie (2026-08-26), **`plan`/
+  `apply` nie uruchomione** — kod nieprzejrzany/niezmergowany w `Sandbox/iac`.
+- **`ios/fastlane/Fastfile`** — pusty scaffold (`UI.user_error!`), nie wpięty do żadnego CI — Apple
+  Developer Program nie założone, iOS świadomie poza zakresem tej iteracji.
+- **Pierwszy release do Play zawsze ręczny** (Testing → Internal testing → Create release) — moment
+  opt-in do Play App Signing i pierwszej walidacji store listing; `fastlane supply`/`upload_to_play_store`
+  działa dopiero od drugiego uploadu.
 
 ## Testing
 
 Zero realnego pokrycia CI odziedziczone z Mobile (`0 meaningful specs` per Sandbox `ai/TESTING.md`
 pierwotnie) — nie traktować jak siatki bezpieczeństwa. `.github/workflows/build-and-test.yml` w tym
-repo robi tylko `lint` + `ng build` (web bundle) — **nie** builduje/podpisuje/publikuje Android/iOS,
-to świadomie poza zakresem, większa inwestycja CI na później.
+repo robi tylko `lint` + `ng build` (web bundle) na PR-ach i push do `master`. Osobny
+`.github/workflows/release-android.yml` (2026-08-26, zob. "Pipeline wydawniczy" wyżej) buduje/podpisuje/
+publikuje Androida do Play Store, ale tylko po zmergowanym PR `develop → master` — świadomie osobny
+workflow, nie rozszerzenie `build-and-test.yml`. iOS build/sign/publish nadal poza zakresem.
 
 **Stan weryfikacji na realnym urządzeniu** (zob. "Test na fizycznym urządzeniu Android przez USB"):
 cały CIAM login round-trip (2026-07-24/25, patrz "Auth — Entra External ID" i "Manualny krok CIAM"
@@ -330,12 +428,17 @@ wyżej) zweryfikowany end-to-end. Wciąż niepotwierdzone: discovery klubów (`f
 urządzeniu, push notifications, P24 checkout, cokolwiek na iOS — pełna, aktualna lista: "Znane luki /
 do zrobienia" niżej.
 
-**Karma (2026-07-25)**: 18 speców, wszystkie zielone (`npm test` / `ng test --watch=false
---browsers=ChromeHeadless`) — 3 boilerplate sprzed tego zadania (`app.component`, `tab1.page`,
-`tabs.page` — ostatni wymagał doklejenia `provideHttpClient()`, bo `TabsPage.ngOnInit()` woła
-`PushNotificationsService`→`NotificationsApiService`→`HttpClient`) + nowe dla discovery klubów:
-`storefront-discovery.service.spec.ts`, `find-club.page.spec.ts`, `clubs.page.spec.ts`. Nadal nie
-liczyć tego jako realnej siatki bezpieczeństwa — nie ma pokrycia dla większości appki (schedule/carnet/
+**Karma**: 19 plików speców, wszystkie zielone (`npm test` / `ng test --watch=false
+--browsers=ChromeHeadless`) — boilerplate (`app.component`, `tab1.page`, `tabs.page` — ostatni wymagał
+doklejenia `provideHttpClient()`, bo `TabsPage.ngOnInit()` woła
+`PushNotificationsService`→`NotificationsApiService`→`HttpClient`), discovery klubów
+(`storefront-discovery.service.spec.ts`, `find-club.page.spec.ts`, `clubs.page.spec.ts`), Akademia
+(`academy-api.service.spec.ts`, `active-vertical.service.spec.ts`, 3 ekrany `academy/**/*.page.spec.ts`
+— wzór `schedule.page.spec.ts`: mock `*ApiService`, `getMyMemberships` → `of([membership])`,
+`storefrontContext.resolve` → `resolveTo('sf-1')`, `provideRouter([])` + `provideTranslateService()`;
+asercje kolorów/klas `ion-*` bywają zawodne w headless — testować logikę/propsy, nie hydrację web
+componentu). Nadal nie liczyć tego jako realnej siatki bezpieczeństwa — nie ma pokrycia dla większości
+appki (schedule/carnet/
 consents/health-questionnaire), tylko dla kodu dotkniętego tym zadaniem.
 
 ## Push notifications — natywny FCM (decyzja 2026-07-21, nie web-push)
@@ -397,3 +500,10 @@ FCM/APNs, realna dostawa po triggerze (np. odwołanie sesji), i cały P24 checko
 - **CORS dla iOS** — dev CORS dopuszcza `http://localhost` (Android `androidScheme: 'http'`), ale
   domyślny schemat Capacitor dla iOS (`capacitor://localhost`) nie jest dziś na liście
   `member_native_app_cors_origins` (`Sandbox/iac/env/*.tfvars`) — do sprawdzenia przed testami na iOS.
+- **Pipeline wydawniczy Android niezweryfikowany end-to-end (2026-08-26)** — kod okablowany (zob.
+  "Pipeline wydawniczy" wyżej), ale zablokowany na czysto ręcznych krokach użytkownika: konto Google
+  Play Console nie założone, upload keystore nie wygenerowany, pierwszy ręczny upload do Play Console
+  nie zrobiony, `terraform plan`/`apply` w `Sandbox/iac` nie uruchomione (więc Key Vault nie ma jeszcze
+  tych sekretów ani nie istnieje service principal dla CI), gałąź `develop` istnieje tylko lokalnie
+  (nie wypchnięta). `release-android.yml` nie uruchomi się z sukcesem, dopóki te kroki nie zostaną
+  wykonane po kolei.

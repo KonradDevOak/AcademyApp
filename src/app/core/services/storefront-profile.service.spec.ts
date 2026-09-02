@@ -42,6 +42,7 @@ describe('StorefrontProfileService', () => {
       const dto: StorefrontPublicProfileDto = {
         id: 'club-1',
         name: 'Fit Club',
+        businessType: 'Fitness',
         clubBackgroundDarkImage: null,
         clubBackgroundLightImage: null
       };

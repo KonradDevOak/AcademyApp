@@ -19,6 +19,7 @@ import {
   IonText,
   ToastController
 } from '@ionic/angular/standalone';
+import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { addOutline, locationOutline, chevronDownOutline, chevronUpOutline } from 'ionicons/icons';
 import { StorefrontDiscoveryService, Coordinates } from '../core/services/storefront-discovery.service';
@@ -50,7 +51,8 @@ import { ManualJoinComponent } from '../components/manual-join/manual-join.compo
     IonIcon,
     IonSpinner,
     IonText,
-    ManualJoinComponent
+    ManualJoinComponent,
+    TranslatePipe
   ],
 })
 export class FindClubPage implements OnInit {

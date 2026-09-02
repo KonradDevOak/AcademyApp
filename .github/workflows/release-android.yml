@@ -1,0 +1,113 @@
+name: Release Android to Play Store
+
+# Publikacja produkcyjna Androida po zmergowanym PR develop -> master. Wzorowane na
+# Showcase/.github/workflows/deploy-prod.yml (ten sam guard head_ref/base_ref/merged).
+# Sekrety (keystore, Play service account JSON) są pobierane w runtime z Azure Key Vault
+# przez OIDC (azure/login), nie trzymane jako GitHub Secrets — zob. CLAUDE.md Faza 3.
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  check-merge:
+    name: Check if PR was merged from develop to master
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+    steps:
+      - name: Check merge conditions
+        id: check
+        env:
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [[ "$PR_MERGED" == "true" && "$HEAD_REF" == "develop" && "$BASE_REF" == "master" ]]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  release-android:
+    name: Build, sign and publish to Google Play (production)
+    needs: check-merge
+    if: needs.check-merge.outputs.should_release == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Fetch release secrets from Key Vault
+        env:
+          KEY_VAULT_NAME: ${{ vars.AZURE_KEYVAULT_NAME }}
+        run: |
+          fetch_secret() {
+            az keyvault secret show --vault-name "$KEY_VAULT_NAME" --name "$1" --query value -o tsv
+          }
+          {
+            echo "ANDROID_KEYSTORE_B64<<EOF"
+            fetch_secret "fitnessclub-android-keystore"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+          echo "ANDROID_KEYSTORE_PASSWORD=$(fetch_secret 'fitnessclub-android-keystore-password')" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS=$(fetch_secret 'fitnessclub-android-key-alias')" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$(fetch_secret 'fitnessclub-android-key-password')" >> "$GITHUB_ENV"
+          fetch_secret "fitnessclub-play-service-account-json" > "$RUNNER_TEMP/play-service-account.json"
+          echo "PLAY_SERVICE_ACCOUNT_JSON_PATH=$RUNNER_TEMP/play-service-account.json" >> "$GITHUB_ENV"
+
+      - name: Decode keystore
+        run: |
+          echo "$ANDROID_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/fitnessclub-upload.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/fitnessclub-upload.jks" >> "$GITHUB_ENV"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Angular app (production)
+        run: npm run build -- --configuration production
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Ruby (Fastlane)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: false
+          working-directory: android
+
+      - name: Install Fastlane
+        working-directory: android
+        run: gem install fastlane --no-document
+
+      - name: Deploy to Google Play (production track)
+        working-directory: android
+        run: fastlane deploy_production

@@ -1,5 +1,19 @@
 apply plugin: 'com.android.application'
 
+// Release signing: reads android/keystore.properties locally (gitignored, created once
+// after `keytool -genkeypair ...`, see CLAUDE.md) or ANDROID_KEYSTORE_* env vars in CI
+// (populated from Azure Key Vault by .github/workflows/release-android.yml). Falls back to
+// null signingConfig if neither is present, so `assembleDebug`/plain `./gradlew build`
+// keep working without any of this configured.
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+def resolveSigningProperty = { propKey, envKey ->
+    keystorePropertiesFile.exists() ? keystoreProperties[propKey] : System.getenv(envKey)
+}
+
 android {
     // namespace intentionally left as the Capacitor default — it must match the actual Java
     // `package` declaration in MainActivity.java (still `com.getcapacitor.myapp`), which was not
@@ -20,10 +34,23 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            def storeFilePath = resolveSigningProperty('storeFile', 'ANDROID_KEYSTORE_PATH')
+            if (storeFilePath) {
+                storeFile file(storeFilePath)
+                storePassword resolveSigningProperty('storePassword', 'ANDROID_KEYSTORE_PASSWORD')
+                keyAlias resolveSigningProperty('keyAlias', 'ANDROID_KEY_ALIAS')
+                keyPassword resolveSigningProperty('keyPassword', 'ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Only signed if keystore.properties/env vars resolved above — see comment at top.
+            signingConfig signingConfigs.release.storeFile ? signingConfigs.release : null
         }
     }
 }

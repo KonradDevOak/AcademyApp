@@ -39,25 +39,55 @@ describe('StorefrontDiscoveryService', () => {
   afterEach(() => httpMock.verify());
 
   describe('search', () => {
-    it('always scopes the request to fitness-ready clubs and forwards search/coordinates', () => {
-      service.search({ search: 'fit klub', coordinates: { latitude: 52.1, longitude: 21.0 } }).subscribe();
+    const url = 'https://api.test/api/storefronts/public';
 
-      const req = httpMock.expectOne(
-        (r) => r.url === 'https://api.test/api/storefronts/public'
-      );
+    it('scopes a fitness search to fitness-ready clubs and forwards search/coordinates', () => {
+      service
+        .search({ search: 'fit klub', coordinates: { latitude: 52.1, longitude: 21.0 }, vertical: 'fitness' })
+        .subscribe();
+
+      const req = httpMock.expectOne((r) => r.url === url);
       expect(req.request.params.get('businessType')).toBe('Fitness');
       expect(req.request.params.get('requireFitnessReadiness')).toBe('true');
+      expect(req.request.params.has('requireAcademyReadiness')).toBeFalse();
       expect(req.request.params.get('search')).toBe('fit klub');
       expect(req.request.params.get('lat')).toBe('52.1');
       expect(req.request.params.get('lng')).toBe('21');
       req.flush([]);
     });
 
-    it('omits lat/lng and search when not provided', () => {
-      service.search({}).subscribe();
+    it('scopes an academy search to academy-ready sports schools', () => {
+      service.search({ vertical: 'academy' }).subscribe();
 
-      const req = httpMock.expectOne('https://api.test/api/storefronts/public'
-        + '?businessType=Fitness&requireFitnessReadiness=true');
+      const req = httpMock.expectOne((r) => r.url === url);
+      expect(req.request.params.get('businessType')).toBe('SportsSchool');
+      expect(req.request.params.get('requireAcademyReadiness')).toBe('true');
+      expect(req.request.params.has('requireFitnessReadiness')).toBeFalse();
+      req.flush([]);
+    });
+
+    it('fans out to both verticals by default and merges the results', () => {
+      const merged: string[] = [];
+      service.search({}).subscribe((results) => merged.push(...results.map((r) => r.id)));
+
+      const reqs = httpMock.match((r) => r.url === url);
+      expect(reqs.length).toBe(2);
+      expect(reqs.map((r) => r.request.params.get('businessType')).sort()).toEqual(['Fitness', 'SportsSchool']);
+
+      reqs.find((r) => r.request.params.get('businessType') === 'Fitness')!.flush([
+        { id: 'fit', name: 'Fit', address: null, businessType: 'Fitness', services: [], isOpenNow: true, rating: null, ratingCount: 0, distanceKm: null }
+      ]);
+      reqs.find((r) => r.request.params.get('businessType') === 'SportsSchool')!.flush([
+        { id: 'acad', name: 'Acro', address: null, businessType: 'SportsSchool', services: [], isOpenNow: true, rating: null, ratingCount: 0, distanceKm: null }
+      ]);
+
+      expect(merged.sort()).toEqual(['acad', 'fit']);
+    });
+
+    it('omits lat/lng and search when not provided', () => {
+      service.search({ vertical: 'fitness' }).subscribe();
+
+      const req = httpMock.expectOne((r) => r.url === url);
       expect(req.request.params.has('lat')).toBeFalse();
       expect(req.request.params.has('search')).toBeFalse();
       req.flush([]);

@@ -1,0 +1,178 @@
+{
+  "tabs": {
+    "clubs": "Moje kluby",
+    "schedule": "Grafik",
+    "carnet": "Karnet",
+    "profile": "Profil",
+    "academyChildren": "Moje dzieci"
+  },
+  "academy": {
+    "invite": {
+      "title": "Zaproszenie do akademii",
+      "intro": "Aby dokończyć zakładanie konta rodzica, zaloguj się kontem na adres e-mail, na który przyszło zaproszenie.",
+      "loginCta": "Zaloguj się",
+      "working": "Chwila…",
+      "profilePrompt": "Podaj swoje imię i nazwisko — tak będziesz widoczny dla akademii.",
+      "profileNameLabel": "Imię i nazwisko",
+      "profileCta": "Dalej",
+      "consentsPrompt": "Zanim dołączysz do akademii, zaakceptuj poniższe dokumenty.",
+      "consentShow": "Zobacz treść",
+      "consentAccept": "Akceptuję",
+      "consentContinue": "Kontynuuj",
+      "retry": "Spróbuj ponownie",
+      "errors": {
+        "notFound": "Link zaproszenia jest nieprawidłowy.",
+        "expired": "Link wygasł. Poproś akademię o nowe zaproszenie.",
+        "emailMismatch": "To zaproszenie wysłano na inny adres e-mail. Zaloguj się kontem na adres, na który przyszło zaproszenie.",
+        "emailMismatchCta": "Zaloguj się innym kontem",
+        "generic": "Coś poszło nie tak. Spróbuj ponownie."
+      }
+    },
+    "children": {
+      "title": "Moje dzieci",
+      "addChild": "Dodaj dziecko",
+      "empty": "Nie masz jeszcze dodanych dzieci.",
+      "noClubs": "Dołącz do akademii, żeby dodać dziecko.",
+      "noClubsCta": "Moje kluby",
+      "noGroup": "Brak grupy",
+      "loadError": "Nie udało się wczytać listy dzieci."
+    },
+    "onboarding": {
+      "title": "Dodaj dziecko",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "dateOfBirth": "Data urodzenia",
+      "disciplinesLabel": "Zajęcia",
+      "frequencyLabel": "Treningi",
+      "localityLabel": "Preferowana miejscowość",
+      "localityPlaceholder": "Wybierz miejscowość",
+      "submit": "Zapisz dziecko",
+      "saving": "Zapisywanie…",
+      "pickClubFirst": "Najpierw wybierz akademię w zakładce „Moje kluby”.",
+      "errors": {
+        "minDiscipline": "Zaznacz przynajmniej jedne zajęcia.",
+        "mustHaveDiscipline": "Zaznacz przynajmniej jedne zajęcia.",
+        "invalidDiscipline": "Wybrane zajęcia są nieprawidłowe.",
+        "invalidFrequency": "Wybrana częstotliwość treningów jest nieprawidłowa.",
+        "guardianNotFound": "Twoje konto opiekuna nie jest jeszcze aktywne w tej akademii.",
+        "generic": "Nie udało się zapisać dziecka. Spróbuj ponownie."
+      }
+    },
+    "childDetail": {
+      "title": "Dane zawodnika",
+      "loadError": "Nie udało się wczytać danych dziecka.",
+      "tabs": {
+        "athlete": "Zawodnik",
+        "guardian": "Opiekun",
+        "schedule": "Harmonogram",
+        "attendance": "Frekwencja",
+        "payments": "Płatności",
+        "grades": "Pasy"
+      },
+      "athlete": {
+        "firstName": "Imię",
+        "lastName": "Nazwisko",
+        "dateOfBirth": "Data urodzenia",
+        "disciplines": "Zajęcia",
+        "locality": "Miejscowość",
+        "group": "Grupa",
+        "frequency": "Treningi",
+        "noGroup": "Brak przypisanej grupy"
+      },
+      "guardian": {
+        "firstName": "Imię",
+        "lastName": "Nazwisko",
+        "phone": "Telefon",
+        "save": "Zapisz",
+        "saved": "Zapisano zmiany.",
+        "saveError": "Nie udało się zapisać zmian."
+      },
+      "schedule": {
+        "notAssigned": "Dziecko nie ma jeszcze przypisanej grupy — harmonogram pojawi się po przypisaniu.",
+        "empty": "Grupa nie ma jeszcze ustalonego harmonogramu."
+      },
+      "attendance": {
+        "empty": "Brak wpisów frekwencji."
+      },
+      "grades": {
+        "current": "Aktualny stopień",
+        "history": "Historia",
+        "none": "Brak nadanego stopnia.",
+        "examiner": "Egzaminator",
+        "result": {
+          "passed": "Zdany",
+          "failed": "Niezdany"
+        }
+      }
+    },
+    "discipline": {
+      "acrobatics": "Akrobatyka",
+      "martialArts": "Sztuki walki"
+    },
+    "frequency": {
+      "oncePerWeek": "Raz w tygodniu",
+      "twicePerWeek": "Dwa razy w tygodniu"
+    },
+    "locality": {
+      "drobin": "Drobin",
+      "sierpc": "Sierpc",
+      "plock": "Płock"
+    },
+    "payments": {
+      "paid": "OPŁACONO",
+      "due": "DO ZAPŁATY",
+      "expected": "Kwota",
+      "paidAmount": "Wpłacono",
+      "empty": "Brak naliczeń.",
+      "payOnline": "Zapłać online",
+      "payError": "Nie udało się rozpocząć płatności. Spróbuj ponownie.",
+      "lateFee": "Opłata administracyjna",
+      "method": {
+        "BankTransfer": "Przelew",
+        "Cash": "Gotówka",
+        "Przelewy24": "Przelewy24",
+        "Blik": "BLIK"
+      }
+    },
+    "billingPlan": {
+      "autoPay": "Płać automatycznie",
+      "enable": "Włącz płatność automatyczną",
+      "enableError": "Nie udało się włączyć płatności automatycznej. Spróbuj ponownie.",
+      "disabledHint": "Płatność automatyczna nie jest włączona.",
+      "toggleError": "Nie udało się zmienić ustawienia. Spróbuj ponownie.",
+      "failed": "Ostatnia płatność automatyczna nie powiodła się.",
+      "retry": "Ponów",
+      "retryStarted": "Ponowimy płatność przy najbliższej próbie.",
+      "retryError": "Nie udało się ponowić płatności. Spróbuj ponownie."
+    },
+    "day": {
+      "monday": "Poniedziałek",
+      "tuesday": "Wtorek",
+      "wednesday": "Środa",
+      "thursday": "Czwartek",
+      "friday": "Piątek",
+      "saturday": "Sobota",
+      "sunday": "Niedziela"
+    },
+    "month": {
+      "1": "styczeń",
+      "2": "luty",
+      "3": "marzec",
+      "4": "kwiecień",
+      "5": "maj",
+      "6": "czerwiec",
+      "7": "lipiec",
+      "8": "sierpień",
+      "9": "wrzesień",
+      "10": "październik",
+      "11": "listopad",
+      "12": "grudzień"
+    }
+  },
+  "findClub": {
+    "badge": {
+      "fitness": "Klub fitness",
+      "academy": "Akademia sportowa"
+    }
+  }
+}

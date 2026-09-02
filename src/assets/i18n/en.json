@@ -1,0 +1,178 @@
+{
+  "tabs": {
+    "clubs": "My clubs",
+    "schedule": "Schedule",
+    "carnet": "Membership",
+    "profile": "Profile",
+    "academyChildren": "My children"
+  },
+  "academy": {
+    "invite": {
+      "title": "Academy invitation",
+      "intro": "To finish setting up your parent account, sign in with the e-mail address the invitation was sent to.",
+      "loginCta": "Sign in",
+      "working": "One moment…",
+      "profilePrompt": "Enter your name — this is how the academy will see you.",
+      "profileNameLabel": "Full name",
+      "profileCta": "Continue",
+      "consentsPrompt": "Before joining the academy, please accept the documents below.",
+      "consentShow": "View document",
+      "consentAccept": "Accept",
+      "consentContinue": "Continue",
+      "retry": "Try again",
+      "errors": {
+        "notFound": "This invitation link is not valid.",
+        "expired": "The link has expired. Ask the academy to send a new invitation.",
+        "emailMismatch": "This invitation was sent to a different e-mail address. Sign in with the account it was sent to.",
+        "emailMismatchCta": "Sign in with a different account",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "children": {
+      "title": "My children",
+      "addChild": "Add a child",
+      "empty": "You haven't added any children yet.",
+      "noClubs": "Join an academy to add a child.",
+      "noClubsCta": "My clubs",
+      "noGroup": "No group",
+      "loadError": "Could not load the list of children."
+    },
+    "onboarding": {
+      "title": "Add a child",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dateOfBirth": "Date of birth",
+      "disciplinesLabel": "Classes",
+      "frequencyLabel": "Training",
+      "localityLabel": "Preferred town",
+      "localityPlaceholder": "Choose a town",
+      "submit": "Save child",
+      "saving": "Saving…",
+      "pickClubFirst": "Pick an academy in the \"My clubs\" tab first.",
+      "errors": {
+        "minDiscipline": "Select at least one type of class.",
+        "mustHaveDiscipline": "Select at least one type of class.",
+        "invalidDiscipline": "The selected classes are invalid.",
+        "invalidFrequency": "The selected training frequency is invalid.",
+        "guardianNotFound": "Your guardian account is not active in this academy yet.",
+        "generic": "Could not save the child. Please try again."
+      }
+    },
+    "childDetail": {
+      "title": "Athlete details",
+      "loadError": "Could not load the child's data.",
+      "tabs": {
+        "athlete": "Athlete",
+        "guardian": "Guardian",
+        "schedule": "Schedule",
+        "attendance": "Attendance",
+        "payments": "Payments",
+        "grades": "Belts"
+      },
+      "athlete": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "dateOfBirth": "Date of birth",
+        "disciplines": "Classes",
+        "locality": "Town",
+        "group": "Group",
+        "frequency": "Training",
+        "noGroup": "No group assigned"
+      },
+      "guardian": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phone": "Phone",
+        "save": "Save",
+        "saved": "Changes saved.",
+        "saveError": "Could not save the changes."
+      },
+      "schedule": {
+        "notAssigned": "The child has no group assigned yet — the schedule will appear once assigned.",
+        "empty": "The group has no schedule set yet."
+      },
+      "attendance": {
+        "empty": "No attendance entries."
+      },
+      "grades": {
+        "current": "Current belt",
+        "history": "History",
+        "none": "No belt awarded.",
+        "examiner": "Examiner",
+        "result": {
+          "passed": "Passed",
+          "failed": "Failed"
+        }
+      }
+    },
+    "discipline": {
+      "acrobatics": "Acrobatics",
+      "martialArts": "Martial arts"
+    },
+    "frequency": {
+      "oncePerWeek": "Once a week",
+      "twicePerWeek": "Twice a week"
+    },
+    "locality": {
+      "drobin": "Drobin",
+      "sierpc": "Sierpc",
+      "plock": "Płock"
+    },
+    "payments": {
+      "paid": "PAID",
+      "due": "DUE",
+      "expected": "Amount",
+      "paidAmount": "Paid",
+      "empty": "No charges.",
+      "payOnline": "Pay online",
+      "payError": "Could not start the payment. Please try again.",
+      "lateFee": "Administrative fee",
+      "method": {
+        "BankTransfer": "Bank transfer",
+        "Cash": "Cash",
+        "Przelewy24": "Przelewy24",
+        "Blik": "BLIK"
+      }
+    },
+    "billingPlan": {
+      "autoPay": "Pay automatically",
+      "enable": "Enable auto-pay",
+      "enableError": "Could not enable auto-pay. Please try again.",
+      "disabledHint": "Auto-pay is not enabled.",
+      "toggleError": "Could not change the setting. Please try again.",
+      "failed": "The last automatic payment failed.",
+      "retry": "Retry",
+      "retryStarted": "We'll retry the payment on the next attempt.",
+      "retryError": "Could not retry the payment. Please try again."
+    },
+    "day": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    },
+    "month": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    }
+  },
+  "findClub": {
+    "badge": {
+      "fitness": "Fitness club",
+      "academy": "Sports academy"
+    }
+  }
+}

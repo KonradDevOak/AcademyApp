@@ -25,6 +25,7 @@ describe('ManualJoinComponent', () => {
   const profile: StorefrontPublicProfileDto = {
     id: 'club-1',
     name: 'Fit Club',
+    businessType: 'Fitness',
     clubBackgroundDarkImage: null,
     clubBackgroundLightImage: null
   };

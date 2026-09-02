@@ -38,6 +38,8 @@
     "@capacitor/toast": "^7.0.1",
     "@ionic/angular": "^8.6.5",
     "@ionic/pwa-elements": "^3.3.0",
+    "@ngx-translate/core": "^18.0.0",
+    "@ngx-translate/http-loader": "^18.0.0",
     "ionicons": "^7.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
