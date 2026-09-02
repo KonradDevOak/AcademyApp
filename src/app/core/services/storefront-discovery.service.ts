@@ -13,7 +13,7 @@ export interface Coordinates {
 
 // Which vertical(s) to search. 'all' (the default) fans out one request per vertical and merges the
 // results — the backend's businessType param takes a single value, so a cross-vertical list needs two
-// calls. FitnessClub is multi-vertical: a parent looking for a sports academy and a member looking for
+// calls. SportClub is multi-vertical: a parent looking for a sports academy and a member looking for
 // a fitness club both land on the same find-club screen.
 export type DiscoveryVertical = 'fitness' | 'academy' | 'all';
 

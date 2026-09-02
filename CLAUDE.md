@@ -2,16 +2,18 @@
 
 ## Co to jest
 
-FitnessClub — natywna appka klubowicza (Android/iOS, Ionic 8 + Capacitor 7 + Angular 20) platformy
+SportClub — natywna appka klubowicza (Android/iOS, Ionic 8 + Capacitor 7 + Angular 20) platformy
 LocalBiz. Wyekstrahowana 2026-07-18 z `Sandbox/src/Clients/Mobile` (dawniej opisywana jako appka
 właściciela — w praktyce zawierała martwy kod po nieudanym pivocie w stronę weryfikacji autentyczności
 produktów; ten kod został usunięty, nie zmigrowany).
 
-**Nazewnictwo — repo vs. tożsamość appki (2026-07-24)**: "FitnessClub" to nazwa repo/projektu, nie
-zmienia się. Rzeczywista tożsamość natywna appki (bundle id/`applicationId`, display name, custom
-URL scheme) była na krótko rebrandowana na `pl.localbiz.fitnessClub`/"FitnessClub", ale to zostało
-cofnięte z powrotem na `pl.localbiz.fitnessclub`/"FitnessClub" — to jest ostateczny, docelowy stan
-(nie stary/martwy kod do posprzątania). Zob. "Rebrand natywny" niżej po aktualne wartości.
+**Nazewnictwo (2026-09-02)**: appka i repo, wcześniej "FitnessClub", zostały przemianowane na
+"SportClub" (`Workspace/FitnessClub` → `Workspace/SportClub`; bundle id/`applicationId`/custom URL
+scheme/display name `pl.localbiz.fitnessclub`/"FitnessClub" → `pl.localbiz.sportclub`/"SportClub";
+redirect URI w Terraformie i wszystkie appka-side stałe zaktualizowane w tej samej zmianie). Osobna,
+starsza historia (2026-07-24): pod poprzednią nazwą appka była na krótko rebrandowana na
+`pl.localbiz.fitnessClub` (camelCase) i cofnięta do `fitnessclub` — dotyczyła nazwy "FitnessClub" i
+jest nieaktualna teraz, że appka nazywa się inaczej. Zob. "Rebrand natywny" niżej po aktualne wartości.
 
 Trzy frontendy platformy LocalBiz, wszystkie mówiące z jednym backendem w repo `Sandbox`:
 
@@ -19,7 +21,7 @@ Trzy frontendy platformy LocalBiz, wszystkie mówiące z jednym backendem w repo
 |---|---|---|
 | LocalBizWeb | `Sandbox/src/Clients/LocalBizWeb` | właściciel klubu (panel `/club`: grafik, karnety) |
 | Showcase | `Workspace/Showcase` (osobne repo) | odwiedzający — publiczna wizytówka, **bez logowania** |
-| **FitnessClub** | `Workspace/FitnessClub` (to repo) | klubowicz — logowanie, grafik, karnety, zgody |
+| **SportClub** | `Workspace/SportClub` (to repo) | klubowicz — logowanie, grafik, karnety, zgody |
 
 Pełny kontrakt backendu (Members/Classes/Carnets/Notifications, endpointy member-facing):
 `Sandbox/ai/BACKEND_CAPABILITIES.md` + per-moduł `CLAUDE.md` w `Sandbox/src/Modules/*/CLAUDE.md`.
@@ -89,7 +91,7 @@ Wi-Fi (router z client isolation by to zablokował, USB nie):
 **Zweryfikowane na żywym urządzeniu (Infinix X676C), CIAM login round-trip w pełni działający
 (2026-07-25)**: cały bootstrap (`member-configuration` fetch), routing do `/login`, otwarcie systemowej
 przeglądarki przez `onRedirectNavigate`/`Browser.open()` na prawdziwy ekran CIAM (tenant `ciamlocalbiz`,
-`localbiz.ciamlogin.com`), powrót przez `appUrlOpen`/`pl.localbiz.fitnessclub://auth-callback`, wymiana
+`localbiz.ciamlogin.com`), powrót przez `appUrlOpen`/`pl.localbiz.sportclub://auth-callback`, wymiana
 kodu na token (`handleRedirectPromise()`), i walidacja tego tokenu przez backend (`MemberBearer`) — cały
 łańcuch potwierdzony end-to-end aż do ekranu "Uzupełnij profil". Po drodze znalezione i naprawione dwa
 osobne błędy (jeden IaC, jeden backendowy, żaden w kodzie appki): `AADSTS9002326` (redirect URI
@@ -148,12 +150,12 @@ praktyce żadnego importu z niego (tylko nieużywana wzmianka w `package.json`'s
    `onRedirectNavigate: (url) => { Browser.open({ url }); return false; }`, co zatrzymuje wewnętrzną
    nawigację MSAL i zamiast tego otwiera `@capacitor/browser`'owy system browser. Powrót łapie
    `@capacitor/app`'s `App.addListener('appUrlOpen', ...)` na `NATIVE_REDIRECT_URI =
-   'pl.localbiz.fitnessclub://auth-callback'`, po czym `handleRedirectPromise(fragment)` kończy wymianę
+   'pl.localbiz.sportclub://auth-callback'`, po czym `handleRedirectPromise(fragment)` kończy wymianę
    kodu na tokeny (MSAL nadal robi całą kryptografię — PKCE/state/nonce — sam).
    **Zweryfikowane na żywym urządzeniu 2026-07-24, znaleziony blocker**: `onRedirectNavigate`/
    `Browser.open()` poprawnie otwiera system browser na ekranie CIAM, logowanie się kończy, Entra
-   poprawnie redirectuje przez `pl.localbiz.fitnessclub://auth-callback`, i Android poprawnie wznawia
-   appkę przez `appUrlOpen` (widoczne w `adb logcat` jako `START ... dat=pl.localbiz.fitnessclub://
+   poprawnie redirectuje przez `pl.localbiz.sportclub://auth-callback`, i Android poprawnie wznawia
+   appkę przez `appUrlOpen` (widoczne w `adb logcat` jako `START ... dat=pl.localbiz.sportclub://
    auth-callback/`). Ale `handleRedirectPromise()` rzuca `ServerError: AADSTS9002326 — Cross-origin
    token redemption is permitted only for the 'Single-Page Application' client-type. Request origin:
    'http://localhost'` — bo ten `fetch()` do endpointu tokenowego wykonuje się z poziomu JS w WebView
@@ -182,7 +184,7 @@ Zob. `Sandbox/src/Modules/Members/CLAUDE.md` → "IaC — krok ręczny": w Azure
 Members — **to jedyny krok, którego Terraform naprawdę nie robi**. Żaden test logowania end-to-end
 nie zadziała bez niego.
 
-**Redirect URI `pl.localbiz.fitnessclub://auth-callback` NIE jest manualnym krokiem** — mimo że
+**Redirect URI `pl.localbiz.sportclub://auth-callback` NIE jest manualnym krokiem** — mimo że
 wcześniejsza wersja tej notatki tak twierdziła. Jest w pełni zarządzany Terraformem, w `Sandbox/iac`:
 `member_native_redirect_uris` (`Sandbox/iac/variables.tf`, wartość w `Sandbox/iac/env/{dev,prod}.tfvars`)
 → `modules/azure-ad-external/ad-application-spa.tf`.
@@ -313,7 +315,7 @@ są zawsze per-konkretny-klub, osiągane z `ClubDetailPage`.
 
 Appka obsługuje dwa wertykały platformy: Klub fitness (istniejący) i Akademię sportową
 (`Sandbox/src/Modules/Academy`, KS Master Gang — dzieci, akrobatyka/sztuki walki, panel rodzica).
-Jedna appka, jeden bundle `pl.localbiz.fitnessclub`, jedna rejestracja CIAM.
+Jedna appka, jeden bundle `pl.localbiz.sportclub`, jedna rejestracja CIAM.
 
 - **Rozpoznanie aktywnego wertykału**: `ActiveVerticalService.activeVertical$` (`'fitness' | 'academy'`)
   = `MembershipDto.businessType` klubu wskazanego przez `StorefrontContextService.selectedStorefrontId$`.
@@ -336,7 +338,7 @@ Jedna appka, jeden bundle `pl.localbiz.fitnessclub`, jedna rejestracja CIAM.
 - **Deep link zaproszenia (G3)**: `DeepLinkService` (`core/services/`) — pierwszy centralny router
   deep linków w appce: jeden `appUrlOpen` + cold start przez `App.getLaunchUrl()` (appka odpalona
   linkiem, nie wznowiona), plugin `@capacitor/app` przez `CAPACITOR_APP` token (wzór `GEOLOCATION_PLUGIN`).
-  Rozpoznaje custom scheme `pl.localbiz.fitnessclub://invite/academy?token=…&storefrontId=…` (backendowa
+  Rozpoznaje custom scheme `pl.localbiz.sportclub://invite/academy?token=…&storefrontId=…` (backendowa
   strona-przelotka `GET api/academy/invite`) **oraz** ten sam URL https jako App Link. Wołany raz
   z `AppComponent`. Dwa starsze listenery `appUrlOpen` (`auth-callback`, `payment-callback`) zostały
   świadomie nietknięte — inne hosty, oba zweryfikowane na urządzeniu, konsolidacja to osobny task.
@@ -370,12 +372,13 @@ danego pliku, nie jednorazowo.
 ## Rebrand natywny
 
 `capacitor.config.ts`/`android/app/build.gradle`'s `applicationId`/`strings.xml`/iOS
-`PRODUCT_BUNDLE_IDENTIFIER` → `pl.localbiz.fitnessclub`, `appName`/display name → "FitnessClub".
-**Historia (2026-07-24)**: appka była na krótko rebrandowana na `pl.localbiz.fitnessClub`/"FitnessClub"
-(zgodnie z ówczesną nazwą repo), ale to zostało cofnięte z powrotem na `fitnessclub` — to jest
-ostateczna, docelowa tożsamość appki, mimo że repo samo w sobie nadal nazywa się `FitnessClub`. Wszystkie
-identyfikatory (bundle id, custom URL scheme dla deep linków, redirect URI w Azure) muszą się zgadzać
-na `pl.localbiz.fitnessclub`. **Nie zmieniono**: Android `namespace` w `build.gradle` zostaje
+`PRODUCT_BUNDLE_IDENTIFIER` → `pl.localbiz.sportclub`, `appName`/display name → "SportClub" —
+przemianowane z `pl.localbiz.fitnessclub`/"FitnessClub" 2026-09-02, zob. "Nazewnictwo" wyżej. Starsza
+historia (2026-07-24, pod poprzednią nazwą "FitnessClub"): appka była na krótko rebrandowana na
+`pl.localbiz.fitnessClub` (camelCase, zgodnie z ówczesną nazwą repo) i cofnięta z powrotem na
+`fitnessclub` — osobny epizod, nieaktualny teraz. Wszystkie identyfikatory (bundle id, custom URL
+scheme dla deep linków, redirect URI w Azure) muszą się zgadzać na `pl.localbiz.sportclub`.
+**Nie zmieniono**: Android `namespace` w `build.gradle` zostaje
 `io.ionic.starter` (musi zgadzać się z faktyczną deklaracją `package` w `MainActivity.java`, która
 wciąż mówi `com.getcapacitor.myapp` — kosmetyczne/porządkowe, nie wpływa na tożsamość appki w sklepie,
 wymagałoby przeniesienia plików Javy, nie zrobione w tym zadaniu). Podpisywanie (signing config)
@@ -400,11 +403,11 @@ Console) w `/home/konraddabrowski/.claude/plans/jak-wdro-y-aplikacj-angular-bubb
 - **`android/app/build.gradle`** — `signingConfigs.release` czyta `android/keystore.properties`
   (gitignored, tworzony ręcznie raz przez `keytool`) lokalnie, albo `ANDROID_KEYSTORE_*` env (z Key
   Vault) w CI. Bez żadnego z nich buduje się bez podpisu (`assembleDebug` niezmienione).
-- **Terraform (`Sandbox/iac`, osobne repo)** — nowy moduł `modules/fitnessclub-github-sp/` (OIDC SP,
+- **Terraform (`Sandbox/iac`, osobne repo)** — nowy moduł `modules/sportclub-github-sp/` (OIDC SP,
   scoped do **Key Vault Secrets User**, nie subskrypcyjny Contributor jak `showcase-github-sp`) +
-  `modules/azure-keyvault/fitnessclub-settings.tf` (5 nowych sekretów: keystore/hasła/alias/Play
-  service account JSON). Gated w root `main.tf` na `var.fitnessclub_github_repository != ""` — moduł
-  nic nie tworzy, dopóki `env/prod.tfvars`'s `fitnessclub_github_repository` (dziś `""`) nie zostanie
+  `modules/azure-keyvault/sportclub-settings.tf` (5 nowych sekretów: keystore/hasła/alias/Play
+  service account JSON). Gated w root `main.tf` na `var.sportclub_github_repository != ""` — moduł
+  nic nie tworzy, dopóki `env/prod.tfvars`'s `sportclub_github_repository` (dziś `""`) nie zostanie
   uzupełnione realną ścieżką repo. `terraform validate`/`fmt` przeszły lokalnie (2026-08-26), **`plan`/
   `apply` nie uruchomione** — kod nieprzejrzany/niezmergowany w `Sandbox/iac`.
 - **`ios/fastlane/Fastfile`** — pusty scaffold (`UI.user_error!`), nie wpięty do żadnego CI — Apple
@@ -468,7 +471,7 @@ trzeba ręcznie wkleić do Key Vault po `terraform apply` (jak FCM/wFirma), kod 
 `await CarnetPaymentCallbackService.waitForReturn()` po `Browser.open()`, zamiast odświeżać stan
 karnetu od razu. Nowy serwis `core/services/carnet-payment-callback.service.ts` (mirror
 `msal-external-auth.service.ts` — własny `App.addListener('appUrlOpen', ...)`, własny prefiks
-`pl.localbiz.fitnessclub://payment-callback`), nowy intent-filter host w
+`pl.localbiz.sportclub://payment-callback`), nowy intent-filter host w
 `android/app/src/main/AndroidManifest.xml` (iOS nic nie wymaga — `Info.plist` rejestruje tylko schemat,
 nie host). Backend: `GET api/carnets/p24/payment-callback` (`MemberCarnetsController`, `[AllowAnonymous]`)
 serwuje statyczną stronę-lądowisko przekierowującą na ten deep link; `p24carnets--returnUrl` (Terraform)

@@ -4,7 +4,7 @@ import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 import { StorefrontContextService } from './storefront-context.service';
 import { MembershipsCacheService } from './memberships-cache.service';
 
-// FitnessClub started as a single-vertical (Fitness) app and is now multi-vertical: a member/parent
+// SportClub started as a single-vertical (Fitness) app and is now multi-vertical: a member/parent
 // whose active club is a sports academy (backend BusinessType "SportsSchool") gets the Academy tab set
 // instead of the fitness one. This resolves "which vertical is the active club" from the already-cached
 // membership list — MembershipDto.businessType rides along on GET /members/me/memberships, so no extra

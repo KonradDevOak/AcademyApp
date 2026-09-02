@@ -12,7 +12,7 @@ import { IAuthenticationStrategy, UserProfile } from '@shared/iam-msal-core';
  * (tenant `sandboxdevo`) — the same manual Azure Portal step already required for the User Flow
  * itself (see CLAUDE.md "Manual CIAM steps").
  */
-const NATIVE_REDIRECT_URI = 'pl.localbiz.fitnessclub://auth-callback';
+const NATIVE_REDIRECT_URI = 'pl.localbiz.sportclub://auth-callback';
 
 /**
  * Serwis autentykacji dla Entra External ID (klienci/CIAM)

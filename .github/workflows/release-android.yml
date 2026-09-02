@@ -62,19 +62,19 @@ jobs:
           }
           {
             echo "ANDROID_KEYSTORE_B64<<EOF"
-            fetch_secret "fitnessclub-android-keystore"
+            fetch_secret "sportclub-android-keystore"
             echo "EOF"
           } >> "$GITHUB_ENV"
-          echo "ANDROID_KEYSTORE_PASSWORD=$(fetch_secret 'fitnessclub-android-keystore-password')" >> "$GITHUB_ENV"
-          echo "ANDROID_KEY_ALIAS=$(fetch_secret 'fitnessclub-android-key-alias')" >> "$GITHUB_ENV"
-          echo "ANDROID_KEY_PASSWORD=$(fetch_secret 'fitnessclub-android-key-password')" >> "$GITHUB_ENV"
-          fetch_secret "fitnessclub-play-service-account-json" > "$RUNNER_TEMP/play-service-account.json"
+          echo "ANDROID_KEYSTORE_PASSWORD=$(fetch_secret 'sportclub-android-keystore-password')" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS=$(fetch_secret 'sportclub-android-key-alias')" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$(fetch_secret 'sportclub-android-key-password')" >> "$GITHUB_ENV"
+          fetch_secret "sportclub-play-service-account-json" > "$RUNNER_TEMP/play-service-account.json"
           echo "PLAY_SERVICE_ACCOUNT_JSON_PATH=$RUNNER_TEMP/play-service-account.json" >> "$GITHUB_ENV"
 
       - name: Decode keystore
         run: |
-          echo "$ANDROID_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/fitnessclub-upload.jks"
-          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/fitnessclub-upload.jks" >> "$GITHUB_ENV"
+          echo "$ANDROID_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/sportclub-upload.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/sportclub-upload.jks" >> "$GITHUB_ENV"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

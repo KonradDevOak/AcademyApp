@@ -36,7 +36,7 @@ describe('DeepLinkService', () => {
   it('routes a custom-scheme invite link to /academy-invite with token + storefrontId', () => {
     createService();
 
-    appUrlOpenCb!({ url: 'pl.localbiz.fitnessclub://invite/academy?token=abc&storefrontId=sf-1' });
+    appUrlOpenCb!({ url: 'pl.localbiz.sportclub://invite/academy?token=abc&storefrontId=sf-1' });
 
     expect(navigateSpy).toHaveBeenCalledWith(['/academy-invite'], {
       queryParams: { token: 'abc', storefrontId: 'sf-1' }
@@ -55,7 +55,7 @@ describe('DeepLinkService', () => {
 
   it('handles a cold-start launch URL via getLaunchUrl()', async () => {
     getLaunchUrl.and.resolveTo({
-      url: 'pl.localbiz.fitnessclub://invite/academy?token=cs&storefrontId=cs-sf'
+      url: 'pl.localbiz.sportclub://invite/academy?token=cs&storefrontId=cs-sf'
     });
     const service = createService();
 
@@ -69,7 +69,7 @@ describe('DeepLinkService', () => {
   it('ignores unrelated deep links (e.g. the CIAM auth callback)', () => {
     createService();
 
-    appUrlOpenCb!({ url: 'pl.localbiz.fitnessclub://auth-callback#code=xxx' });
+    appUrlOpenCb!({ url: 'pl.localbiz.sportclub://auth-callback#code=xxx' });
 
     expect(navigateSpy).not.toHaveBeenCalled();
   });
@@ -77,7 +77,7 @@ describe('DeepLinkService', () => {
   it('ignores an invite link missing token or storefrontId', () => {
     createService();
 
-    appUrlOpenCb!({ url: 'pl.localbiz.fitnessclub://invite/academy?token=only' });
+    appUrlOpenCb!({ url: 'pl.localbiz.sportclub://invite/academy?token=only' });
 
     expect(navigateSpy).not.toHaveBeenCalled();
   });

@@ -1,4 +1,4 @@
-# FitnessClub
+# SportClub
 
 Natywna appka klubowicza (Android/iOS) platformy LocalBiz — logowanie/rejestracja przez Entra External
 ID (CIAM), lista klubów, i (w kolejnych zadaniach) grafik zajęć, karnety, zgody, ankieta zdrowotna,
@@ -71,7 +71,7 @@ wspólnej sieci Wi-Fi (router z client isolation by to zablokował, USB nie).
    ```
 
 Po tych krokach appka powinna wystartować na telefonie, zalogować przez CIAM (system browser →
-powrót przez deep link `pl.localbiz.fitnessclub://auth-callback`) i normalnie rozmawiać z lokalnym
+powrót przez deep link `pl.localbiz.sportclub://auth-callback`) i normalnie rozmawiać z lokalnym
 backendem. Jeśli appka nie startuje lub wisi na białym ekranie, podłącz zdalny debugger
 (`chrome://inspect` → wybierz WebView appki) i sprawdź konsolę — patrz też `CLAUDE.md` po pełen opis
 znanych błędów (`AADSTS9002326`, `IDX40001`) i ich przyczyn.

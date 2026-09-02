@@ -11,12 +11,12 @@ export const CAPACITOR_APP = new InjectionToken<typeof App>('CAPACITOR_APP', {
 });
 
 // Parent-invitation deep link. Two shapes reach the app for the same link:
-//  - custom scheme  `pl.localbiz.fitnessclub://invite/academy?token=…&storefrontId=…`
+//  - custom scheme  `pl.localbiz.sportclub://invite/academy?token=…&storefrontId=…`
 //    (the backend landing page AcademyInviteController bounces the mobile browser here, and this is
 //     also the fallback while Android App Links / iOS Universal Links verification is not yet live)
 //  - https App Link `https://api.localbiz.pl/api/academy/invite?token=…&storefrontId=…`
 //    (once verified, the OS hands the https URL straight to the app with no landing page)
-const CUSTOM_SCHEME_PREFIX = 'pl.localbiz.fitnessclub://invite/academy';
+const CUSTOM_SCHEME_PREFIX = 'pl.localbiz.sportclub://invite/academy';
 const HTTPS_INVITE_URL = /^https?:\/\/[^/]+\/api\/academy\/invite(?:\?|$)/i;
 
 // The app's first central deep-link router (the two older listeners — CIAM auth-callback and P24
