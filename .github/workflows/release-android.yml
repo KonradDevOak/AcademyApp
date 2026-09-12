@@ -83,6 +83,11 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
+        env:
+          # @konraddevoak/* live in KonradDevOak's private GitHub Packages registry (published from
+          # the Sandbox repo); a read:packages PAT is required to read them. This is the only GitHub
+          # Secret in this workflow — every other release secret comes from Key Vault via OIDC above.
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
         run: npm ci
 
       - name: Build Angular app (production)

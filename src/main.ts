@@ -11,7 +11,8 @@ import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import { AppInitService } from '@shared/iam-msal-external';
+import { AppInitService, ExternalConfigService } from '@shared/iam-msal-external';
+import { ACADEMY_API_BASE_URL } from '@konraddevoak/academy-api';
 import { authTokenInterceptor } from './app/interceptors/auth-token.interceptor';
 import { ThemeService } from './app/core/services/theme.service';
 
@@ -27,6 +28,13 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(withInterceptors([authTokenInterceptor])),
+    {
+      // @konraddevoak/academy-api resolves its base URL from this token — same source the app uses
+      // for every other backend call. Empty in same-origin dev/prod (relative /api/academy/...).
+      provide: ACADEMY_API_BASE_URL,
+      useFactory: (config: ExternalConfigService) => config.getConfig()?.apiConfig?.uri ?? '',
+      deps: [ExternalConfigService],
+    },
     // Runtime i18n (ngx-translate) — same setup as LocalBizWeb. Polish is the only shipped language;
     // there is no in-app language switcher. `en.json` exists as a parallel file for future use. The
     // http loader reads the bundled asset (assets/i18n/<lang>.json in www/), so it works offline; the

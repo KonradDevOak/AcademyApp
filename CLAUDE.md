@@ -173,6 +173,35 @@ praktyce żadnego importu z niego (tylko nieużywana wzmianka w `package.json`'s
    `libs/shared/iam-msal-external/src/services/` do `src/environments/` — świadome sprzężenie
    wendorowanej biblioteki z appką-hostem, nieuniknione przy tym podejściu.
 
+## Współdzielone pakiety z registry (`@konraddevoak/*`)
+
+W odróżnieniu od wendorowanego forka `iam-msal-*` powyżej, `@konraddevoak/academy-api` jest
+konsumowany jako **normalny, wersjonowany pakiet npm** z prywatnego GitHub Packages
+(`npm.pkg.github.com`, scope `@konraddevoak`, publikowany z repo `Sandbox`, workflow
+`publish-shared-libs.yml`). Powód różnicy: `academy-api` to czysty kontrakt HTTP (DTO + serwis +
+helpery etykiet) — nie ma tu żadnej przepisanej pod Capacitora logiki OAuth, więc nie ma czego
+forkować, a jedna wersjonowana kopia współdzielona z `SportClubWeb` chroni przed rozjazdem przy
+zmianach kontraktu backendu (`Modules.Academy`).
+
+- **Auth do registry**: `.npmrc` (w repo) wskazuje scope `@konraddevoak` na `npm.pkg.github.com` i
+  czyta token z `NODE_AUTH_TOKEN`. Pakiety są prywatne — GitHub Packages npm **zawsze** wymaga tokenu
+  do odczytu, a `GITHUB_TOKEN` z `packages: read` działa tylko dla pakietów z tego samego repo. CI
+  (`build-and-test.yml`, `release-android.yml`) wstrzykuje `NODE_AUTH_TOKEN` z sekretu
+  `GH_PACKAGES_READ_TOKEN` (PAT `read:packages` na org `KonradDevOak`) na kroku `npm ci`. W
+  `release-android.yml` to jedyny GitHub Secret — reszta sekretów wydaniowych idzie z Key Vault przez
+  OIDC. Lokalnie ten sam PAT trzymaj w env `GITHUB_PACKAGES_PAT`.
+- **Wersja jest pinowana dokładnie** (`1.0.0-dev.<sha>`), nie `dev` dist-tag ani caret. `dev` to
+  ruchomy cel (każdy push na `Sandbox` `develop` go nadpisuje) — dla appki przechodzącej przez
+  `release-android.yml`/App Store review build musi być reprodukowalny. Bump wersji to jedna linia w
+  `package.json`, robiony świadomie gdy potrzebny nowy kontrakt. `Sandbox` publikuje `1.0.0-dev.<sha>`
+  prosto z `develop` — nie trzeba przechodzić przez `master`.
+- **Lokalny dev bez czekania na publish**: w `package.json` (niecommitowane) podmień wersję na
+  `file:../Sandbox/src/Clients/libs/dist/shared/academy-api` i zbuduj lib w tamtym repo
+  (`cd src/Clients/libs && npx ng build @shared/academy-api`). `SportClub` i `Sandbox` to sąsiednie
+  katalogi. **Cofnij do wersji z registry przed commitem** — CI nie ma dostępu do `../Sandbox`.
+- Provider `ACADEMY_API_BASE_URL` w `src/main.ts` (`useFactory` z `ExternalConfigService`) — pakiet
+  nie zakłada własnego interceptora, Bearer dokleja globalny `authTokenInterceptor`.
+
 ## Manualny krok CIAM w Azure Portal (blokujący, nie do zautomatyzowania) + redirect URI (IaC)
 
 **Tenant zmieniony (2026-07-24)**: `sandboxdevo` został usunięty, obecny CIAM tenant to
@@ -248,7 +277,6 @@ src/app/
 │       ├── classes-api.service.ts       # api/classes/*
 │       ├── carnets-api.service.ts       # api/carnets/*
 │       ├── storefront-discovery.service.ts # GET api/storefronts/public (find-club, multi-wertykał) + geolokalizacja
-│       ├── academy-api.service.ts        # api/academy/me/* (wertykał Akademii, MemberBearer)
 │       ├── active-vertical.service.ts    # 'fitness' | 'academy' z MembershipDto.businessType aktywnego klubu
 │       ├── notifications-api.service.ts # api/notifications/native-push-subscriptions
 │       ├── push-notifications.service.ts # wrapper @capacitor/push-notifications, patrz "Push" niżej
@@ -332,9 +360,12 @@ Jedna appka, jeden bundle `pl.localbiz.sportclub`, jedna rejestracja CIAM.
   `schedule.page` — Zawodnik / Opiekun [telefon edytowalny → `PATCH me/guardian`] / Harmonogram [tylko
   przy przypisanej grupie, II.3] / Frekwencja [„wrzesień 2026: 4/11"] / Płatności [OPŁACONO/DO ZAPŁATY] /
   Pasy [chip w kolorze `colorHex`]). Ładowanie danych: RxJS `forkJoin` + `catchError` (repo nie używa
-  `rxResource`). Etykiety enumów backendu → klucze i18n przez `academy/academy-labels.ts`.
-- **Serwis API**: `academy-api.service.ts` — `api/academy/me/*` + `invitations/accept`, wzór
-  `CarnetsApiService`. Modele: `core/models/academy.model.ts`.
+  `rxResource`). Etykiety enumów backendu → klucze i18n przez helpery z `@konraddevoak/academy-api`
+  (`disciplineKey`/`frequencyKey`/`dayKey`/`shortTime`/`formatZloty`).
+- **Serwis API**: `AcademyApiService` z pakietu `@konraddevoak/academy-api` (`api/academy/me/*` +
+  `invitations/accept`, DTO + helpery etykiet w tym samym pakiecie). Base URL przez token
+  `ACADEMY_API_BASE_URL` (provider w `main.ts`, źródło jak dla reszty wywołań backendu). Zob.
+  „Współdzielone pakiety z registry" niżej.
 - **Deep link zaproszenia (G3)**: `DeepLinkService` (`core/services/`) — pierwszy centralny router
   deep linków w appce: jeden `appUrlOpen` + cold start przez `App.getLaunchUrl()` (appka odpalona
   linkiem, nie wznowiona), plugin `@capacitor/app` przez `CAPACITOR_APP` token (wzór `GEOLOCATION_PLUGIN`).

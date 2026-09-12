@@ -29,7 +29,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Browser } from '@capacitor/browser';
 import { Preferences } from '@capacitor/preferences';
 import { MsalExternalAuthService } from '@shared/iam-msal-external';
-import { AcademyApiService } from '../../core/services/academy-api.service';
+import { AcademyApiService } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
 import { MembershipsCacheService } from '../../core/services/memberships-cache.service';

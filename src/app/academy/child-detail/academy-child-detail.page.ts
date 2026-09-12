@@ -32,19 +32,23 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
+  AcademyApiService,
   AcademyBillingPlanDto,
   AcademyGuardianDto,
   AthleteDetailsDto,
   AthleteGradeDto,
   FeeChargeDto,
-  MonthlyAttendanceDto
-} from '../../core/models/academy.model';
+  MonthlyAttendanceDto,
+  dayKey,
+  disciplineKey,
+  formatZloty,
+  frequencyKey,
+  shortTime
+} from '@konraddevoak/academy-api';
 import { Browser } from '@capacitor/browser';
-import { AcademyApiService } from '../../core/services/academy-api.service';
 import { CarnetPaymentCallbackService } from '../../core/services/carnet-payment-callback.service';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
-import { dayKey, disciplineKey, formatZloty, frequencyKey, shortTime } from '../academy-labels';
 
 type ChildDetailSegment = 'athlete' | 'guardian' | 'schedule' | 'attendance' | 'payments' | 'grades';
 

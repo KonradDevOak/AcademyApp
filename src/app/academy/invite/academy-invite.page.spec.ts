@@ -6,7 +6,7 @@ import { Preferences } from '@capacitor/preferences';
 import { of, throwError } from 'rxjs';
 import { MsalExternalAuthService } from '@shared/iam-msal-external';
 import { AcademyInvitePage } from './academy-invite.page';
-import { AcademyApiService } from '../../core/services/academy-api.service';
+import { AcademyApiService } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
 import { MembershipsCacheService } from '../../core/services/memberships-cache.service';

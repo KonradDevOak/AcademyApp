@@ -4,17 +4,17 @@ import { ToastController } from '@ionic/angular/standalone';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { AcademyChildDetailPage } from './academy-child-detail.page';
-import { AcademyApiService } from '../../core/services/academy-api.service';
-import { CarnetPaymentCallbackService } from '../../core/services/carnet-payment-callback.service';
-import { MembersApiService } from '../../core/services/members-api.service';
-import { StorefrontContextService } from '../../core/services/storefront-context.service';
 import {
+  AcademyApiService,
   AcademyGuardianDto,
   AthleteDetailsDto,
   AthleteGradeDto,
   FeeChargeDto,
   MonthlyAttendanceDto
-} from '../../core/models/academy.model';
+} from '@konraddevoak/academy-api';
+import { CarnetPaymentCallbackService } from '../../core/services/carnet-payment-callback.service';
+import { MembersApiService } from '../../core/services/members-api.service';
+import { StorefrontContextService } from '../../core/services/storefront-context.service';
 import { MembershipDto } from '../../core/models/member.model';
 
 describe('AcademyChildDetailPage', () => {
@@ -52,7 +52,6 @@ describe('AcademyChildDetailPage', () => {
       trainingFrequency: 'OncePerWeek',
       preferredLocality: 'Drobin',
       currentGroupId: null,
-      currentGroupName: null,
       monthlyFeeGrosze: null,
       status: 'Active',
       createdAt: new Date().toISOString(),
@@ -74,7 +73,11 @@ describe('AcademyChildDetailPage', () => {
       'getAthleteGrades',
       'getAthletePayments',
       'updateGuardian',
-      'payFeeCharge'
+      'payFeeCharge',
+      'getBillingPlan',
+      'enableBillingPlan',
+      'setBillingPlanAutoRenewal',
+      'retryBillingPlanCharge'
     ]);
     academyApi.getAthlete.and.returnValue(of(detail));
     academyApi.getMyGuardian.and.returnValue(of(guardian));
@@ -82,6 +85,7 @@ describe('AcademyChildDetailPage', () => {
     academyApi.getAthleteGrades.and.returnValue(of(opts.grades ?? []));
     academyApi.getAthletePayments.and.returnValue(of(opts.payments ?? []));
     academyApi.updateGuardian.and.returnValue(of(undefined));
+    academyApi.getBillingPlan.and.returnValue(of(null));
     // Empty redirectUrl keeps the flow away from @capacitor/browser (see payFeeCharge).
     academyApi.payFeeCharge.and.returnValue(of({ feeChargeId: 'fc-1', redirectUrl: '' }));
 

@@ -5,7 +5,7 @@ import { ToastController } from '@ionic/angular/standalone';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AcademyOnboardingPage } from './academy-onboarding.page';
-import { AcademyApiService } from '../../core/services/academy-api.service';
+import { AcademyApiService } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
 import { MembershipDto } from '../../core/models/member.model';

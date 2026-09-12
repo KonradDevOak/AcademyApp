@@ -3,10 +3,9 @@ import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AcademyChildrenPage } from './academy-children.page';
-import { AcademyApiService } from '../../core/services/academy-api.service';
+import { AcademyApiService, AthleteDto } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
-import { AthleteDto } from '../../core/models/academy.model';
 import { MembershipDto } from '../../core/models/member.model';
 
 describe('AcademyChildrenPage', () => {

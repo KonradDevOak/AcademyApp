@@ -22,11 +22,9 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { addOutline, chevronForwardOutline } from 'ionicons/icons';
-import { AcademyApiService } from '../../core/services/academy-api.service';
+import { AcademyApiService, AthleteDto, disciplineKey } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
-import { AthleteDto } from '../../core/models/academy.model';
-import { disciplineKey } from '../academy-labels';
 
 // "Moje dzieci" — the guardian's roster for the active academy. Storefront resolution mirrors
 // schedule.page.ts / carnet.page.ts (memberships -> StorefrontContextService.resolve).

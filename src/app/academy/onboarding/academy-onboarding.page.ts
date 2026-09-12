@@ -24,7 +24,7 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { AcademyApiService } from '../../core/services/academy-api.service';
+import { AcademyApiService } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
 import { getErrorCode } from '../../core/utils/consent-error.util';

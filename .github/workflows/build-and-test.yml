@@ -14,6 +14,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-      - run: npm ci
+      - env:
+          # @konraddevoak/* live in KonradDevOak's private GitHub Packages registry (published from
+          # the Sandbox repo); the default GITHUB_TOKEN cannot read another repo's packages, so a
+          # read:packages PAT is required. Consumed via the committed .npmrc.
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_READ_TOKEN }}
+        run: npm ci
       - run: npm run lint
       - run: npm run build
