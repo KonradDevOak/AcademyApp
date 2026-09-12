@@ -72,16 +72,13 @@ export class AcademyOnboardingPage implements OnInit {
   isResolving = true;
   isSaving = false;
 
-  readonly localities = ['Drobin', 'Sierpc', 'Płock'];
-
   form: FormGroup = this.formBuilder.group({
     firstName: ['', [Validators.required]],
     lastName: ['', [Validators.required]],
     dateOfBirth: ['', [Validators.required]],
     acrobatics: [false],
     martialArts: [false],
-    trainingFrequency: ['OncePerWeek', [Validators.required]],
-    preferredLocality: ['']
+    trainingFrequency: ['OncePerWeek', [Validators.required]]
   });
 
   private readonly errorMessages: Record<string, string> = {
@@ -127,7 +124,11 @@ export class AcademyOnboardingPage implements OnInit {
         dateOfBirth: this.form.value.dateOfBirth,
         disciplines: this.selectedDisciplines,
         trainingFrequency: this.form.value.trainingFrequency,
-        preferredLocality: this.form.value.preferredLocality ?? ''
+        // TODO: drop once @konraddevoak/academy-api is bumped past 1.0.0-dev.3bc120b0 — that
+        // version's RegisterAthleteRequest still declares this field as required for type-checking,
+        // even though the app no longer collects it and the backend has already removed the field
+        // itself. Hardcoded placeholder only to satisfy the old (soon-to-be-replaced) TS type.
+        preferredLocality: ''
       })
       .subscribe({
         next: (athleteId) => {

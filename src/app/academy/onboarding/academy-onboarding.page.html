@@ -60,18 +60,6 @@
           <ion-select-option value="TwicePerWeek">{{ 'academy.frequency.twicePerWeek' | translate }}</ion-select-option>
         </ion-select>
       </ion-item>
-
-      <ion-item>
-        <ion-select
-          label="{{ 'academy.onboarding.localityLabel' | translate }}"
-          labelPlacement="stacked"
-          formControlName="preferredLocality"
-          interface="action-sheet"
-          placeholder="{{ 'academy.onboarding.localityPlaceholder' | translate }}"
-        >
-          <ion-select-option *ngFor="let locality of localities" [value]="locality">{{ locality }}</ion-select-option>
-        </ion-select>
-      </ion-item>
     </ion-list>
 
     <ion-note color="danger" class="discipline-hint" *ngIf="form.dirty && selectedDisciplines.length === 0">

@@ -70,8 +70,7 @@ describe('AcademyOnboardingPage', () => {
       dateOfBirth: '2016-05-01',
       acrobatics: true,
       martialArts: false,
-      trainingFrequency: 'OncePerWeek',
-      preferredLocality: 'Drobin'
+      trainingFrequency: 'OncePerWeek'
     });
   }
 
@@ -99,8 +98,7 @@ describe('AcademyOnboardingPage', () => {
         storefrontId: 'sf-1',
         firstName: 'Jan',
         disciplines: ['Acrobatics'],
-        trainingFrequency: 'OncePerWeek',
-        preferredLocality: 'Drobin'
+        trainingFrequency: 'OncePerWeek'
       })
     );
     expect(router.navigateByUrl).toHaveBeenCalledWith('/tabs/academy-children/new-athlete-id');

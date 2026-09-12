@@ -31,7 +31,9 @@ describe('AcademyChildrenPage', () => {
       dateOfBirth: '2016-05-01',
       disciplines: ['Acrobatics'],
       trainingFrequency: 'OncePerWeek',
-      preferredLocality: 'Drobin',
+      // Required by AthleteDto in the currently-pinned pre-major-bump @konraddevoak/academy-api;
+      // the app itself no longer reads or sets this field. Drop once the package is bumped.
+      preferredLocality: '',
       currentGroupId: null,
       currentGroupName: null,
       monthlyFeeGrosze: null,

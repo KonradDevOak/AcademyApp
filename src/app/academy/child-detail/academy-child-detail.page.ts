@@ -199,7 +199,7 @@ export class AcademyChildDetailPage implements OnInit {
   }
 
   get locality(): string | null {
-    return this.athlete?.group?.locality ?? this.athlete?.preferredLocality ?? null;
+    return this.athlete?.group?.locality ?? null;
   }
 
   saveGuardianPhone() {

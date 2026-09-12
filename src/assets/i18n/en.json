@@ -44,8 +44,6 @@
       "dateOfBirth": "Date of birth",
       "disciplinesLabel": "Classes",
       "frequencyLabel": "Training",
-      "localityLabel": "Preferred town",
-      "localityPlaceholder": "Choose a town",
       "submit": "Save child",
       "saving": "Saving…",
       "pickClubFirst": "Pick an academy in the \"My clubs\" tab first.",
