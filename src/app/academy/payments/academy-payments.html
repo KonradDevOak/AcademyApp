@@ -1,0 +1,132 @@
+<section class="academy-payments">
+  @if (status() === 'loading') {
+    <div class="academy-payments__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'academy.payments.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="academy-payments__error banner banner--error" role="alert">
+      {{ 'academy.payments.loadError' | translate }}
+    </p>
+    <button type="button" class="btn" (click)="retry()">{{ 'academy.payments.retry' | translate }}</button>
+  } @else if (payments(); as data) {
+    <div class="academy-payments__panel">
+      @if (paymentError(); as message) {
+        <p class="academy-payments__error banner banner--error" role="alert">{{ message | translate }}</p>
+      }
+
+      @if (hasNothing()) {
+        <p class="academy-payments__muted muted">{{ 'academy.payments.noAmount' | translate }}</p>
+      } @else {
+        @if (data.creditGrosze > 0) {
+          <p class="academy-payments__monthly tnum">
+            {{ 'academy.payments.credit' | translate: { amount: formatZloty(data.creditGrosze) } }}
+          </p>
+        }
+
+        @if (data.charges.length === 0) {
+          <p class="academy-payments__muted muted">{{ 'academy.payments.empty' | translate }}</p>
+        } @else {
+          @if (canPayOnline() && storefrontId(); as id) {
+            <app-club-terms-consent [storefrontId]="id" [(accepted)]="termsAccepted" />
+          }
+          <ul class="academy-payments__list">
+            @for (charge of data.charges; track charge.id) {
+              <li class="academy-payments__charge">
+                <div class="academy-payments__info">
+                  <span class="academy-payments__period">
+                    {{ monthKey(charge.month) | translate }} {{ charge.year }}
+                  </span>
+                  <span class="academy-payments__amounts tnum">
+                    {{
+                      'academy.payments.amounts'
+                        | translate
+                          : {
+                              expected: formatZloty(charge.effectiveAmountGrosze),
+                              paid: formatZloty(charge.paidAmountGrosze)
+                            }
+                    }}
+                  </span>
+                  @if (charge.creditAppliedGrosze > 0) {
+                    <span class="academy-payments__amounts tnum">
+                      {{ 'academy.payments.creditApplied' | translate: { amount: formatZloty(charge.creditAppliedGrosze) } }}
+                    </span>
+                  }
+                  @if (charge.status !== 'Paid') {
+                    <span class="academy-payments__amounts tnum">
+                      {{ 'academy.payments.remaining' | translate: { amount: formatZloty(charge.remainingGrosze) } }}
+                      @if (charge.dueAt; as dueAt) {
+                        · {{ 'academy.payments.dueBy' | translate: { date: dueDate(dueAt) } }}
+                      }
+                    </span>
+                  }
+                </div>
+                <span
+                  class="academy-payments__badge badge"
+                  [class.academy-payments__badge--paid]="charge.status === 'Paid'"
+                  [class.academy-payments__badge--due]="charge.status !== 'Paid'"
+                  [class.badge--ok]="charge.status === 'Paid'"
+                  [class.badge--due]="charge.status !== 'Paid'"
+                >
+                  {{ statusKey(charge) | translate }}
+                </span>
+
+                @if (charge.lines.length > 0) {
+                  <ul class="academy-payments__lines">
+                    @for (line of charge.lines; track line.athleteId + line.disciplineId) {
+                      <li class="academy-payments__line tnum">
+                        <span>
+                          {{
+                            'academy.payments.line'
+                              | translate
+                                : {
+                                    child: line.athleteFirstName ?? '',
+                                    discipline: line.disciplineName ?? '',
+                                    slots: line.slotCount,
+                                    unit: formatZloty(line.unitPriceGrosze)
+                                  }
+                          }}
+                          @if (!line.isFullPrice) {
+                            · {{ 'academy.payments.siblingDiscount' | translate: { percent: line.discountPercent } }}
+                          }
+                        </span>
+                        <span class="academy-payments__line-amount">{{ formatZloty(line.amountGrosze) }}</span>
+                        @if (line.waivedGrosze > 0 && line.waiverReason; as reason) {
+                          <span class="academy-payments__waiver muted">
+                            {{ 'academy.payments.waived.' + reason | translate: { amount: formatZloty(line.waivedGrosze) } }}
+                          </span>
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+
+                @if (charge.status !== 'Paid' && data.onlinePaymentEnabled) {
+                  @if (charge.onlineFeeGrosze > 0) {
+                    <p class="academy-payments__fee muted tnum">
+                      {{
+                        'academy.payments.onlineFee'
+                          | translate
+                            : { fee: formatZloty(charge.onlineFeeGrosze), percent: data.onlineFeePercent }
+                      }}
+                    </p>
+                  }
+                  <button
+                    type="button"
+                    class="btn btn--primary academy-payments__pay"
+                    [disabled]="payingPeriod() !== null || !termsAccepted()"
+                    (click)="pay(charge)"
+                  >
+                    {{ 'academy.payments.payOnline' | translate: { total: formatZloty(charge.onlineTotalGrosze) } }}
+                  </button>
+                }
+              </li>
+            }
+          </ul>
+
+          <p class="academy-payments__hint muted">{{ 'academy.payments.offlineHint' | translate }}</p>
+        }
+      }
+    </div>
+  }
+</section>

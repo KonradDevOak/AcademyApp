@@ -1,0 +1,97 @@
+<main class="invite">
+  <section class="invite__card card stack">
+    <span class="invite__mark" aria-hidden="true"></span>
+
+    @switch (status()) {
+      @case ('resolving') {
+        <div class="invite__status">
+          <span class="spinner" aria-hidden="true"></span>
+          <p class="muted">{{ 'academy.invite.resolving' | translate }}</p>
+        </div>
+      }
+
+      @case ('invalid-link') {
+        <h1>{{ 'academy.invite.invalidLinkTitle' | translate }}</h1>
+        <p class="muted">{{ 'academy.invite.invalidLinkBody' | translate }}</p>
+      }
+
+      @case ('needs-profile') {
+        <p class="eyebrow">{{ 'academy.invite.stepProfile' | translate }}</p>
+        <h1>{{ 'academy.invite.needsProfileTitle' | translate }}</h1>
+        <p class="muted">{{ 'academy.invite.needsProfileBody' | translate }}</p>
+        <form class="invite__form stack" [formGroup]="profileForm" (ngSubmit)="submitProfile()">
+          <label class="field">
+            <span>{{ 'academy.invite.displayNameLabel' | translate }}</span>
+            <input class="input" type="text" formControlName="displayName" autocomplete="name" />
+            @if (profileForm.controls.displayName.touched && profileForm.controls.displayName.invalid) {
+              <span class="field-hint">{{ 'academy.invite.displayNameRequired' | translate }}</span>
+            }
+          </label>
+          <button type="submit" class="btn btn--primary btn--block" [disabled]="savingProfile()">
+            {{ (savingProfile() ? 'academy.invite.saving' : 'academy.invite.profileCta') | translate }}
+          </button>
+        </form>
+      }
+
+      @case ('needs-consents') {
+        <p class="eyebrow">{{ 'academy.invite.stepConsents' | translate }}</p>
+        <h1>{{ 'academy.invite.needsConsentsTitle' | translate }}</h1>
+        <p class="muted">{{ 'academy.invite.needsConsentsBody' | translate }}</p>
+        <ul class="invite__consents">
+          @for (consent of pendingConsents(); track consent.documentType) {
+            <li class="invite__consent">
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="isConsentAccepted(consent.documentType)"
+                  (change)="toggleConsent(consent.documentType, $any($event.target).checked)"
+                />
+                <a [href]="consent.contentUrl" target="_blank" rel="noopener">{{ consentLabel(consent) | translate }}</a>
+              </label>
+            </li>
+          }
+        </ul>
+        <button
+          type="button"
+          class="btn btn--primary btn--block"
+          [disabled]="!allConsentsAccepted() || submittingConsents()"
+          (click)="submitConsents()"
+        >
+          {{ (submittingConsents() ? 'academy.invite.saving' : 'academy.invite.consentsCta') | translate }}
+        </button>
+      }
+
+      @case ('joining') {
+        <div class="invite__status">
+          <span class="spinner" aria-hidden="true"></span>
+          <p class="muted">{{ 'academy.invite.joining' | translate }}</p>
+        </div>
+      }
+
+      @case ('accepting') {
+        <div class="invite__status">
+          <span class="spinner" aria-hidden="true"></span>
+          <p class="muted">{{ 'academy.invite.accepting' | translate }}</p>
+        </div>
+      }
+
+      @case ('success') {
+        <h1 class="invite__success">{{ 'academy.invite.success' | translate }}</h1>
+        <p class="muted">{{ 'academy.invite.successBody' | translate }}</p>
+        <button type="button" class="btn btn--primary btn--block" (click)="goToPanel()">
+          {{ 'academy.invite.successCta' | translate }}
+        </button>
+      }
+
+      @case ('error') {
+        <h1>{{ 'academy.invite.errorTitle' | translate }}</h1>
+        <p class="invite__error banner banner--error" role="alert">{{ errorMessage() | translate }}</p>
+        @if (canRetryLogin()) {
+          <button type="button" class="btn btn--block" (click)="retryLogin()">{{ 'academy.invite.retryLogin' | translate }}</button>
+        } @else {
+          <button type="button" class="btn btn--block" (click)="retry()">{{ 'academy.invite.retry' | translate }}</button>
+        }
+      }
+    }
+  </section>
+</main>

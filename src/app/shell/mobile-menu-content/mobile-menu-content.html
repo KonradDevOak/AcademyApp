@@ -1,0 +1,38 @@
+<nav class="mobile-menu__nav">
+  @for (item of navItems(); track item.path) {
+    <a
+      class="mobile-menu__link"
+      [routerLink]="item.path"
+      routerLinkActive="is-active"
+      (click)="navigate()"
+    >
+      {{ item.label | translate }}
+    </a>
+  }
+</nav>
+
+@if (hasClubs()) {
+  <app-club-switcher (navigated)="navigate()" />
+}
+
+<div class="mobile-menu__actions">
+  <div class="mobile-menu__theme" role="radiogroup" [attr.aria-label]="'shell.theme.label' | translate">
+    @for (option of themeOptions; track option.value) {
+      <button
+        type="button"
+        role="radio"
+        class="mobile-menu__theme-option"
+        [class.is-active]="preference() === option.value"
+        [attr.aria-checked]="preference() === option.value"
+        (click)="setTheme(option.value)"
+      >
+        <span aria-hidden="true">{{ option.icon }}</span>
+        {{ option.label | translate }}
+      </button>
+    }
+  </div>
+
+  <button type="button" class="btn btn--ghost mobile-menu__action" (click)="logout()">
+    {{ 'shell.logout' | translate }}
+  </button>
+</div>

@@ -1,0 +1,371 @@
+<section class="child-detail page">
+  <a routerLink="/academy" class="child-detail__back back-link">{{ 'academy.childDetail.back' | translate }}</a>
+
+  @if (status() === 'loading') {
+    <div class="child-detail__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'academy.childDetail.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="child-detail__error banner banner--error" role="alert">
+      {{ 'academy.childDetail.loadError' | translate }}
+    </p>
+    <button type="button" class="btn" (click)="retry()">{{ 'academy.childDetail.retry' | translate }}</button>
+  } @else if (athlete(); as child) {
+    <header class="child-detail__head">
+      <h1 class="child-detail__title">{{ child.firstName }} {{ child.lastName }}</h1>
+    </header>
+
+    <app-academy-child-photo
+      class="child-detail__photo"
+      [athleteId]="athleteId"
+      [firstName]="child.firstName"
+      [lastName]="child.lastName"
+      [photoUrl]="photoUrl()"
+      (changed)="reloadAthlete()"
+    />
+
+    <nav class="child-detail__tabs pill-tabs">
+      @for (t of tabs; track t.id) {
+        <button
+          type="button"
+          class="child-detail__tab pill"
+          [class.is-active]="tab() === t.id"
+          (click)="selectTab(t.id)"
+        >
+          {{ t.label | translate }}
+        </button>
+      }
+      <a
+        class="child-detail__tab child-detail__tab--action pill"
+        [routerLink]="['/academy/children', athleteId, 'enroll']"
+      >
+        {{ 'academy.childDetail.actions.enroll' | translate }}
+      </a>
+    </nav>
+
+    <!-- The schedule tab lays its tiles straight on the page background, so only the other tabs get a card. -->
+    <div class="child-detail__panel" [class.card]="tab() !== 'schedule'">
+      @switch (tab()) {
+        @case ('athlete') {
+          <dl class="fact-grid">
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.firstName' | translate }}</dt>
+              <dd>{{ child.firstName }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.lastName' | translate }}</dt>
+              <dd>{{ child.lastName }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.dateOfBirth' | translate }}</dt>
+              <dd>{{ child.dateOfBirth }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.nextSession' | translate }}</dt>
+              <dd>
+                @if (nextEnrolledSlot(child); as next) {
+                  {{ dayKey(next.dayOfWeek) | translate }}, {{ shortTime(next.startTime) }}
+                } @else {
+                  {{ 'academy.childDetail.athlete.noUpcomingSession' | translate }}
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.discipline' | translate }}</dt>
+              <dd class="child-detail__disciplines">{{ disciplineNames(child) || '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.locality' | translate }}</dt>
+              <dd class="child-detail__localities">{{ localities(child) || '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.group' | translate }}</dt>
+              <dd>{{ groupNames(child) || ('academy.childDetail.athlete.noGroup' | translate) }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.trainings' | translate }}</dt>
+              <dd class="child-detail__trainings">
+                @if (child.sessionsPerWeek > 0) {
+                  {{ 'academy.childDetail.athlete.trainingsPerWeek' | translate: { count: child.sessionsPerWeek } }}
+                } @else {
+                  —
+                }
+              </dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.guardianName' | translate }}</dt>
+              <dd class="child-detail__guardian-name">{{ child.guardianName || '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.guardianPhone' | translate }}</dt>
+              <dd class="child-detail__guardian-phone">{{ child.guardianPhone || '—' }}</dd>
+            </div>
+            <div>
+              <dt>{{ 'academy.childDetail.athlete.currentGrade' | translate }}</dt>
+              <dd class="child-detail__grade-summary">
+                @if (currentGradeChips().length === 0) {
+                  <span>—</span>
+                } @else {
+                  @for (chip of currentGradeChips(); track chip.disciplineId) {
+                    <span class="belt-chip" [style.background-color]="chip.colorHex">{{ chip.name }}</span>
+                  }
+                }
+              </dd>
+            </div>
+          </dl>
+        }
+
+        @case ('schedule') {
+          @if (cancelRequestError(); as errorKey) {
+            <p class="child-detail__error" role="alert">{{ errorKey | translate }}</p>
+          }
+
+          @if (scheduleTiles().length === 0) {
+            <p class="child-detail__muted muted card">
+              {{ 'academy.childDetail.schedule.notAssigned' | translate }}
+            </p>
+          } @else {
+            <ul class="child-detail__tiles">
+              @for (tile of scheduleTiles(); track tile.key) {
+                <li
+                  app-academy-schedule-tile
+                  [tile]="tile"
+                  [busy]="
+                    (!!tile.request && cancellingRequestId() === tile.request.id) ||
+                    (!!tile.waitlistEntry && leavingWaitlistEntryId() === tile.waitlistEntry.id)
+                  "
+                  (withdraw)="openWithdrawDialog($event)"
+                  (cancelRequest)="cancelRequest($event)"
+                  (leaveWaitlist)="leaveWaitlist($event)"
+                ></li>
+              }
+            </ul>
+          }
+
+          @if (requestHistory().length > 0) {
+            <details class="child-detail__history card">
+              <summary class="child-detail__history-summary">
+                {{ 'academy.childDetail.requests.history' | translate }} ({{ requestHistory().length }})
+              </summary>
+              <ul class="child-detail__list">
+                @for (request of requestHistory(); track request.id) {
+                  <li class="child-detail__request">
+                    <div class="child-detail__request-head">
+                      <span class="child-detail__request-date tnum">{{ requestDate(request.createdAt) }}</span>
+                      <span class="badge badge--{{ requestBadgeClass(request.status) }}">
+                        {{ 'academy.childDetail.requests.status.' + request.status | translate }}
+                      </span>
+                    </div>
+                    @for (slot of request.addSlots; track slot.slotId) {
+                      <span class="child-detail__request-slot">+ {{ requestSlotLabel(slot) }}</span>
+                    }
+                    @for (slot of request.removeSlots; track slot.slotId) {
+                      <span class="child-detail__request-slot child-detail__request-slot--remove">− {{ requestSlotLabel(slot) }}</span>
+                    }
+                    @if (request.status === 'Rejected' && request.rejectionReason) {
+                      <p class="child-detail__request-note">
+                        {{ 'academy.childDetail.requests.rejectionReason' | translate }} {{ request.rejectionReason }}
+                      </p>
+                    }
+                  </li>
+                }
+              </ul>
+            </details>
+          }
+        }
+
+        @case ('attendance') {
+          @if (attendance().length === 0) {
+            <p class="child-detail__muted muted">{{ 'academy.childDetail.attendance.empty' | translate }}</p>
+          } @else {
+            <ul class="child-detail__list">
+              @for (month of attendance(); track month.period) {
+                <li class="child-detail__attendance">
+                  @if (month.isComputed) {
+                    <button
+                      type="button"
+                      class="child-detail__attendance-toggle"
+                      [class.is-expanded]="expandedPeriod() === month.period"
+                      [attr.aria-label]="
+                        (expandedPeriod() === month.period
+                          ? 'academy.childDetail.attendance.collapse'
+                          : 'academy.childDetail.attendance.expand'
+                        ) | translate
+                      "
+                      (click)="toggleAttendancePeriod(month)"
+                    >
+                      ›
+                    </button>
+                  } @else {
+                    <span class="child-detail__attendance-toggle child-detail__attendance-toggle--spacer"></span>
+                  }
+                  <span class="child-detail__attendance-month">{{ monthKey(month.month) | translate }} {{ month.year }}</span>
+                  <span class="energy-bar" aria-hidden="true">
+                    <span
+                      class="energy-bar__fill"
+                      [style.--pct]="month.maxSessions ? month.attendedSessions / month.maxSessions : 0"
+                    ></span>
+                  </span>
+                  <span class="child-detail__attendance-count tnum">{{ month.attendedSessions }}/{{ month.maxSessions }}</span>
+                </li>
+                @if (expandedPeriod() === month.period) {
+                  <li class="child-detail__session-panel">
+                    @if (sessionsLoading()) {
+                      <p class="child-detail__muted muted">
+                        {{ 'academy.childDetail.attendance.sessionsLoading' | translate }}
+                      </p>
+                    } @else if (sessionsError()) {
+                      <p class="child-detail__error banner banner--error" role="alert">
+                        {{ sessionsError()! | translate }}
+                      </p>
+                    } @else if (periodSessions().length === 0) {
+                      <p class="child-detail__muted muted">
+                        {{ 'academy.childDetail.attendance.noSessions' | translate }}
+                      </p>
+                    } @else {
+                      @if (excuseError(); as message) {
+                        <p class="banner banner--error" role="alert">{{ message | translate }}</p>
+                      }
+                      <ul class="child-detail__list child-detail__session-list">
+                        @for (session of periodSessions(); track session.sessionId) {
+                          <li class="child-detail__session-row">
+                            <span class="child-detail__session-date tnum">{{ shortDateOf(session.startsAt) }}</span>
+                            <span class="child-detail__session-actions">
+                              <span class="badge" [class]="'badge--' + sessionBadgeClass(session.status)">
+                                {{ sessionStatusKey(session.status) | translate }}
+                              </span>
+                              @if (session.absenceExcuseStatus === 'Pending') {
+                                <span class="badge badge--warn">
+                                  {{ 'academy.childDetail.attendance.excusePending' | translate }}
+                                </span>
+                                <button
+                                  type="button"
+                                  class="btn btn--ghost"
+                                  [disabled]="excuseBusySessionId() !== null"
+                                  (click)="withdrawAbsence(session)"
+                                >
+                                  {{ 'academy.childDetail.attendance.withdrawExcuse' | translate }}
+                                </button>
+                              } @else if (canReportAbsence(session)) {
+                                @if (session.absenceExcuseStatus === 'Rejected') {
+                                  <span class="badge badge--muted">
+                                    {{ 'academy.childDetail.attendance.excuseRejected' | translate }}
+                                  </span>
+                                }
+                                <button
+                                  type="button"
+                                  class="btn btn--ghost"
+                                  [disabled]="excuseBusySessionId() !== null"
+                                  (click)="reportAbsence(session)"
+                                >
+                                  {{ 'academy.childDetail.attendance.reportAbsence' | translate }}
+                                </button>
+                              }
+                            </span>
+                          </li>
+                        }
+                      </ul>
+                      <p class="muted child-detail__excuse-hint">
+                        {{ 'academy.childDetail.attendance.excuseHint' | translate }}
+                      </p>
+                    }
+                  </li>
+                }
+              }
+            </ul>
+          }
+        }
+
+        @case ('grades') {
+          @if (grades().length === 0) {
+            <p class="child-detail__muted muted">{{ 'academy.childDetail.grades.empty' | translate }}</p>
+          } @else {
+            @for (grade of grades(); track grade.disciplineId) {
+              <div class="child-detail__grade-discipline">
+                <h2 class="child-detail__grade-heading">{{ grade.disciplineName }}</h2>
+
+                @if (grade.current; as current) {
+                  <div class="child-detail__grade-current">
+                    <span class="belt-chip" [style.background-color]="current.colorHex">{{ current.name }}</span>
+                    <span class="child-detail__muted muted">{{ awardDate(current) }}</span>
+                  </div>
+                } @else {
+                  <p class="child-detail__muted muted">{{ 'academy.childDetail.grades.none' | translate }}</p>
+                }
+
+                @if (grade.history.length > 0) {
+                  <ul class="child-detail__list child-detail__grade-history">
+                    @for (award of grade.history; track award.id) {
+                      <li class="child-detail__grade-award">
+                        <div class="child-detail__grade-award-title">
+                          @if (award.colorHex) {
+                            <span class="belt-dot" [style.background-color]="award.colorHex"></span>
+                          }
+                          <span>{{ award.name ?? '—' }}</span>
+                        </div>
+                        <span class="child-detail__muted muted">
+                          {{ awardDate(award) }} · {{ gradeResultKey(award.result) | translate }}
+                          @if (award.examinerName) {
+                            <span> · {{ 'academy.childDetail.grades.examiner' | translate }}: {{ award.examinerName }}</span>
+                          }
+                        </span>
+                        @if (award.note) {
+                          <p class="child-detail__grade-note">{{ award.note }}</p>
+                        }
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          }
+        }
+      }
+    </div>
+
+    @if (tab() === 'athlete') {
+      <div class="child-detail__foot-actions">
+        <a class="btn" [routerLink]="['/academy/children', athleteId, 'edit']">
+          {{ 'academy.childDetail.edit' | translate }}
+        </a>
+        <button type="button" class="btn btn--danger" (click)="openDeleteDialog()">
+          {{ 'academy.childDetail.delete' | translate }}
+        </button>
+      </div>
+    }
+
+    @if (child.sessionsPerWeek > 0) {
+      <app-confirm-dialog
+        [open]="deleteDialogOpen()"
+        heading="academy.childDetail.deleteBlocked.title"
+        message="academy.childDetail.deleteDisabledHint"
+        (dismissed)="closeDeleteDialog()"
+      />
+    } @else {
+      <app-confirm-dialog
+        [open]="deleteDialogOpen()"
+        heading="academy.childDetail.deleteDialog.title"
+        message="academy.childDetail.deleteConfirm"
+        confirmLabel="academy.childDetail.delete"
+        [confirmDanger]="true"
+        [busy]="isDeleting()"
+        [error]="deleteError()"
+        (confirmed)="confirmDelete()"
+        (dismissed)="closeDeleteDialog()"
+      />
+    }
+
+    <app-confirm-dialog
+      [open]="withdrawSlot() !== null"
+      heading="academy.childDetail.withdraw.title"
+      message="academy.childDetail.withdraw.message"
+      [messageParams]="withdrawMessageParams()"
+      confirmLabel="academy.childDetail.withdraw.confirm"
+      [busy]="isWithdrawing()"
+      [error]="withdrawError()"
+      (confirmed)="confirmWithdraw()"
+      (dismissed)="closeWithdrawDialog()"
+    />
+  }
+</section>

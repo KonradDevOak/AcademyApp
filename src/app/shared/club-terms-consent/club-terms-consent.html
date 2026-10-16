@@ -1,0 +1,14 @@
+<div class="club-terms-consent">
+  @if (sellerName(); as seller) {
+    <p class="club-terms-consent__seller muted">
+      {{ 'legal.consent.seller' | translate: { name: seller } }}@if (nip()) {, {{ 'legal.consent.nip' | translate: { nip: nip() } }}}
+    </p>
+  }
+  <label class="chip-check club-terms-consent__check">
+    <input type="checkbox" [checked]="accepted()" (change)="toggle($any($event.target).checked)" />
+    <span>
+      {{ 'legal.consent.acceptPrefix' | translate }}
+      <a [href]="termsUrl()" target="_blank" rel="noopener">{{ 'legal.consent.termsLink' | translate }}</a>
+    </span>
+  </label>
+</div>

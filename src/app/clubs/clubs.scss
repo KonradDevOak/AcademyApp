@@ -1,0 +1,117 @@
+.clubs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+}
+
+.clubs__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) 0;
+}
+
+.clubs__empty {
+  align-items: flex-start;
+}
+
+.clubs__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--space-3);
+}
+
+.club-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.club-tile--active {
+  border-color: var(--accent);
+}
+
+.club-tile__main {
+  position: relative;
+  min-height: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-6) var(--space-4) var(--space-4);
+  border: 0;
+  background-color: var(--surface);
+  background-size: cover;
+  background-position: center;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+// Same readability scrim as the former club picker cards.
+.club-tile__main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 94%, transparent) 0%, color-mix(in srgb, var(--surface) 65%, transparent) 100%);
+}
+
+.club-tile__name,
+.club-tile__summary,
+.club-tile__go {
+  position: relative;
+}
+
+.club-tile__name {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.club-tile__summary:empty {
+  display: none;
+}
+
+.club-tile__go {
+  position: absolute;
+  right: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.club-tile__details {
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.club-tile--join {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 4rem;
+  border-style: dashed;
+  color: var(--accent-2);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.club-tile__plus {
+  font-size: 1.5rem;
+  line-height: 1;
+}

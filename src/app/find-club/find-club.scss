@@ -1,0 +1,84 @@
+.find-club {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-6);
+}
+
+.find-club__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.find-club__head p {
+  margin: 0;
+}
+
+.find-club__bar {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.find-club__near {
+  flex: 0 0 auto;
+}
+
+.find-club__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) 0;
+}
+
+.find-club__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.find-club__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--text);
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--accent-2);
+    text-decoration: none;
+  }
+}
+
+.find-club__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.find-club__name {
+  font-weight: 600;
+}
+
+.find-club__meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.find-club__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.find-club__back {
+  align-self: flex-start;
+}

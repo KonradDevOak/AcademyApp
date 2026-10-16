@@ -1,0 +1,74 @@
+// Design tokens — "Neon night". Single source of truth for colour, spacing,
+// radius and elevation. Consumed as CSS custom properties so component styles
+// stay theme-agnostic (a future club skin overrides :root, nothing else).
+
+:root {
+  // Surfaces
+  --bg: #0e0e11;
+  --surface: #17171c;
+  --surface-raised: #1f1f26;
+  --line: #2c2c35;
+
+  // Text
+  --text: #f4f4f6;
+  --text-muted: #9a9aa5;
+
+  // Accents
+  --accent: #ff2e7e; // energy pink — primary CTA, active nav, focus
+  --accent-ink: #10040a; // readable text on --accent
+  --accent-2: #00d1e0; // cyan — links, secondary highlights
+
+  // Discipline coding (keys off backend enum strings)
+  --discipline-acrobatics: var(--accent);
+  --discipline-martial-arts: var(--accent-2);
+
+  // Status
+  --ok: #3ddc97;
+  --due: #ff5c5c;
+  --warn: #ffc24b;
+
+  // Typography
+  --font-display: 'Anton', 'Arial Narrow', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  // Spacing scale
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  // Radius
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-pill: 999px;
+
+  // Layout
+  --page-max: 30rem;
+
+  // Elevation
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  // Motion
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+// Light theme — applied via ThemeService toggling `.light`/`.dark` on <html>. Only the tokens that
+// actually need to flip for a light surface are overridden; --accent/--accent-ink/--ok/--due/--warn/
+// --discipline-* stay the same in both themes, and status banners in _components.scss already
+// recompute their color via color-mix(in srgb, var(--X) N%, var(--text)), so they self-adjust once
+// --text flips here.
+:root.light {
+  --bg: #f7f7fa;
+  --surface: #ffffff;
+  --surface-raised: #eeeef2;
+  --line: #dcdce3;
+
+  --text: #17171c;
+  --text-muted: #5c5c66;
+
+  // Darker than the dark-theme cyan (#00d1e0) — the original is too low-contrast on a light surface.
+  --accent-2: #0092a0;
+}

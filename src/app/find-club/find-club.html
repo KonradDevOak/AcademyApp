@@ -1,0 +1,74 @@
+<main class="find-club page">
+  <header class="find-club__head">
+    <p class="eyebrow">{{ 'findClub.eyebrow' | translate }}</p>
+    <h1>{{ 'findClub.title' | translate }}</h1>
+    <p class="muted">{{ (hasClubs() ? 'findClub.intro' : 'findClub.introNoClubs') | translate }}</p>
+  </header>
+
+  <div class="find-club__bar">
+    <input
+      class="input"
+      type="search"
+      [value]="search()"
+      [attr.aria-label]="'findClub.searchPlaceholder' | translate"
+      [placeholder]="'findClub.searchPlaceholder' | translate"
+      (input)="onSearch($any($event.target).value)"
+    />
+    <button
+      type="button"
+      class="btn find-club__near"
+      [class.btn--primary]="location() === 'on'"
+      [disabled]="location() === 'locating'"
+      (click)="toggleLocation()"
+    >
+      📍 {{ 'findClub.nearMe' | translate }}
+    </button>
+  </div>
+  @if (location() === 'denied') {
+    <p class="banner banner--warn">{{ 'findClub.locationDenied' | translate }}</p>
+  }
+
+  <app-qr-join />
+
+  @if (status() === 'loading') {
+    <div class="find-club__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'findClub.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="banner banner--error" role="alert">{{ 'findClub.loadError' | translate }}</p>
+    <button type="button" class="btn" (click)="retry()">{{ 'fitness.retry' | translate }}</button>
+  } @else if (results().length === 0) {
+    <p class="muted">{{ 'findClub.empty' | translate }}</p>
+  } @else {
+    <ul class="find-club__list">
+      @for (club of results(); track club.id) {
+        <li>
+          <a class="find-club__item card" [routerLink]="['/clubs', club.id]">
+            <span class="find-club__info">
+              <span class="find-club__name">{{ club.name }}</span>
+              @if (club.address) {
+                <span class="find-club__meta">{{ club.address }}</span>
+              }
+            </span>
+            <span class="find-club__tags">
+              @for (section of sectionsOf(club.services); track section) {
+                <span class="badge badge--muted">{{ sectionLabelKey(section) | translate }}</span>
+              }
+              @if (isMember(club)) {
+                <span class="badge badge--ok">{{ 'findClub.member' | translate }}</span>
+              }
+              @if (club.distanceKm !== null) {
+                <span class="find-club__meta tnum">{{ 'findClub.distance' | translate: { km: club.distanceKm.toFixed(1) } }}</span>
+              }
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (hasClubs()) {
+    <a class="link-btn find-club__back" routerLink="/clubs">{{ 'findClub.backToClubs' | translate }}</a>
+  }
+</main>

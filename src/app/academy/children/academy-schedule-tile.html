@@ -1,0 +1,43 @@
+@let t = tile();
+<div class="schedule-tile__head">
+  <span class="schedule-tile__group">{{ t.groupName ?? '—' }}</span>
+  <span class="badge badge--{{ badgeClass() }}">{{ statusKey() | translate }}</span>
+</div>
+<span class="schedule-tile__when">
+  @if (t.dayOfWeek) {
+    {{ dayKey(t.dayOfWeek) | translate }} ·
+  }
+  <span class="tnum">{{ shortTime(t.startTime) }}–{{ shortTime(t.endTime) }}</span>
+</span>
+
+@if (t.state === 'Waitlisted') {
+  <p class="schedule-tile__info muted">{{ 'academy.childDetail.requests.waitlistedInfo' | translate }}</p>
+  @if (t.request?.waitlistNote; as note) {
+    <p class="schedule-tile__info">{{ 'academy.childDetail.requests.clubNote' | translate }} {{ note }}</p>
+  }
+}
+@if (t.otherRequestSlots?.length) {
+  <p class="schedule-tile__info muted">
+    {{ 'academy.childDetail.schedule.cancelAlsoAffects' | translate: { slots: t.otherRequestSlots!.join(', ') } }}
+  </p>
+}
+
+<div class="schedule-tile__actions">
+  @switch (t.state) {
+    @case ('enrolled') {
+      <button type="button" class="btn" (click)="withdraw.emit(t.slot!)">
+        {{ 'academy.childDetail.schedule.withdraw' | translate }}
+      </button>
+    }
+    @case ('slotWaitlist') {
+      <button type="button" class="btn" [disabled]="busy()" (click)="leaveWaitlist.emit(t.waitlistEntry!)">
+        {{ 'academy.enroll.leaveWaitlist' | translate }}
+      </button>
+    }
+    @default {
+      <button type="button" class="btn schedule-tile__cancel" [disabled]="busy()" (click)="cancelRequest.emit(t.request!)">
+        {{ cancelLabel() | translate }}
+      </button>
+    }
+  }
+</div>

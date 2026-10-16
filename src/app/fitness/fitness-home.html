@@ -1,0 +1,24 @@
+<ion-accordion-group
+  class="fitness-home page"
+  [class.fitness-home--settled]="carnetCmp().isActive()"
+  [value]="scheduleExpanded() ? 'schedule' : 'carnet'"
+  (ionChange)="onPanelChange($event)"
+>
+  <ion-accordion value="carnet" class="fitness-home__panel fitness-home__panel--carnet">
+    <ion-item slot="header" lines="none" class="panel-header">
+      <ion-label>{{ 'fitness.carnet.title' | translate }}</ion-label>
+    </ion-item>
+    <div slot="content">
+      <app-fitness-carnet />
+    </div>
+  </ion-accordion>
+
+  <ion-accordion value="schedule" class="fitness-home__panel fitness-home__panel--schedule">
+    <ion-item slot="header" lines="none" class="panel-header">
+      <ion-label>{{ 'fitness.schedule.title' | translate }}</ion-label>
+    </ion-item>
+    <div slot="content">
+      <app-fitness-schedule />
+    </div>
+  </ion-accordion>
+</ion-accordion-group>

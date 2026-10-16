@@ -1,0 +1,54 @@
+<section class="add-child page">
+  <header class="add-child__head">
+    <p class="eyebrow">{{ (isEditMode ? 'academy.editChild.eyebrow' : 'academy.onboarding.eyebrow') | translate }}</p>
+    <h1>{{ (isEditMode ? 'academy.editChild.title' : 'academy.onboarding.title') | translate }}</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="add-child__loading">{{ 'academy.editChild.loading' | translate }}</p>
+  } @else {
+    <form class="add-child__form card stack" [formGroup]="form" (ngSubmit)="submit()">
+      <label class="field">
+        <span>{{ 'academy.onboarding.firstName' | translate }}</span>
+        <input class="input" type="text" formControlName="firstName" autocomplete="off" />
+        @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+          <span class="field-hint">{{ 'academy.onboarding.firstNameRequired' | translate }}</span>
+        }
+      </label>
+
+      <label class="field">
+        <span>{{ 'academy.onboarding.lastName' | translate }}</span>
+        <input class="input" type="text" formControlName="lastName" autocomplete="off" />
+        @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+          <span class="field-hint">{{ 'academy.onboarding.lastNameRequired' | translate }}</span>
+        }
+      </label>
+
+      <label class="field">
+        <span>{{ 'academy.onboarding.dateOfBirth' | translate }}</span>
+        <input class="input" type="date" formControlName="dateOfBirth" />
+        @if (form.controls.dateOfBirth.touched && form.controls.dateOfBirth.invalid) {
+          <span class="field-hint">{{ 'academy.onboarding.dateOfBirthRequired' | translate }}</span>
+        }
+      </label>
+
+      @if (errorMessage(); as message) {
+        <p class="add-child__error banner banner--error" role="alert">{{ message | translate }}</p>
+      }
+
+      <div class="add-child__actions">
+        <button type="submit" class="btn btn--primary" [disabled]="saving()">
+          {{
+            (saving()
+              ? (isEditMode ? 'academy.editChild.saving' : 'academy.onboarding.saving')
+              : (isEditMode ? 'academy.editChild.submit' : 'academy.onboarding.submit')
+            ) | translate
+          }}
+        </button>
+        <button type="button" class="btn" (click)="cancel()" [disabled]="saving()">
+          {{ (isEditMode ? 'academy.editChild.cancel' : 'academy.onboarding.cancel') | translate }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

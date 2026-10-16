@@ -1,0 +1,20 @@
+// Layout otherwise lives in the shared accordion styling (theme/_components.scss) and the rendered child components
+// (academy-payments.scss, academy-children.scss) — this container carries the page padding that used to
+// live on each child section directly (neither is ever routed on its own, see academy-children.html /
+// academy-payments.html), and reorders the two panels (see academy-home.ts/html): payments stays on top
+// by default, and drops below the roster once the current period is settled, via `order` rather than
+// moving the panels themselves (which would destroy/recreate the payments component's HTTP-backed state).
+.academy-home {
+  display: flex;
+  flex-direction: column;
+
+  &--settled {
+    .academy-home__panel--payments {
+      order: 1;
+    }
+
+    .academy-home__panel--children {
+      order: 0;
+    }
+  }
+}

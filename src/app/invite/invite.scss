@@ -1,0 +1,63 @@
+.invite {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6) var(--space-4);
+  background:
+    radial-gradient(55% 40% at 15% 0%, color-mix(in srgb, var(--accent) 20%, transparent) 0%, transparent 70%),
+    radial-gradient(55% 40% at 100% 100%, color-mix(in srgb, var(--accent-2) 16%, transparent) 0%, transparent 70%),
+    var(--bg);
+}
+
+.invite__card {
+  width: 100%;
+  max-width: 24rem;
+}
+
+.invite__mark {
+  width: 2.25rem;
+  height: 0.55rem;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent) 0 50%, var(--accent-2) 50% 100%);
+}
+
+.invite__status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+}
+
+.invite__consents {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.invite__consent label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.invite__consent input {
+  accent-color: var(--accent);
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.invite__success {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  color: var(--ok);
+}
+
+.invite__error {
+  margin: 0;
+}

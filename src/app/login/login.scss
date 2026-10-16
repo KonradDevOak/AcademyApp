@@ -1,0 +1,138 @@
+.login {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6) var(--space-4);
+  overflow: hidden;
+  background:
+    radial-gradient(60% 45% at 20% 0%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 70%),
+    radial-gradient(55% 40% at 90% 100%, color-mix(in srgb, var(--accent-2) 18%, transparent) 0%, transparent 70%),
+    var(--bg);
+}
+
+.login__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 22rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  text-align: left;
+}
+
+.login__mark {
+  width: 2.5rem;
+  height: 0.6rem;
+  border-radius: 3px;
+  margin-bottom: var(--space-2);
+  background: linear-gradient(90deg, var(--accent) 0 50%, var(--accent-2) 50% 100%);
+}
+
+.login__title {
+  font-size: clamp(2.25rem, 12vw, 3.25rem);
+  line-height: 0.95;
+}
+
+.login__subtitle {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.login .btn--block {
+  margin-top: var(--space-3);
+}
+
+.login__doodles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.login__doodle {
+  position: absolute;
+  width: 2.75rem;
+  height: 2.75rem;
+  opacity: 0.5;
+}
+
+.login__doodle--1 {
+  top: 12%;
+  right: 14%;
+  fill: var(--accent);
+  transform: rotate(-12deg);
+}
+
+.login__doodle--2 {
+  bottom: 16%;
+  left: 10%;
+  fill: var(--accent-2);
+  transform: rotate(8deg);
+}
+
+.login__doodle--3 {
+  top: 40%;
+  left: 16%;
+  width: 2rem;
+  height: 2rem;
+  fill: var(--warn);
+  transform: rotate(-6deg);
+}
+
+@media (min-width: 32rem) {
+  .login__doodle {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+}
+
+.login__inner--busy {
+  align-items: center;
+  text-align: center;
+  animation: login-rise 0.35s var(--ease) both;
+}
+
+.login__title--busy {
+  font-size: clamp(1.75rem, 9vw, 2.5rem);
+}
+
+// Gradient ring: conic accent -> accent-2 sweep, hollowed out with a mask.
+.login__ring {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: var(--space-2);
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0%, var(--accent) 45%, var(--accent-2) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  animation: login-spin 0.9s linear infinite;
+}
+
+@keyframes login-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes login-rise {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes login-pulse {
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login__inner--busy { animation: none; }
+  .login__ring { animation: login-pulse 1.6s ease-in-out infinite; }
+}
+
+.login__legal {
+  display: flex;
+  align-self: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 0.8125rem;
+}

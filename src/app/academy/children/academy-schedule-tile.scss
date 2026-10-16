@@ -1,0 +1,42 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+// Classes the child doesn't (yet) attend are visually set apart from the enrolled ones.
+:host(:not([data-state='enrolled'])) {
+  border-style: dashed;
+}
+
+.schedule-tile__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.schedule-tile__group {
+  font-weight: 700;
+}
+
+.schedule-tile__when {
+  font-weight: 600;
+}
+
+.schedule-tile__info {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+// Pinned to the bottom so buttons line up across a row of tiles of different heights.
+.schedule-tile__actions {
+  margin-top: auto;
+  padding-top: var(--space-2);
+}

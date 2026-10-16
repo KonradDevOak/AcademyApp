@@ -1,38 +1,51 @@
-<ion-button fill="clear" [attr.aria-label]="'notifications.bell.toggle' | translate" (click)="toggle()">
-  <ion-icon slot="icon-only" name="notifications-outline"></ion-icon>
+<button
+  type="button"
+  class="bell"
+  [attr.aria-label]="'notifications.bell.toggle' | translate"
+  (click)="toggle($event)"
+>
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22zm7-6V11a7 7 0 0 0-5.5-6.84V3.5a1.5 1.5 0 0 0-3 0v.66A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2zm-2 1H7v-6a5 5 0 0 1 10 0v6z"
+    />
+  </svg>
   @if (unreadCount() > 0) {
-    <ion-badge color="danger">{{ unreadCount() }}</ion-badge>
+    <span class="bell__badge">{{ unreadCount() }}</span>
   }
-</ion-button>
+</button>
 
-<ion-popover [isOpen]="open()" [dismissOnSelect]="false" (didDismiss)="dismiss()">
+<ion-popover class="bell-popover" [isOpen]="open()" [event]="openEvent()" [dismissOnSelect]="false" (didDismiss)="dismiss()">
   <ng-template>
-    <ion-list>
-      <ion-item lines="full">
-        <ion-label>{{ 'notifications.bell.title' | translate }}</ion-label>
+    <div class="bell-panel">
+      <div class="bell-panel__head">
+        <span class="bell-panel__title">{{ 'notifications.bell.title' | translate }}</span>
         @if (unreadCount() > 0) {
-          <ion-button slot="end" fill="clear" size="small" (click)="markAllRead()">
+          <button type="button" class="bell-panel__action" (click)="markAllRead()">
             {{ 'notifications.bell.markAllRead' | translate }}
-          </ion-button>
+          </button>
         }
-      </ion-item>
+      </div>
 
       @if (items().length === 0) {
-        <ion-item lines="none">
-          <ion-label class="ion-text-wrap">
-            <ion-text color="medium">{{ 'notifications.bell.empty' | translate }}</ion-text>
-          </ion-label>
-        </ion-item>
+        <p class="bell-panel__empty muted">{{ 'notifications.bell.empty' | translate }}</p>
       } @else {
-        @for (item of items(); track item.id) {
-          <ion-item button class="notification-item" [class.notification-item--unread]="!item.readAt" (click)="markRead(item.id)">
-            <ion-label class="ion-text-wrap">
-              <h3>{{ item.subject }}</h3>
-              <p>{{ item.body }}</p>
-            </ion-label>
-          </ion-item>
-        }
+        <ul class="bell-panel__list">
+          @for (item of items(); track item.id) {
+            <li>
+              <button
+                type="button"
+                class="bell-item"
+                [class.bell-item--unread]="!item.readAt"
+                (click)="markRead(item.id)"
+              >
+                <span class="bell-item__subject">{{ item.subject }}</span>
+                <span class="bell-item__body muted">{{ item.body }}</span>
+              </button>
+            </li>
+          }
+        </ul>
       }
-    </ion-list>
+    </div>
   </ng-template>
 </ion-popover>

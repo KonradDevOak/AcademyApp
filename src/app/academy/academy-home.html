@@ -1,0 +1,24 @@
+<ion-accordion-group
+  class="academy-home page"
+  [class.academy-home--settled]="paymentsCmp().currentPeriodPaid()"
+  [value]="childrenExpanded() ? 'children' : 'payments'"
+  (ionChange)="onPanelChange($event)"
+>
+  <ion-accordion value="payments" class="academy-home__panel academy-home__panel--payments">
+    <ion-item slot="header" lines="none" class="panel-header">
+      <ion-label>{{ 'academy.payments.title' | translate }}</ion-label>
+    </ion-item>
+    <div slot="content">
+      <app-academy-payments />
+    </div>
+  </ion-accordion>
+
+  <ion-accordion value="children" class="academy-home__panel academy-home__panel--children">
+    <ion-item slot="header" lines="none" class="panel-header">
+      <ion-label>{{ 'academy.children.title' | translate }}</ion-label>
+    </ion-item>
+    <div slot="content">
+      <app-academy-children />
+    </div>
+  </ion-accordion>
+</ion-accordion-group>

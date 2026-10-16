@@ -1,0 +1,16 @@
+.club-terms-consent {
+  display: grid;
+  gap: var(--space-2);
+  margin-block: var(--space-3);
+}
+
+.club-terms-consent__seller {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+// The label wraps a sentence with a link, not a short chip label.
+.club-terms-consent__check {
+  border-radius: var(--radius);
+  align-items: flex-start;
+}

@@ -43,7 +43,7 @@ describe('NotificationBellComponent', () => {
 
   it('shows the unread count badge', async () => {
     await setup();
-    const badge = (fixture.nativeElement as HTMLElement).querySelector('ion-badge');
+    const badge = (fixture.nativeElement as HTMLElement).querySelector('.bell__badge');
     expect(badge?.textContent?.trim()).toBe('1');
   });
 
@@ -60,7 +60,7 @@ describe('NotificationBellComponent', () => {
       await fixture.whenStable();
     }
 
-    expect((fixture.nativeElement as HTMLElement).querySelector('ion-badge')).toBeNull();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.bell__badge')).toBeNull();
   });
 
   it('opens the popover and exposes the fetched notifications', async () => {

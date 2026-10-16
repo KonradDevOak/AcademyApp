@@ -1,0 +1,77 @@
+.fitness-schedule {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fitness-schedule__state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.fitness-schedule__msg,
+.fitness-schedule__empty {
+  margin: 0;
+}
+
+.fitness-schedule__msg a {
+  margin-left: var(--space-2);
+}
+
+.fitness-schedule__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.fitness-schedule__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.fitness-schedule__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  min-width: 12rem;
+}
+
+.fitness-schedule__title {
+  font-weight: 600;
+}
+
+.fitness-schedule__meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.fitness-schedule__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.fitness-schedule__picker {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.fitness-schedule__pick {
+  justify-content: flex-start;
+}

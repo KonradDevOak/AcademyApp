@@ -1,148 +1,46 @@
 {
-  "tabs": {
-    "clubs": "My clubs",
-    "schedule": "Schedule",
-    "carnet": "Membership",
-    "profile": "Profile",
-    "academyChildren": "My children"
+  "shell": {
+    "brand": "Academy",
+    "logout": "Log out",
+    "loading": "Loading…",
+    "loadError": "Could not load your academies. Please try again in a moment.",
+    "nav": {
+      "profile": "Profile",
+      "academy": "Groups",
+      "classes": "Classes & passes"
+    },
+    "menuToggle": "Menu",
+    "clubs": {
+      "label": "My academies",
+      "all": "All academies",
+      "join": "Join an academy"
+    },
+    "theme": {
+      "label": "Theme",
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    }
+  },
+  "login": {
+    "title": "Academy",
+    "cta": "Sign in",
+    "subtitle": "Sign in to manage classes, passes, attendance and payments.",
+    "signingIn": "Signing you in…",
+    "signingInHint": "This will only take a moment"
+  },
+  "profile": {
+    "title": "Profile",
+    "logout": "Log out",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "loadError": "Could not load your profile. Please try again.",
+    "retry": "Try again",
+    "managedByClub": "Your academy maintains these details. To change them, contact your academy.",
+    "empty": "Not provided"
   },
   "academy": {
-    "invite": {
-      "title": "Academy invitation",
-      "intro": "To finish setting up your parent account, sign in with the e-mail address the invitation was sent to.",
-      "loginCta": "Sign in",
-      "working": "One moment…",
-      "profilePrompt": "Enter your name — this is how the academy will see you.",
-      "profileNameLabel": "Full name",
-      "profileCta": "Continue",
-      "consentsPrompt": "Before joining the academy, please accept the documents below.",
-      "consentShow": "View document",
-      "consentAccept": "Accept",
-      "consentContinue": "Continue",
-      "retry": "Try again",
-      "errors": {
-        "notFound": "This invitation link is not valid.",
-        "expired": "The link has expired. Ask the academy to send a new invitation.",
-        "emailMismatch": "This invitation was sent to a different e-mail address. Sign in with the account it was sent to.",
-        "emailMismatchCta": "Sign in with a different account",
-        "generic": "Something went wrong. Please try again."
-      }
-    },
-    "children": {
-      "title": "My children",
-      "addChild": "Add a child",
-      "empty": "You haven't added any children yet.",
-      "noClubs": "Join an academy to add a child.",
-      "noClubsCta": "My clubs",
-      "noGroup": "No group",
-      "loadError": "Could not load the list of children."
-    },
-    "onboarding": {
-      "title": "Add a child",
-      "firstName": "First name",
-      "lastName": "Last name",
-      "dateOfBirth": "Date of birth",
-      "disciplinesLabel": "Classes",
-      "frequencyLabel": "Training",
-      "submit": "Save child",
-      "saving": "Saving…",
-      "pickClubFirst": "Pick an academy in the \"My clubs\" tab first.",
-      "errors": {
-        "minDiscipline": "Select at least one type of class.",
-        "mustHaveDiscipline": "Select at least one type of class.",
-        "invalidDiscipline": "The selected classes are invalid.",
-        "invalidFrequency": "The selected training frequency is invalid.",
-        "guardianNotFound": "Your guardian account is not active in this academy yet.",
-        "generic": "Could not save the child. Please try again."
-      }
-    },
-    "childDetail": {
-      "title": "Athlete details",
-      "loadError": "Could not load the child's data.",
-      "tabs": {
-        "athlete": "Athlete",
-        "guardian": "Guardian",
-        "schedule": "Schedule",
-        "attendance": "Attendance",
-        "payments": "Payments",
-        "grades": "Belts"
-      },
-      "athlete": {
-        "firstName": "First name",
-        "lastName": "Last name",
-        "dateOfBirth": "Date of birth",
-        "disciplines": "Classes",
-        "locality": "Town",
-        "group": "Group",
-        "frequency": "Training",
-        "noGroup": "No group assigned"
-      },
-      "guardian": {
-        "firstName": "First name",
-        "lastName": "Last name",
-        "phone": "Phone",
-        "save": "Save",
-        "saved": "Changes saved.",
-        "saveError": "Could not save the changes."
-      },
-      "schedule": {
-        "notAssigned": "The child has no group assigned yet — the schedule will appear once assigned.",
-        "empty": "The group has no schedule set yet."
-      },
-      "attendance": {
-        "empty": "No attendance entries."
-      },
-      "grades": {
-        "current": "Current belt",
-        "history": "History",
-        "none": "No belt awarded.",
-        "examiner": "Examiner",
-        "result": {
-          "passed": "Passed",
-          "failed": "Failed"
-        }
-      }
-    },
-    "discipline": {
-      "acrobatics": "Acrobatics",
-      "martialArts": "Martial arts"
-    },
-    "frequency": {
-      "oncePerWeek": "Once a week",
-      "twicePerWeek": "Twice a week"
-    },
-    "locality": {
-      "drobin": "Drobin",
-      "sierpc": "Sierpc",
-      "plock": "Płock"
-    },
-    "payments": {
-      "paid": "PAID",
-      "due": "DUE",
-      "expected": "Amount",
-      "paidAmount": "Paid",
-      "empty": "No charges.",
-      "payOnline": "Pay online",
-      "payError": "Could not start the payment. Please try again.",
-      "lateFee": "Administrative fee",
-      "method": {
-        "BankTransfer": "Bank transfer",
-        "Cash": "Cash",
-        "Przelewy24": "Przelewy24",
-        "Blik": "BLIK"
-      }
-    },
-    "billingPlan": {
-      "autoPay": "Pay automatically",
-      "enable": "Enable auto-pay",
-      "enableError": "Could not enable auto-pay. Please try again.",
-      "disabledHint": "Auto-pay is not enabled.",
-      "toggleError": "Could not change the setting. Please try again.",
-      "failed": "The last automatic payment failed.",
-      "retry": "Retry",
-      "retryStarted": "We'll retry the payment on the next attempt.",
-      "retryError": "Could not retry the payment. Please try again."
-    },
     "day": {
       "monday": "Monday",
       "tuesday": "Tuesday",
@@ -165,12 +63,609 @@
       "10": "October",
       "11": "November",
       "12": "December"
+    },
+    "children": {
+      "title": "Athletes",
+      "loading": "Loading…",
+      "loadError": "Could not load the list of children.",
+      "retry": "Try again",
+      "empty": "You haven't added any children yet.",
+      "addChild": "Add a child",
+      "refresh": "Refresh",
+      "noGroup": "No group assigned",
+      "eyebrow": "Academy"
+    },
+    "onboarding": {
+      "title": "Add a child",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "dateOfBirth": "Date of birth",
+      "firstNameRequired": "Enter a first name.",
+      "lastNameRequired": "Enter a last name.",
+      "dateOfBirthRequired": "Enter a date of birth.",
+      "submit": "Add child",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "errors": {
+        "guardianNotFound": "Your guardian account is not active in this academy yet.",
+        "generic": "Could not save the child. Please try again."
+      },
+      "eyebrow": "Academy"
+    },
+    "childDetail": {
+      "back": "← My children",
+      "loading": "Loading…",
+      "loadError": "Could not load the child's data.",
+      "retry": "Try again",
+      "tabs": {
+        "athlete": "Athlete",
+        "schedule": "Schedule",
+        "attendance": "Attendance",
+        "grades": "Grades"
+      },
+      "athlete": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "dateOfBirth": "Date of birth",
+        "group": "Group",
+        "noGroup": "No group assigned",
+        "currentGrade": "Grade",
+        "nextSession": "Upcoming session",
+        "noUpcomingSession": "No upcoming sessions",
+        "discipline": "Classes",
+        "locality": "Town",
+        "trainings": "Trainings",
+        "trainingsPerWeek": "{{count}}× a week",
+        "guardianName": "Parent / guardian",
+        "guardianPhone": "Contact phone"
+      },
+      "schedule": {
+        "notAssigned": "The child has no group assigned yet — the schedule will appear once assigned.",
+        "empty": "The group has no schedule set yet.",
+        "withdraw": "Withdraw",
+        "status": {
+          "enrolled": "Enrolled",
+          "withdrawPending": "Withdrawal pending",
+          "slotWaitlist": "Waiting for a free spot"
+        },
+        "cancelWithdraw": "Cancel withdrawal",
+        "cancelAlsoAffects": "This request also covers: {{slots}} — cancelling applies to all of it."
+      },
+      "attendance": {
+        "empty": "No attendance entries.",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "sessionsLoading": "Loading sessions…",
+        "sessionsError": "Could not load the sessions.",
+        "noSessions": "No sessions in this period.",
+        "status": {
+          "NotRecorded": "Not recorded",
+          "Present": "Present",
+          "Absent": "Absent",
+          "Excused": "Excused"
+        },
+        "reportAbsence": "Report absence",
+        "withdrawExcuse": "Withdraw report",
+        "excusePending": "Reported — awaiting the academy",
+        "excuseRejected": "Report rejected",
+        "excuseHint": "A reported absence becomes excused only once the academy approves it. A month without attendance and only excused absences may carry over to the next month.",
+        "excuseNotAllowed": "This absence can no longer be reported.",
+        "excuseError": "Could not save the report. Please try again."
+      },
+      "grades": {
+        "empty": "No grade information.",
+        "none": "No grade awarded.",
+        "history": "History",
+        "examiner": "Examiner",
+        "result": {
+          "Passed": "Passed",
+          "Failed": "Failed"
+        }
+      },
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this child? This cannot be undone.",
+      "deleteDisabledHint": "To delete this child, they must first be withdrawn from all classes.",
+      "deleteError": "Could not delete the child. Please try again.",
+      "actions": {
+        "enroll": "Enroll athlete"
+      },
+      "deleteBlocked": {
+        "title": "The child can't be deleted yet"
+      },
+      "deleteDialog": {
+        "title": "Delete the child?"
+      },
+      "withdraw": {
+        "title": "Withdraw from class?",
+        "message": "You are about to send a request to withdraw the child from: {{group}}, {{day}} {{time}}. The instructor has to approve it — until then the child stays enrolled.",
+        "confirm": "Send request"
+      },
+      "requests": {
+        "status": {
+          "Pending": "Awaiting decision",
+          "Waitlisted": "Waitlist",
+          "Approved": "Approved",
+          "Rejected": "Rejected",
+          "Cancelled": "Cancelled"
+        },
+        "waitlistedInfo": "The academy has put this request on its waitlist — we will e-mail you once it is decided.",
+        "clubNote": "Message from the academy:",
+        "rejectionReason": "Rejection reason:",
+        "cancel": "Cancel request",
+        "cancelError": "Could not cancel the request. Please try again.",
+        "history": "Request history"
+      }
+    },
+    "paymentErrors": {
+      "guardianChargeNotFound": "No charge has been issued for this month.",
+      "guardianChargeAlreadyPaid": "This charge has already been paid.",
+      "academyPaymentNotConfigured": "Online payments are not configured for this academy yet.",
+      "generic": "Could not complete the payment operation. Please try again.",
+      "academyOnlinePaymentDisabled": "Online payments are not available at this academy. Please pay the organizer directly."
+    },
+    "paymentCallback": {
+      "polling": "Checking payment status… (attempt {{attempt}}/{{max}})",
+      "success": "The payment has been recorded.",
+      "pending": "We couldn't confirm the payment yet — this sometimes takes a little longer. Try checking again shortly.",
+      "retry": "Check again",
+      "error": "No information found for this payment.",
+      "backToPayments": "Back to payments",
+      "failed": "The payment was not completed. You can try again from the payments list."
+    },
+    "invite": {
+      "resolving": "Checking the invitation…",
+      "invalidLinkTitle": "Invalid link",
+      "invalidLinkBody": "This invitation link is incomplete or broken. Ask the academy for a new invitation.",
+      "needsProfileTitle": "Finish your profile",
+      "needsProfileBody": "Before joining the academy, enter your first and last name.",
+      "displayNameLabel": "Full name",
+      "displayNameRequired": "Enter your full name.",
+      "profileCta": "Continue",
+      "needsConsentsTitle": "Accept the academy's terms",
+      "needsConsentsBody": "Before joining, please accept the documents below.",
+      "consentsCta": "Accept and join",
+      "joining": "Joining the academy…",
+      "accepting": "Accepting the invitation…",
+      "success": "Invitation accepted",
+      "successBody": "Your parent account is ready. Go to the panel to add your child and sign them up for classes.",
+      "successCta": "Go to the panel",
+      "saving": "Saving…",
+      "errorTitle": "Something went wrong",
+      "retryLogin": "Log out and sign in again",
+      "retry": "Try again",
+      "errors": {
+        "parentInvitationNotFound": "This invitation link is invalid or no longer exists.",
+        "parentInvitationExpired": "This invitation link has expired. Ask the academy for a new one.",
+        "membershipRequired": "Could not join the academy. Please try again.",
+        "memberConsentRequired": "You must accept the academy's terms before joining.",
+        "emailMismatch": "This invitation link is for a different e-mail address than the account you're signed in with.",
+        "profileSaveFailed": "Could not save your profile. Please try again.",
+        "consentsSaveFailed": "Could not save your consents. Please try again.",
+        "profileLoadFailed": "Could not load your profile. Please try again.",
+        "consentsLoadFailed": "Could not load the required consents. Please try again.",
+        "joinFailed": "Could not join the academy. Please try again.",
+        "acceptFailed": "Could not accept the invitation. Please try again.",
+        "generic": "Could not accept the invitation. Please try again."
+      },
+      "stepProfile": "Your details",
+      "stepConsents": "Consents & terms"
+    },
+    "editChild": {
+      "eyebrow": "Academy",
+      "title": "Edit child",
+      "loading": "Loading…",
+      "submit": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "enroll": {
+      "title": "Enroll athlete",
+      "back": "Back to athlete",
+      "loading": "Loading…",
+      "loadError": "Could not load the available classes.",
+      "retry": "Try again",
+      "empty": "There are currently no classes available to enroll in.",
+      "noLocality": "No location assigned yet",
+      "alreadyEnrolled": "Already enrolled",
+      "pendingRequest": "Request pending",
+      "full": "Full",
+      "unlimitedSpots": "Unlimited spots",
+      "freeSpotsCount": "Free spots: {{count}}",
+      "joinWaitlist": "Join waitlist",
+      "leaveWaitlist": "Leave waitlist",
+      "submit": "Enroll selected classes",
+      "submitting": "Submitting…",
+      "errors": {
+        "alreadyPendingRequest": "This request is already being reviewed.",
+        "alreadyEnrolled": "The athlete is already enrolled in this class.",
+        "full": "There are no free spots left in this group.",
+        "notFull": "This class is not full yet.",
+        "alreadyOnWaitlist": "The athlete is already on the waitlist for this class.",
+        "waitlistEntryNotFound": "Waitlist entry not found.",
+        "guardianNotFound": "Your guardian account is not active in this academy yet.",
+        "generic": "Could not submit the request. Please try again."
+      }
+    },
+    "payments": {
+      "title": "Payments",
+      "loading": "Loading payments…",
+      "loadError": "Could not load payments.",
+      "retry": "Try again",
+      "noAmount": "The organiser has not issued any charge yet.",
+      "amounts": "Amount: {{expected}} · Paid: {{paid}}",
+      "paid": "PAID",
+      "due": "DUE",
+      "payOnline": "Pay online — {{total}}",
+      "onlineFee": "Includes payment gateway fee: {{fee}} ({{percent}}%)",
+      "offlineHint": "Cash or bank transfer — no fee; the organizer will record the payment.",
+      "empty": "No charges issued.",
+      "overdue": "OVERDUE",
+      "remaining": "Still to pay: {{amount}}",
+      "dueBy": "due: {{date}}",
+      "creditApplied": "Covered by credit: {{amount}}",
+      "credit": "Credit for the coming months: {{amount}}",
+      "line": "{{child}} — {{discipline}}: {{slots}} × {{unit}}",
+      "siblingDiscount": "sibling discount {{percent}}%",
+      "waived": {
+        "NoSessions": "No training took place — {{amount}} is not owed.",
+        "ExcusedEmptyMonth": "Excused for the whole month — {{amount}} carries over to the next month."
+      }
+    },
+    "childPhoto": {
+      "alt": "Child photo",
+      "add": "Add photo",
+      "change": "Change photo",
+      "remove": "Remove photo",
+      "saving": "Saving the photo…",
+      "noteLabel": "About the photo",
+      "note": "The photo is optional. Only the academy and the trainers of your child's group can see it. You can change or remove it at any time.",
+      "errors": {
+        "type": "Choose a JPEG, PNG or WebP photo.",
+        "tooLarge": "This photo is too large. Choose a file smaller than 20 MB.",
+        "decode": "This photo could not be read. Try another file.",
+        "rejected": "The academy did not accept this photo. Choose another file.",
+        "generic": "The photo could not be saved. Try again."
+      }
+    }
+  },
+  "common": {
+    "dialog": {
+      "cancel": "Cancel",
+      "close": "Close"
+    }
+  },
+  "clubs": {
+    "eyebrow": "Academy",
+    "title": "My academies",
+    "loading": "Loading academies…",
+    "empty": "You don't belong to any academy yet.",
+    "join": "Join an academy",
+    "details": "Academy details",
+    "fallbackName": "Academy",
+    "verticalAcademy": "Groups",
+    "verticalFitness": "Classes & passes",
+    "summary": {
+      "nextTraining": "{{name}}: {{day}} {{time}}",
+      "noChildren": "Add a child to enroll them in classes",
+      "due": "Due: {{amount}}",
+      "noCarnet": "No membership pass",
+      "carnetUntil": "Pass valid until {{date}}",
+      "nextClass": "Next: {{name}}, {{when}}"
     }
   },
   "findClub": {
-    "badge": {
-      "fitness": "Fitness club",
-      "academy": "Sports academy"
+    "eyebrow": "Academy",
+    "title": "Find an academy",
+    "intro": "Join another academy — without visiting its website.",
+    "introNoClubs": "You don't belong to any academy yet. Find classes for your child or for yourself.",
+    "searchPlaceholder": "Academy name or city",
+    "nearMe": "Near me",
+    "locationDenied": "Couldn't get your location — results are sorted alphabetically.",
+    "loading": "Searching academies…",
+    "loadError": "Couldn't load academies.",
+    "empty": "No academies found.",
+    "member": "Member",
+    "distance": "{{km}} km",
+    "backToClubs": "Back to my academies",
+    "qr": {
+      "scan": "Scan the academy QR code",
+      "scanning": "Scanning…",
+      "errors": {
+        "unknown": "This is not an academy QR code.",
+        "failed": "Could not scan the code. Please try again.",
+        "installing": "Downloading the scanner module… Try again in a moment."
+      }
+    }
+  },
+  "clubDetail": {
+    "backToClubs": "My academies",
+    "backToSearch": "Academy finder",
+    "loading": "Loading academy…",
+    "loadError": "Couldn't load the academy.",
+    "suspended": "This academy is temporarily unavailable.",
+    "disciplines": "Disciplines",
+    "phone": "Phone",
+    "email": "E-mail",
+    "joinIntroAcademy": "After joining you'll add your child and pick classes — the academy approves the enrollment.",
+    "joinIntroFitness": "After joining you'll pick a membership pass and book classes.",
+    "join": "Join the academy",
+    "joining": "Joining the academy…",
+    "continue": "Continue",
+    "stepProfile": "Step 1 · Your details",
+    "needsProfile": "Tell the academy how to address you.",
+    "stepConsents": "Step 2 · Terms",
+    "needsConsents": "Accept the academy's documents to join.",
+    "newConsents": "The academy published new documents — accept them to keep booking classes.",
+    "acceptConsents": "I accept",
+    "enter": "Open academy",
+    "healthQuestionnaire": "Health questionnaire",
+    "leave": "Leave the academy",
+    "leaveDialog": {
+      "title": "Leave the academy?",
+      "message": "You're leaving {{name}}. You will lose access to its sections in the portal.",
+      "messageGroups": "You're leaving {{name}}. Your children will be removed from their groups and waiting lists, open enrollment requests cancelled and their photos deleted. The monthly fee will stop — charges already issued remain payable.",
+      "messageClasses": "You're leaving {{name}}. Your pass will be cancelled and your class bookings released.",
+      "messageBoth": "You're leaving {{name}}. Your pass will be cancelled and your class bookings released. Your children will be removed from their groups and waiting lists, open enrollment requests cancelled and their photos deleted. The monthly fee will stop — charges already issued remain payable."
+    },
+    "errors": {
+      "profileLoadFailed": "Couldn't check your profile. Try again.",
+      "profileSaveFailed": "Couldn't save your details. Try again.",
+      "consentsLoadFailed": "Couldn't load the academy's documents. Try again.",
+      "consentsSaveFailed": "Couldn't save your acceptance. Try again.",
+      "joinFailed": "Couldn't join the academy. Try again.",
+      "leaveFailed": "Couldn't leave the academy. Try again."
+    },
+    "website": "Academy website"
+  },
+  "healthQuestionnaire": {
+    "back": "Back to the academy",
+    "eyebrow": "Classes & passes",
+    "title": "Health questionnaire",
+    "loadError": "Couldn't load the questionnaire.",
+    "lastSubmitted": "Last saved {{date}}. Saving creates a new version.",
+    "contraindications": "I have health contraindications to physical exercise",
+    "chronicCondition": "I have a chronic condition (heart, diabetes, asthma, etc.)",
+    "medication": "I take regular medication",
+    "notes": "Additional information",
+    "consent": "I consent to the academy processing my health data",
+    "consentRequired": "Consent is required to save the questionnaire.",
+    "saved": "Questionnaire saved.",
+    "saveFailed": "Couldn't save the questionnaire. Try again.",
+    "save": "Save"
+  },
+  "fitness": {
+    "retry": "Try again",
+    "carnet": {
+      "title": "Membership pass",
+      "loading": "Loading your pass…",
+      "loadError": "Couldn't load your pass.",
+      "price": "Price",
+      "period": "Period",
+      "paymentMethod": "Payment method",
+      "awaitingFrontDesk": "The pass is waiting for payment at the front desk.",
+      "paymentFailed": "The last payment failed — pay again to unblock bookings.",
+      "autoRenewal": "Automatic renewal",
+      "pendingPrice": "The academy proposed a new price: {{price}}.",
+      "acceptPrice": "Accept the new price",
+      "payNextPeriod": "Pay next month",
+      "repay": "Pay for the pass",
+      "cancel": "Cancel the pass",
+      "cancellationScheduled": "The pass ends on {{date}}.",
+      "withdrawCancellation": "Withdraw cancellation",
+      "cancelDialog": {
+        "title": "Cancel the pass?",
+        "message": "The pass stays valid until the notice period ends."
+      },
+      "none": "You don't have a pass in this academy yet.",
+      "noTypes": "The academy hasn't published passes for online purchase yet.",
+      "type": "Pass type",
+      "chooseType": "Choose a pass",
+      "sessionsPerMonth": "{{count}} classes per month",
+      "startingClass": "Starting class",
+      "chooseStartingClass": "Choose a class",
+      "startingClassRequired": "Choose the class you're starting with.",
+      "discountCode": "Discount code (optional)",
+      "prorationHint": "The first, partial month is priced by the classes left in it.",
+      "signUp": "Buy the pass"
+    },
+    "paymentMethod": {
+      "recurring": "Recurring card payment",
+      "oneTime": "One-time online payment",
+      "manual": "Pay at the front desk"
+    },
+    "carnetStatus": {
+      "pendingFirstPayment": "Awaiting payment",
+      "active": "Active",
+      "paymentFailed": "Payment failed",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
+    "enrollmentStatus": {
+      "confirmed": "Booked",
+      "cancelledByMember": "Cancelled",
+      "noShow": "No-show"
+    },
+    "makeupCreditStatus": {
+      "available": "Available",
+      "redeemed": "Used",
+      "expired": "Expired"
+    },
+    "schedule": {
+      "title": "Class schedule",
+      "loading": "Loading the schedule…",
+      "loadError": "Couldn't load the schedule.",
+      "tabs": {
+        "sessions": "Classes",
+        "enrollments": "My bookings",
+        "credits": "Make-ups"
+      },
+      "noSessions": "No classes in the next 14 days.",
+      "noEnrollments": "You have no bookings in the next 14 days.",
+      "noCredits": "You have no make-up classes.",
+      "seats": "free seats: {{free}}/{{capacity}}",
+      "opensAt": "Booking opens {{date}}",
+      "enrolled": "Booked",
+      "enroll": "Book",
+      "unenroll": "Cancel booking",
+      "reportAbsence": "Report absence",
+      "waitlisted": "Waitlist",
+      "joinWaitlist": "Waitlist",
+      "leaveWaitlist": "Leave waitlist",
+      "absenceReported": "Absence reported.",
+      "waitlistJoined": "You're on the waitlist.",
+      "credit": "Make-up class",
+      "creditValidUntil": "Valid until {{date}}",
+      "redeem": "Use",
+      "pickSession": "Pick a class",
+      "noRedeemableSessions": "No classes with free seats.",
+      "creditRedeemed": "Make-up class booked.",
+      "goToConsents": "Go to the academy's documents"
+    },
+    "paymentCallback": {
+      "polling": "Checking the payment… ({{attempt}}/{{max}})",
+      "success": "Pass paid!",
+      "pending": "The payment is still processing. Check again in a moment.",
+      "retry": "Check again",
+      "failed": "The payment failed.",
+      "error": "No payment to check was found.",
+      "back": "Back to the pass"
+    },
+    "errors": {
+      "enrollmentNotOpen": "Booking for this class hasn't opened yet.",
+      "bookingBlocked": "Your bookings are blocked — check your pass payment.",
+      "sessionFull": "No free seats — join the waitlist.",
+      "alreadyEnrolled": "You're already booked for this class.",
+      "consentRequired": "Accept the academy's documents first.",
+      "membershipNotActive": "You're not an active member of this academy.",
+      "carnetAlreadyExists": "You already have a pass in this academy.",
+      "paymentNotConfigured": "The academy has no online payments set up — choose paying at the front desk.",
+      "recurringNotSupported": "This academy doesn't support recurring payments — choose one-time.",
+      "invalidDiscountCode": "The discount code is invalid.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "legal": {
+    "footer": {
+      "terms": "Terms",
+      "privacy": "Privacy policy",
+      "provider": "Service provided by LocalBiz"
+    },
+    "consent": {
+      "seller": "Seller: {{name}}",
+      "nip": "Tax ID {{nip}}",
+      "acceptPrefix": "I accept the",
+      "termsLink": "academy's terms"
+    },
+    "consentLabels": {
+      "StudioTerms": "I accept the academy's terms",
+      "StudioRodo": "I have read the academy's privacy policy"
+    },
+    "clubPage": {
+      "loading": "Loading the document…",
+      "loadError": "The academy's document couldn't be loaded. Please try again later.",
+      "ownDocument": "The academy publishes its own document:",
+      "openOwnDocument": "Open the academy's document",
+      "back": "← Back"
+    },
+    "updated": "Version of 15 October 2026",
+    "translationNotice": "This is a translation for convenience — the Polish version is binding.",
+    "platformTerms": {
+      "title": "Regulamin serwisu Akademia",
+      "sections": [
+        {
+          "title": "§1. Postanowienia ogólne",
+          "items": [
+            "Regulamin określa zasady korzystania z serwisu internetowego Akademia (academy.localbiz.pl) oraz aplikacji mobilnej Akademia (dalej: Serwis).",
+            "Usługodawcą Serwisu jest DevOak Konrad Dąbrowski, NIP 7761666354, Budy Piaseczne 5A, 09-226 Zawidz Kościelny, e-mail: konrad.dabrowski@devoak.pl, tel. +48 690 317 314 (dalej: Usługodawca).",
+            "Serwis jest narzędziem, za pomocą którego akademie i inne podmioty prowadzące zajęcia grupowe, korzystające z platformy LocalBiz (dalej: Akademie), obsługują swoich klientów — członków i rodziców uczestników zajęć."
+          ]
+        },
+        {
+          "title": "§2. Usługi świadczone w Serwisie",
+          "items": [
+            "Usługodawca nieodpłatnie umożliwia: założenie konta i logowanie, wyszukiwanie Akademii i dołączanie do nich, przeglądanie zajęć, frekwencji i należności wobec Akademii, kontakt z Akademią oraz dokonywanie płatności na rzecz Akademii.",
+            "Umowa o świadczenie usług drogą elektroniczną zostaje zawarta z chwilą założenia konta i jest zawarta na czas nieokreślony. Użytkownik może ją rozwiązać w każdej chwili, żądając usunięcia konta."
+          ]
+        },
+        {
+          "title": "§3. Umowy z Akademiami i płatności",
+          "items": [
+            "Stroną umowy o udział w zajęciach, sprzedawcą i odbiorcą płatności jest wyłącznie Akademia. Warunki zajęć, opłat, zwrotów i reklamacji określa regulamin Akademii, udostępniany w Serwisie przed dołączeniem do Akademii i przed płatnością.",
+            "Usługodawca nie jest stroną umów zawieranych z Akademiami i nie przyjmuje płatności — płatności online trafiają bezpośrednio na rachunek Akademii za pośrednictwem operatora płatności wybranego przez Akademię.",
+            "Reklamacje dotyczące zajęć i opłat należy kierować do Akademii."
+          ]
+        },
+        {
+          "title": "§4. Wymagania techniczne i zasady korzystania",
+          "items": [
+            "Do korzystania z Serwisu potrzebne są urządzenie z dostępem do Internetu, aktualna przeglądarka internetowa i adres e-mail.",
+            "Zabronione jest dostarczanie treści o charakterze bezprawnym oraz działania zakłócające pracę Serwisu."
+          ]
+        },
+        {
+          "title": "§5. Reklamacje dotyczące działania Serwisu",
+          "items": [
+            "Reklamacje dotyczące działania Serwisu można składać e-mailem na adres konrad.dabrowski@devoak.pl.",
+            "Usługodawca rozpatruje reklamację w terminie 14 dni od jej otrzymania."
+          ]
+        },
+        {
+          "title": "§6. Postanowienia końcowe",
+          "items": [
+            "Usługodawca może zmienić Regulamin z ważnych przyczyn, informując o tym użytkowników z co najmniej 14-dniowym wyprzedzeniem.",
+            "Konsument może skorzystać z pozasądowych sposobów rozpatrywania sporów, m.in. pomocy miejskiego lub powiatowego rzecznika konsumentów.",
+            "W sprawach nieuregulowanych stosuje się przepisy prawa polskiego."
+          ]
+        }
+      ]
+    },
+    "platformPrivacy": {
+      "title": "Polityka prywatności serwisu Akademia",
+      "sections": [
+        {
+          "title": "1. Administrator danych",
+          "items": [
+            "Administratorem danych konta w Serwisie (adres e-mail, imię i nazwisko, numer telefonu, dane logowania, dane techniczne) jest DevOak Konrad Dąbrowski, NIP 7761666354, Budy Piaseczne 5A, 09-226 Zawidz Kościelny, e-mail: konrad.dabrowski@devoak.pl, tel. +48 690 317 314.",
+            "Danymi związanymi z udziałem w zajęciach konkretnej Akademii (np. dane dzieci, frekwencja, należności, ankieta zdrowotna) administruje ta Akademia — zasady opisuje polityka prywatności Akademii. Usługodawca przetwarza te dane wyłącznie na zlecenie Akademii, na podstawie umowy powierzenia."
+          ]
+        },
+        {
+          "title": "2. Cele i podstawy przetwarzania",
+          "items": [
+            "prowadzenie konta i świadczenie usług Serwisu — art. 6 ust. 1 lit. b RODO;",
+            "bezpieczeństwo Serwisu, obsługa reklamacji i dochodzenie roszczeń — art. 6 ust. 1 lit. f RODO;",
+            "powiadomienia push — za zgodą udzieloną w przeglądarce lub aplikacji, którą można w każdej chwili wycofać."
+          ]
+        },
+        {
+          "title": "3. Odbiorcy danych",
+          "items": [
+            "Microsoft (Azure — hosting w centrach danych w Unii Europejskiej; Microsoft Entra External ID — logowanie; Azure Communication Services — wiadomości e-mail);",
+            "Akademie, do których użytkownik dołączył — w zakresie danych potrzebnych do obsługi członkostwa;",
+            "operatorzy płatności wybrani przez Akademię — wyłącznie przy płatności online."
+          ]
+        },
+        {
+          "title": "4. Okres przechowywania",
+          "items": [
+            "Dane konta przechowujemy do czasu usunięcia konta, a następnie przez okres przedawnienia ewentualnych roszczeń; dane techniczne (logi) — nie dłużej niż 90 dni."
+          ]
+        },
+        {
+          "title": "5. Prawa użytkownika",
+          "items": [
+            "Przysługuje Ci prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przenoszenia, sprzeciwu oraz wycofania zgody, a także prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa).",
+            "W sprawie danych konta pisz na adres konrad.dabrowski@devoak.pl; w sprawie danych przetwarzanych przez Akademię — bezpośrednio do Akademii."
+          ]
+        },
+        {
+          "title": "6. Pliki cookies i pamięć przeglądarki",
+          "items": [
+            "Serwis używa wyłącznie pamięci przeglądarki niezbędnej do działania: sesji logowania, wybranej akademii i motywu kolorystycznego. Nie używamy cookies reklamowych ani analitycznych."
+          ]
+        }
+      ]
     }
   },
   "notifications": {

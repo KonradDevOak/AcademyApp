@@ -1,0 +1,48 @@
+<main class="clubs page">
+  <header class="clubs__head">
+    <p class="eyebrow">{{ 'clubs.eyebrow' | translate }}</p>
+    <h1>{{ 'clubs.title' | translate }}</h1>
+  </header>
+
+  @if (status() === 'loading' || status() === 'idle') {
+    <div class="clubs__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'clubs.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="banner banner--error" role="alert">{{ 'shell.loadError' | translate }}</p>
+    <button type="button" class="btn" (click)="reload()">{{ 'fitness.retry' | translate }}</button>
+  } @else if (!hasClubs()) {
+    <div class="card stack clubs__empty">
+      <p>{{ 'clubs.empty' | translate }}</p>
+      <a class="btn btn--primary" routerLink="/find-club">{{ 'clubs.join' | translate }}</a>
+    </div>
+  } @else {
+    <ul class="clubs__grid">
+      @for (membership of memberships(); track membership.storefrontId) {
+        <li class="club-tile" [class.club-tile--active]="membership.storefrontId === activeId()">
+          <button
+            type="button"
+            class="club-tile__main"
+            [style.background-image]="background(membership)"
+            (click)="open(membership)"
+          >
+            <span class="club-tile__name">
+              {{ membership.storefrontName ?? ('clubs.fallbackName' | translate) }}
+            </span>
+            <app-club-tile-summary class="club-tile__summary" [membership]="membership" />
+            <span class="club-tile__go" aria-hidden="true">›</span>
+          </button>
+          <a class="club-tile__details" [routerLink]="['/clubs', membership.storefrontId]">
+            {{ 'clubs.details' | translate }}
+          </a>
+        </li>
+      }
+    </ul>
+
+    <a class="club-tile club-tile--join" routerLink="/find-club">
+      <span class="club-tile__plus" aria-hidden="true">+</span>
+      {{ 'clubs.join' | translate }}
+    </a>
+  }
+</main>

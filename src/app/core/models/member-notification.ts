@@ -1,8 +1,5 @@
-// Mirrors AcademyWeb's own core/models/member-notification.ts — both clients consume the exact same
-// Notifications module endpoint (GET/POST api/notifications/member/inbox[...]), so the contract stays
-// hand-synced rather than shared, the same tradeoff already made for known-service-ids (see root
-// CLAUDE.md's "Backend conventions" — Angular can't import C#, and here it can't share types across two
-// separate Angular apps either).
+// Contract of the Notifications module's member inbox (GET/POST api/notifications/member/inbox[...]),
+// hand-synced with the backend DTOs.
 export interface MemberNotificationDto {
   id: string;
   subject: string;

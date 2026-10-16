@@ -25,13 +25,8 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
+/*
+ * No Ionic dark palette: both themes come from the "Neon night" tokens (theme/_tokens.scss), mapped onto
+ * Ionic's variables in theme/variables.scss and switched by the .dark/.light class on <html>.
+ * The app's own styles (theme/app.scss) load after this file so they win over Ionic's typography.
  */
-
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-@import '@ionic/angular/css/palettes/dark.class.css';
-/* @import "@ionic/angular/css/palettes/dark.system.css"; */

@@ -1,0 +1,101 @@
+<section class="enroll-athlete page">
+  <a class="enroll-athlete__back back-link" [routerLink]="['/academy/children', athleteId]">
+    {{ 'academy.enroll.back' | translate }}
+  </a>
+
+  @if (status() === 'loading') {
+    <div class="enroll-athlete__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'academy.enroll.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="enroll-athlete__error banner banner--error" role="alert">
+      {{ 'academy.enroll.loadError' | translate }}
+    </p>
+    <button type="button" class="btn" (click)="retry()">{{ 'academy.enroll.retry' | translate }}</button>
+  } @else {
+    <header class="enroll-athlete__head">
+      <h1>{{ 'academy.enroll.title' | translate }}</h1>
+    </header>
+
+    @if (localityBuckets().length === 0) {
+      <p class="enroll-athlete__muted muted">{{ 'academy.enroll.empty' | translate }}</p>
+    } @else {
+      @for (bucket of localityBuckets(); track bucket.locality ?? '') {
+        <section class="enroll-athlete__locality">
+          <h2 class="enroll-athlete__locality-heading">
+            {{ bucket.locality || ('academy.enroll.noLocality' | translate) }}
+          </h2>
+
+          @for (group of bucket.groups; track group.id) {
+            <div class="enroll-athlete__group card">
+              <h3 class="enroll-athlete__group-heading">{{ group.name }} · {{ group.disciplineName }}</h3>
+
+              <ul class="enroll-athlete__slots">
+                @for (slot of group.slots; track slot.id) {
+                  <li class="enroll-athlete__slot" [class.is-selected]="isSelected(slot)" [class.is-full]="isFull(slot)">
+                    <button
+                      type="button"
+                      class="enroll-athlete__slot-toggle"
+                      [disabled]="slot.alreadyEnrolled || slot.alreadyRequested || isFull(slot)"
+                      (click)="toggleSlot(slot)"
+                    >
+                      <span class="enroll-athlete__slot-time tnum">
+                        {{ dayKey(slot.dayOfWeek) | translate }}, {{ shortTime(slot.startTime) }}–{{ shortTime(slot.endTime) }}
+                      </span>
+
+                      <span class="enroll-athlete__slot-status">
+                        @if (slot.alreadyEnrolled) {
+                          <span class="badge">{{ 'academy.enroll.alreadyEnrolled' | translate }}</span>
+                        } @else if (slot.alreadyRequested) {
+                          <span class="badge">{{ 'academy.enroll.pendingRequest' | translate }}</span>
+                        } @else if (isFull(slot)) {
+                          <span class="badge badge--due">{{ 'academy.enroll.full' | translate }}</span>
+                        } @else if (slot.freeSpots === null) {
+                          <span class="enroll-athlete__spots">{{ 'academy.enroll.unlimitedSpots' | translate }}</span>
+                        } @else {
+                          <span class="enroll-athlete__spots">
+                            {{ 'academy.enroll.freeSpotsCount' | translate: { count: slot.freeSpots } }}
+                          </span>
+                        }
+                      </span>
+                    </button>
+
+                    @if (isFull(slot) && !slot.alreadyEnrolled && !slot.alreadyRequested) {
+                      <button
+                        type="button"
+                        class="btn enroll-athlete__waitlist-btn"
+                        [disabled]="joiningWaitlistSlotId() === slot.id"
+                        (click)="slot.isOnWaitlist ? leaveWaitlist(slot) : joinWaitlist(slot)"
+                      >
+                        {{ (slot.isOnWaitlist ? 'academy.enroll.leaveWaitlist' : 'academy.enroll.joinWaitlist') | translate }}
+                      </button>
+                    }
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </section>
+      }
+    }
+
+    @if (submitError(); as message) {
+      <p class="enroll-athlete__error banner banner--error" role="alert">{{ message | translate }}</p>
+    }
+    @if (waitlistActionError(); as message) {
+      <p class="enroll-athlete__error banner banner--error" role="alert">{{ message | translate }}</p>
+    }
+
+    <div class="enroll-athlete__actions">
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="selectedSlotIds().size === 0 || isSubmitting()"
+        (click)="submit()"
+      >
+        {{ (isSubmitting() ? 'academy.enroll.submitting' : 'academy.enroll.submit') | translate }}
+      </button>
+    </div>
+  }
+</section>

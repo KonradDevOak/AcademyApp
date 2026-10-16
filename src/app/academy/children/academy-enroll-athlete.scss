@@ -1,0 +1,110 @@
+.enroll-athlete__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) 0;
+  color: var(--text-muted);
+}
+
+.enroll-athlete__head {
+  margin-bottom: var(--space-4);
+}
+
+.enroll-athlete__error {
+  margin-bottom: var(--space-3);
+}
+
+.enroll-athlete__locality {
+  margin-bottom: var(--space-5);
+}
+
+.enroll-athlete__locality-heading {
+  font-size: 1.05rem;
+  margin-bottom: var(--space-3);
+}
+
+.enroll-athlete__group {
+  margin-bottom: var(--space-3);
+}
+
+.enroll-athlete__group-heading {
+  font-size: 0.95rem;
+  margin-bottom: var(--space-2);
+}
+
+.enroll-athlete__slots {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.enroll-athlete__slot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+
+  &:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  &.is-full {
+    opacity: 0.85;
+  }
+}
+
+.enroll-athlete__slot-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  .enroll-athlete__slot.is-selected & {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+}
+
+.enroll-athlete__slot-time {
+  font-weight: 600;
+}
+
+.enroll-athlete__spots {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.enroll-athlete__waitlist-btn {
+  flex: 0 0 auto;
+}
+
+.enroll-athlete__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--space-4);
+
+  .btn {
+    flex: 1;
+  }
+}

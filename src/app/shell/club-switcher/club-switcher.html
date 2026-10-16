@@ -1,0 +1,18 @@
+<nav class="club-switcher__inline" [attr.aria-label]="'shell.clubs.label' | translate">
+  @for (membership of memberships(); track membership.storefrontId) {
+    <button
+      type="button"
+      class="club-switcher__item"
+      [class.is-active]="membership.storefrontId === activeId()"
+      (click)="choose(membership)"
+    >
+      {{ membership.storefrontName ?? ('clubs.fallbackName' | translate) }}
+    </button>
+  }
+  <a class="club-switcher__item club-switcher__link" routerLink="/clubs" (click)="followLink()">
+    {{ 'shell.clubs.all' | translate }}
+  </a>
+  <a class="club-switcher__item club-switcher__link" routerLink="/find-club" (click)="followLink()">
+    + {{ 'shell.clubs.join' | translate }}
+  </a>
+</nav>

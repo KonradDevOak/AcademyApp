@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  padding: var(--space-4) var(--space-4) var(--space-6);
+}
+
+.legal-page {
+  max-width: 760px;
+  margin-inline: auto;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.legal-page__back {
+  display: inline-block;
+  margin-bottom: var(--space-3);
+}
+
+// Unstyled markup from @konraddevoak/club-legal is rendered inside — style its headings/lists here.
+.legal-page h2,
+.legal-page ::ng-deep .lb-club-legal h2 {
+  margin-top: var(--space-5);
+  font-size: 1.15rem;
+}
+
+.legal-page ol,
+.legal-page ul,
+.legal-page ::ng-deep .lb-club-legal ol,
+.legal-page ::ng-deep .lb-club-legal ul {
+  padding-left: 1.4rem;
+}
+
+.legal-page li + li,
+.legal-page ::ng-deep .lb-club-legal li + li {
+  margin-top: var(--space-2);
+}

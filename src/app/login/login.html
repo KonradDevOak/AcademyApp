@@ -1,0 +1,29 @@
+<main class="login">
+  <div class="login__doodles" aria-hidden="true">
+    <svg viewBox="0 0 24 24" class="login__doodle login__doodle--1"><path d="M12 21s-7-4.35-9.5-8.5C.5 9 2.5 5 6 5c2 0 3.5 1.2 4.2 2.5C10.9 6.2 12.4 5 14.4 5 17.9 5 20 9 18.5 12.5 16 16.65 12 21 12 21Z"/></svg>
+    <svg viewBox="0 0 24 24" class="login__doodle login__doodle--2"><path d="m12 2 2.6 6.4 6.9.5-5.3 4.5 1.7 6.7L12 16.9 6.1 20.6l1.7-6.7L2.5 8.9l6.9-.5Z"/></svg>
+    <svg viewBox="0 0 24 24" class="login__doodle login__doodle--3"><path d="M13 2 4 14h6l-1 8 9-12h-6Z"/></svg>
+  </div>
+
+  @if (signingIn()) {
+    <div class="login__inner login__inner--busy" role="status" aria-live="polite">
+      <span class="login__ring" aria-hidden="true"></span>
+      <h1 class="login__title login__title--busy">{{ 'login.signingIn' | translate }}</h1>
+      <p class="login__subtitle">{{ 'login.signingInHint' | translate }}</p>
+    </div>
+  } @else {
+    <div class="login__inner">
+      <span class="login__mark" aria-hidden="true"></span>
+      <h1 class="login__title">{{ 'login.title' | translate }}</h1>
+      <p class="login__subtitle">{{ 'login.subtitle' | translate }}</p>
+      <button type="button" class="btn btn--primary btn--block" (click)="login()">
+        {{ 'login.cta' | translate }}
+      </button>
+      <p class="login__legal muted">
+        <a routerLink="/regulamin">{{ 'legal.footer.terms' | translate }}</a>
+        <span aria-hidden="true">·</span>
+        <a routerLink="/polityka-prywatnosci">{{ 'legal.footer.privacy' | translate }}</a>
+      </p>
+    </div>
+  }
+</main>

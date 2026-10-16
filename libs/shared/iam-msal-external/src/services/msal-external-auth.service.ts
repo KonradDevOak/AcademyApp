@@ -253,8 +253,12 @@ export class MsalExternalAuthService implements IAuthenticationStrategy {
     }
   }
 
+  // Clears the local session, then reloads the WebView from its root — the native counterpart of the
+  // upstream logoutRedirect() landing back on the app origin: every in-memory service (memberships,
+  // active club, open screens) starts clean and CustomerGuard sends the user to /login.
   public async logoutRedirect(): Promise<void> {
     await this.doLogout();
+    window.location.replace('/');
   }
 
   public async getAccessToken(): Promise<Observable<string | null>> {

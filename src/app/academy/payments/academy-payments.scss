@@ -1,0 +1,98 @@
+.academy-payments__state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.academy-payments__error {
+  margin-bottom: var(--space-3);
+}
+
+.academy-payments__muted {
+  margin: 0;
+}
+
+.academy-payments__monthly {
+  margin: 0 0 var(--space-3);
+  font-weight: 600;
+}
+
+.academy-payments__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.academy-payments__charge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.academy-payments__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.academy-payments__period {
+  font-weight: 600;
+}
+
+.academy-payments__amounts {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.academy-payments__fee {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.academy-payments__pay {
+  flex-basis: 100%;
+}
+
+.academy-payments__hint {
+  margin: var(--space-3) 0 0;
+  font-size: 0.8rem;
+}
+
+.academy-payments__lines {
+  flex-basis: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.8rem;
+}
+
+.academy-payments__line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 var(--space-2);
+}
+
+.academy-payments__line-amount {
+  font-weight: 600;
+}
+
+.academy-payments__waiver {
+  flex-basis: 100%;
+}

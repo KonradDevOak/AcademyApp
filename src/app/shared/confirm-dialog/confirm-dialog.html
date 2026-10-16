@@ -1,0 +1,30 @@
+<dialog #dialog class="confirm-dialog card" aria-modal="true" (cancel)="onCancel($event)" (click)="onDialogClick($event)">
+  @if (open()) {
+    <div class="confirm-dialog__body">
+      <h2 class="confirm-dialog__heading">{{ heading() | translate }}</h2>
+      <p class="confirm-dialog__message">{{ message() | translate: messageParams() }}</p>
+
+      @if (error(); as errorKey) {
+        <p class="confirm-dialog__error banner banner--error" role="alert">{{ errorKey | translate }}</p>
+      }
+
+      <div class="confirm-dialog__actions">
+        <button type="button" class="btn" [disabled]="busy()" (click)="dismissed.emit()">
+          {{ (confirmLabel() ? 'common.dialog.cancel' : 'common.dialog.close') | translate }}
+        </button>
+        @if (confirmLabel(); as label) {
+          <button
+            type="button"
+            class="btn"
+            [class.btn--danger]="confirmDanger()"
+            [class.btn--primary]="!confirmDanger()"
+            [disabled]="busy()"
+            (click)="confirmed.emit()"
+          >
+            {{ label | translate }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</dialog>

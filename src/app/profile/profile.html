@@ -1,0 +1,62 @@
+<main class="profile page">
+  <h1>{{ 'profile.title' | translate }}</h1>
+
+  <div class="card card--flush">
+    @switch (profileStatus()) {
+      @case ('loading') {
+        <div class="profile__head" aria-hidden="true">
+          <span class="profile__avatar profile__skeleton"></span>
+          <span class="profile__skeleton profile__skeleton--line"></span>
+        </div>
+        <div class="profile__skeleton profile__skeleton--row" aria-hidden="true"></div>
+        <p class="muted profile__loading">{{ 'shell.loading' | translate }}</p>
+      }
+      @case ('error') {
+        <div class="profile__body stack">
+          <p class="profile__error banner banner--error" role="alert">{{ 'profile.loadError' | translate }}</p>
+          <button type="button" class="btn" (click)="retryLoadProfile()">{{ 'profile.retry' | translate }}</button>
+        </div>
+      }
+      @case ('loaded') {
+        <div class="profile__head">
+          <span class="profile__avatar" aria-hidden="true">{{ initials() }}</span>
+          <div class="profile__identity">
+            <p class="profile__name">{{ fullName() }}</p>
+            @if (member()?.email; as email) {
+              <p class="profile__email muted">{{ email }}</p>
+            }
+          </div>
+        </div>
+
+        <dl class="profile__details">
+          <div class="profile__row">
+            <svg class="profile__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+            <dt>{{ 'profile.firstName' | translate }}</dt>
+            <dd class="profile__first-name">{{ member()?.firstName || ('profile.empty' | translate) }}</dd>
+          </div>
+          <div class="profile__row">
+            <svg class="profile__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+            <dt>{{ 'profile.lastName' | translate }}</dt>
+            <dd class="profile__last-name">{{ member()?.lastName || ('profile.empty' | translate) }}</dd>
+          </div>
+          <div class="profile__row">
+            <svg class="profile__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>
+            <dt>{{ 'profile.phone' | translate }}</dt>
+            <dd class="profile__phone">
+              @if (member()?.phone; as phone) {
+                <a [href]="'tel:' + phone">{{ phone }}</a>
+              } @else {
+                {{ 'profile.empty' | translate }}
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <p class="profile__hint">
+          <svg class="profile__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span>{{ 'profile.managedByClub' | translate }}</span>
+        </p>
+      }
+    }
+  </div>
+</main>

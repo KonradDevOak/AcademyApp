@@ -1,9 +1,84 @@
-// For information on how to create your own theme, please see:
-// http://ionicframework.com/docs/theming/
+@use 'sass:color';
+@use 'sass:math';
+
+// Ionic theme variables derived from the "Neon night" tokens (theme/_tokens.scss). Ionic needs literal
+// colours (plus -rgb triplets and shade/tint), so the token hex values are repeated here; keep them in
+// sync with _tokens.scss.
+
+@function rgb-triplet($c) {
+  @return math.round(color.channel($c, 'red', $space: rgb)), math.round(color.channel($c, 'green', $space: rgb)),
+    math.round(color.channel($c, 'blue', $space: rgb));
+}
+
+@mixin ion-color($name, $base, $contrast) {
+  --ion-color-#{$name}: #{$base};
+  --ion-color-#{$name}-rgb: #{rgb-triplet($base)};
+  --ion-color-#{$name}-contrast: #{$contrast};
+  --ion-color-#{$name}-contrast-rgb: #{rgb-triplet($contrast)};
+  --ion-color-#{$name}-shade: #{color.mix(#000, $base, 12%)};
+  --ion-color-#{$name}-tint: #{color.mix(#fff, $base, 10%)};
+}
+
+@mixin ion-theme($bg, $surface, $surface-raised, $line, $text, $text-muted, $accent-2) {
+  --ion-background-color: #{$bg};
+  --ion-background-color-rgb: #{rgb-triplet($bg)};
+  --ion-text-color: #{$text};
+  --ion-text-color-rgb: #{rgb-triplet($text)};
+
+  // Overlays (popover, toast, alert, action sheet) and inputs read the step palettes.
+  @for $i from 1 through 19 {
+    $step: $i * 50;
+    --ion-background-color-step-#{$step}: #{color.mix($text, $bg, math.percentage(math.div($step, 1000)))};
+    --ion-text-color-step-#{$step}: #{color.mix($bg, $text, math.percentage(math.div($step, 1000)))};
+  }
+
+  --ion-item-background: #{$surface};
+  --ion-card-background: #{$surface};
+  --ion-toolbar-background: #{$bg};
+  --ion-tab-bar-background: #{$surface};
+  --ion-border-color: #{$line};
+  --ion-placeholder-color: #{$text-muted};
+
+  @include ion-color('primary', #ff2e7e, #10040a);
+  @include ion-color('secondary', $accent-2, #04191c);
+  @include ion-color('tertiary', $accent-2, #04191c);
+  @include ion-color('success', #3ddc97, #04150d);
+  @include ion-color('warning', #ffc24b, #1a1203);
+  @include ion-color('danger', #ff5c5c, #1a0505);
+  @include ion-color('medium', $text-muted, $bg);
+  @include ion-color('light', $surface-raised, $text);
+  @include ion-color('dark', $text, $bg);
+}
 
 :root {
-  // App-wide edge-of-screen content padding standard. `.ion-padding` already reads this Ionic var
-  // with a 16px fallback — this makes that value an explicit, documented app convention instead of
-  // an unstated default. Apply via class="ion-padding" on each top-level page's <ion-content>.
+  --ion-font-family: var(--font-body);
+  // App-wide edge-of-screen content padding (`.ion-padding`).
   --ion-padding: 16px;
+
+  @include ion-theme(#0e0e11, #17171c, #1f1f26, #2c2c35, #f4f4f6, #9a9aa5, #00d1e0);
+}
+
+:root.light {
+  @include ion-theme(#f7f7fa, #ffffff, #eeeef2, #dcdce3, #17171c, #5c5c66, #0092a0);
+}
+
+// The drawer and popovers share the raised surface of the web portal's drawer and menus.
+ion-menu {
+  --background: var(--surface);
+  --width: min(20rem, 85vw);
+}
+
+ion-popover {
+  --background: var(--surface);
+  --box-shadow: var(--shadow);
+  --width: min(20rem, 90vw);
+}
+
+ion-content {
+  --background: var(--bg);
+  --color: var(--text);
+}
+
+ion-header {
+  box-shadow: none;
 }

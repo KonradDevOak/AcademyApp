@@ -1,0 +1,56 @@
+<main class="health page">
+  <a class="back-link" [routerLink]="['/clubs', storefrontId]">{{ 'healthQuestionnaire.back' | translate }}</a>
+  <header class="health__head">
+    <p class="eyebrow">{{ 'healthQuestionnaire.eyebrow' | translate }}</p>
+    <h1>{{ 'healthQuestionnaire.title' | translate }}</h1>
+  </header>
+
+  @if (status() === 'loading') {
+    <div class="health__state">
+      <span class="spinner" aria-hidden="true"></span>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="banner banner--error" role="alert">{{ 'healthQuestionnaire.loadError' | translate }}</p>
+  } @else {
+    <form class="card stack" [formGroup]="form" (ngSubmit)="submit()">
+      @if (lastSubmittedAt(); as at) {
+        <p class="muted health__note tnum">{{ 'healthQuestionnaire.lastSubmitted' | translate: { date: formatDate(at) } }}</p>
+      }
+
+      <label class="chip-check health__check">
+        <input type="checkbox" formControlName="hasHealthContraindications" />
+        {{ 'healthQuestionnaire.contraindications' | translate }}
+      </label>
+      <label class="chip-check health__check">
+        <input type="checkbox" formControlName="hasChronicCondition" />
+        {{ 'healthQuestionnaire.chronicCondition' | translate }}
+      </label>
+      <label class="chip-check health__check">
+        <input type="checkbox" formControlName="takesRegularMedication" />
+        {{ 'healthQuestionnaire.medication' | translate }}
+      </label>
+      <label class="field">
+        <span>{{ 'healthQuestionnaire.notes' | translate }}</span>
+        <textarea class="input" rows="3" formControlName="additionalNotes"></textarea>
+      </label>
+
+      <label class="chip-check health__check">
+        <input type="checkbox" formControlName="healthDataConsentAccepted" />
+        {{ 'healthQuestionnaire.consent' | translate }}
+      </label>
+      @if (form.controls.healthDataConsentAccepted.touched && !form.controls.healthDataConsentAccepted.value) {
+        <span class="field-hint">{{ 'healthQuestionnaire.consentRequired' | translate }}</span>
+      }
+
+      @if (result() === 'saved') {
+        <p class="banner banner--ok" role="status">{{ 'healthQuestionnaire.saved' | translate }}</p>
+      } @else if (result() === 'failed') {
+        <p class="banner banner--error" role="alert">{{ 'healthQuestionnaire.saveFailed' | translate }}</p>
+      }
+
+      <button type="submit" class="btn btn--primary btn--block" [disabled]="saving()">
+        {{ 'healthQuestionnaire.save' | translate }}
+      </button>
+    </form>
+  }
+</main>

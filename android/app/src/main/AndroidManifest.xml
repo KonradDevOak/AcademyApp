@@ -33,8 +33,8 @@
                 <data android:scheme="@string/custom_url_scheme" android:host="auth-callback" />
             </intent-filter>
 
-            <!-- P24 payment checkout return callback — must match PAYMENT_NATIVE_REDIRECT_URI in
-                 src/app/core/services/carnet-payment-callback.service.ts. Android's intent-filter
+            <!-- Gateway checkout return (academy fee and carnet alike) — matched by DeepLinkService's
+                 PAYMENT_CALLBACK_PREFIX (src/app/core/native/deep-link.service.ts). Android's intent-filter
                  data matching is host-scoped (unlike iOS's Info.plist, which only registers the
                  scheme), so this needs its own filter entry, not just a second <data> host under
                  the auth-callback filter above. -->
@@ -46,7 +46,7 @@
             </intent-filter>
 
             <!-- Parent-invitation deep link (Modules.Academy). Custom-scheme fallback host, matched
-                 by DeepLinkService's CUSTOM_SCHEME_PREFIX; the backend landing page
+                 by DeepLinkService's INVITE_SCHEME_PREFIX; the backend landing page
                  (AcademyInviteController) redirects the mobile browser here. Its own filter entry
                  because Android intent-filter data matching is host-scoped. -->
             <intent-filter android:autoVerify="false">
@@ -65,6 +65,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="api.localbiz.pl" android:pathPrefix="/api/academy/invite" />
+            </intent-filter>
+
+            <!-- The invitation e-mail's own link — the AcademyWeb portal's /invite page. Verified the same
+                 way, against https://academy.localbiz.pl/.well-known/assetlinks.json (needs the release
+                 signing cert fingerprint, see above); until then the e-mail link opens the web portal. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="academy.localbiz.pl" android:pathPrefix="/invite" />
+            </intent-filter>
+
+            <!-- One-time carnet renewal link from the Carnets reminder job — opens the classes section. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/custom_url_scheme" android:host="carnet" />
             </intent-filter>
 
         </activity>

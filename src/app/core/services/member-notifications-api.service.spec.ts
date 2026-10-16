@@ -1,20 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { ExternalConfigService } from '@shared/iam-msal-external';
+import { environment } from '../../../environments/environment';
 import { MemberNotificationsApiService } from './member-notifications-api.service';
 
 describe('MemberNotificationsApiService', () => {
   let service: MemberNotificationsApiService;
   let httpMock: HttpTestingController;
-  const base = 'https://api.test/api/notifications/member/inbox';
+  const base = environment.apiBaseUrl + '/api/notifications/member/inbox';
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ExternalConfigService, useValue: { getConfig: () => ({ apiConfig: { uri: 'https://api.test' } }) } }
       ]
     });
     service = TestBed.inject(MemberNotificationsApiService);

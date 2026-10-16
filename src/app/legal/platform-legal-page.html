@@ -1,0 +1,19 @@
+<article class="legal-page">
+  <a class="legal-page__back" routerLink="/">{{ 'legal.clubPage.back' | translate }}</a>
+  <h1>{{ 'legal.' + document + '.title' | translate }}</h1>
+  <p class="muted">{{ 'legal.updated' | translate }}</p>
+  @if ('legal.translationNotice' | translate; as notice) {
+    <p class="banner">{{ notice }}</p>
+  }
+
+  @for (section of sections(); track section.title) {
+    <section>
+      <h2>{{ section.title }}</h2>
+      <ol>
+        @for (item of section.items; track $index) {
+          <li>{{ item }}</li>
+        }
+      </ol>
+    </section>
+  }
+</article>

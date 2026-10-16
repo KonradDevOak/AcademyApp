@@ -1,0 +1,83 @@
+:host {
+  display: contents;
+}
+
+.app-shell__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  padding-top: calc(var(--space-3) + var(--ion-safe-area-top, 0px));
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand__mark {
+  width: 0.75rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+  border-radius: 2px;
+  background: linear-gradient(160deg, var(--accent) 0%, var(--accent) 50%, var(--accent-2) 50%, var(--accent-2) 100%);
+}
+
+.brand__name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.app-shell__bell {
+  margin-left: auto;
+}
+
+.hamburger {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: inherit;
+  cursor: pointer;
+}
+
+.app-shell__banner {
+  margin: var(--space-3) var(--space-4) 0;
+  border-radius: var(--radius-sm);
+}
+
+.app-shell__content {
+  display: block;
+}
+
+.app-shell__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4) calc(var(--space-4) + var(--ion-safe-area-bottom, 0px));
+  font-size: 0.8125rem;
+}
+
+.app-shell__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+}

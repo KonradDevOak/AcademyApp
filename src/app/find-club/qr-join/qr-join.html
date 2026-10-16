@@ -1,0 +1,10 @@
+<div class="stack stack--tight">
+  <button type="button" class="btn" [disabled]="scanning()" (click)="scan()">
+    ▣ {{ (scanning() ? 'findClub.qr.scanning' : 'findClub.qr.scan') | translate }}
+  </button>
+  @if (error(); as errorKey) {
+    <p class="banner" [class.banner--warn]="errorKey === 'installing'" [class.banner--error]="errorKey !== 'installing'" role="alert">
+      {{ 'findClub.qr.errors.' + errorKey | translate }}
+    </p>
+  }
+</div>

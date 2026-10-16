@@ -1,0 +1,52 @@
+<ion-menu side="end" type="overlay" contentId="app-shell-main" class="app-menu">
+  <ion-content>
+    <app-mobile-menu-content />
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="app-shell-main">
+  <ion-header class="ion-no-border">
+    <header class="app-shell__header">
+      <a class="brand" [routerLink]="homePath()">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__name">{{ 'shell.brand' | translate }}</span>
+      </a>
+
+      <app-notification-bell class="app-shell__bell" />
+
+      <button
+        type="button"
+        class="hamburger"
+        (click)="openMobileMenu()"
+        [attr.aria-label]="'shell.menuToggle' | translate"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path fill="currentColor" d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+        </svg>
+      </button>
+    </header>
+  </ion-header>
+
+  <ion-content #content class="app-shell__scroll">
+    @if (status() === 'error') {
+      <p class="app-shell__banner banner banner--error">{{ 'shell.loadError' | translate }}</p>
+    }
+
+    <main class="app-shell__content">
+      @if (status() === 'loading') {
+        <div class="app-shell__loading">
+          <span class="spinner" aria-hidden="true"></span>
+          <p>{{ 'shell.loading' | translate }}</p>
+        </div>
+      } @else {
+        <router-outlet />
+      }
+    </main>
+
+    <footer class="app-shell__footer muted">
+      <a routerLink="/regulamin">{{ 'legal.footer.terms' | translate }}</a>
+      <span aria-hidden="true">·</span>
+      <a routerLink="/polityka-prywatnosci">{{ 'legal.footer.privacy' | translate }}</a>
+    </footer>
+  </ion-content>
+</div>

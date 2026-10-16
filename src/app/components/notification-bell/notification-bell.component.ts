@@ -1,33 +1,20 @@
 import { ChangeDetectionStrategy, Component, NgZone, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import {
-  IonButton,
-  IonIcon,
-  IonBadge,
-  IonPopover,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonText
-} from '@ionic/angular/standalone';
+import { IonPopover } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
-import { notificationsOutline } from 'ionicons/icons';
 import { EMPTY, Observable, catchError, interval, startWith, switchMap } from 'rxjs';
 import { MemberNotificationsApiService } from '../../core/services/member-notifications-api.service';
 import { MemberNotificationInbox } from '../../core/models/member-notification';
 
 const REFRESH_INTERVAL_MS = 60_000;
 
-// Native equivalent of AcademyWeb's notification-bell (same backend endpoint, same 60s-polling
-// rationale — see that component's own comment: no linked backend behind AcademyWeb's Azure SWA Free
-// tier means no SignalR there either, and this app doesn't have one at all, so polling stays the one
-// mechanism both clients share). Rendered per-page (in each root tab's ion-toolbar), not once in a
-// shared app-shell header — Ionic's <ion-tabs> has no single shared header the way a web app-shell does.
+// Member notification inbox (api/notifications/member/inbox) — a native extra AcademyWeb doesn't have.
+// Polled every 60s (the app has no SignalR connection). Rendered once, in the app shell's header next
+// to the hamburger, styled like the shell's other round controls.
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [IonButton, IonIcon, IonBadge, IonPopover, IonList, IonItem, IonLabel, IonText, TranslatePipe],
+  imports: [IonPopover, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './notification-bell.component.html',
   styleUrl: './notification-bell.component.scss'
@@ -37,10 +24,8 @@ export class NotificationBellComponent {
   private readonly zone = inject(NgZone);
 
   protected readonly open = signal(false);
-
-  constructor() {
-    addIcons({ notificationsOutline });
-  }
+  // The tap that opened the popover — anchors it under the bell instead of the screen centre.
+  protected readonly openEvent = signal<Event | undefined>(undefined);
 
   // Same zone-escape pattern as AcademyWeb's — a live 60s timer inside NgZone never lets it report
   // stable; a failed poll (cold start, token refresh, offline) must not end the stream, since rxResource
@@ -70,7 +55,8 @@ export class NotificationBellComponent {
   protected readonly unreadCount = () => this.inbox.value()?.unreadCount ?? 0;
   protected readonly items = () => this.inbox.value()?.page.items ?? [];
 
-  protected toggle(): void {
+  protected toggle(event?: Event): void {
+    this.openEvent.set(event);
     this.open.update((v) => !v);
   }
 

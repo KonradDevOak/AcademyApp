@@ -1,0 +1,16 @@
+// Mirror of academy-home.scss: the carnet stays on top by default and drops below the schedule once it is
+// active, via `order` (moving the panels would destroy/recreate the carnet component's HTTP-backed state).
+.fitness-home {
+  display: flex;
+  flex-direction: column;
+
+  &--settled {
+    .fitness-home__panel--carnet {
+      order: 1;
+    }
+
+    .fitness-home__panel--schedule {
+      order: 0;
+    }
+  }
+}

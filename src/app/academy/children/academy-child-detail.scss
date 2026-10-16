@@ -1,0 +1,261 @@
+.child-detail__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) 0;
+  color: var(--text-muted);
+}
+
+.child-detail__error {
+  margin-bottom: var(--space-3);
+}
+
+.child-detail__title {
+  margin-bottom: var(--space-4);
+}
+
+.child-detail__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+
+  .child-detail__title {
+    margin-bottom: 0;
+  }
+}
+
+.child-detail__foot-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.child-detail__photo {
+  display: block;
+  margin-bottom: var(--space-4);
+}
+
+.child-detail__tabs {
+  margin-bottom: var(--space-4);
+}
+
+.child-detail__panel {
+  animation: tab-in 0.12s var(--ease) both;
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.child-detail__form {
+  margin-top: var(--space-4);
+}
+
+.child-detail__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.child-detail__request,
+.child-detail__attendance,
+.child-detail__grade-award {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.child-detail__list > li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.child-detail__tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--space-3);
+}
+
+// Enroll lives in the tab bar but is an action, not a tab — it never carries `.is-active`,
+// so it gets its own resting colors.
+.child-detail__tab--action {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.child-detail__history {
+  margin-top: var(--space-5);
+}
+
+.child-detail__history-summary {
+  cursor: pointer;
+  //margin-bottom: var(--space-2);
+}
+
+.child-detail__request {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.child-detail__request-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.child-detail__request-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.child-detail__request-slot {
+  font-weight: 600;
+}
+
+.child-detail__request-slot--remove {
+  color: var(--text-muted);
+}
+
+.child-detail__request-note {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.child-detail__attendance {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.child-detail__attendance-month {
+  flex: 0 0 auto;
+  min-width: 7rem;
+  font-size: 0.9rem;
+}
+
+.child-detail__attendance-count {
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.child-detail__attendance-toggle {
+  flex: 0 0 auto;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.12s var(--ease);
+
+  &.is-expanded {
+    transform: rotate(90deg);
+  }
+}
+
+.child-detail__attendance-toggle--spacer {
+  cursor: default;
+}
+
+.child-detail__session-panel {
+  padding: 0 0 var(--space-3) calc(1.5rem + var(--space-3));
+  border-bottom: 1px solid var(--line);
+}
+
+.child-detail__list > li:last-child.child-detail__session-panel {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.child-detail__session-list {
+  gap: var(--space-2);
+}
+
+.child-detail__session-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}
+
+.child-detail__session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.child-detail__excuse-hint {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8rem;
+}
+
+.child-detail__session-date {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.child-detail__grade-discipline {
+  &:not(:last-child) {
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+.child-detail__grade-heading {
+  font-size: 1rem;
+  margin-bottom: var(--space-3);
+}
+
+.child-detail__grade-current {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.child-detail__grade-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.child-detail__grade-history {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-2);
+}
+
+.child-detail__grade-award-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.child-detail__grade-note {
+  margin: var(--space-1) 0 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}

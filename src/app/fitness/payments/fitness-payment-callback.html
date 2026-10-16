@@ -1,0 +1,23 @@
+<section class="payment-callback page">
+  <div class="payment-callback__card card stack">
+    @if (status() === 'polling') {
+      <div class="payment-callback__state">
+        <span class="spinner" aria-hidden="true"></span>
+        <p class="muted">{{ 'fitness.paymentCallback.polling' | translate: { attempt: attempt(), max: maxAttempts } }}</p>
+      </div>
+    } @else if (status() === 'success') {
+      <p class="payment-callback__ok" role="status">{{ 'fitness.paymentCallback.success' | translate }}</p>
+      <a class="btn btn--primary" routerLink="/classes">{{ 'fitness.paymentCallback.back' | translate }}</a>
+    } @else if (status() === 'pending') {
+      <p class="payment-callback__muted banner banner--warn">{{ 'fitness.paymentCallback.pending' | translate }}</p>
+      <button type="button" class="btn" (click)="retry()">{{ 'fitness.paymentCallback.retry' | translate }}</button>
+      <a class="link-btn" routerLink="/classes">{{ 'fitness.paymentCallback.back' | translate }}</a>
+    } @else if (status() === 'failed') {
+      <p class="payment-callback__error banner banner--error" role="alert">{{ 'fitness.paymentCallback.failed' | translate }}</p>
+      <a class="btn" routerLink="/classes">{{ 'fitness.paymentCallback.back' | translate }}</a>
+    } @else {
+      <p class="payment-callback__error banner banner--error" role="alert">{{ 'fitness.paymentCallback.error' | translate }}</p>
+      <a class="btn" routerLink="/classes">{{ 'fitness.paymentCallback.back' | translate }}</a>
+    }
+  </div>
+</section>

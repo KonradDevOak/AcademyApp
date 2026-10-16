@@ -1,0 +1,22 @@
+<div class="legal-page">
+  <button type="button" class="btn btn--ghost legal-page__back" (click)="back()">
+    {{ 'legal.clubPage.back' | translate }}
+  </button>
+
+  @if (club.isLoading()) {
+    <p class="muted">{{ 'legal.clubPage.loading' | translate }}</p>
+  } @else if (club.error()) {
+    <p class="banner banner--error" role="alert">{{ 'legal.clubPage.loadError' | translate }}</p>
+  } @else if (club.value(); as data) {
+    @if (ownDocumentUrl(); as url) {
+      <p>{{ 'legal.clubPage.ownDocument' | translate }}</p>
+      <a class="btn btn--primary" [href]="url" target="_blank" rel="noopener">
+        {{ 'legal.clubPage.openOwnDocument' | translate }}
+      </a>
+    } @else if (documentType === 'StudioTerms') {
+      <lb-club-terms [profile]="data.profile" [privacyPolicyUrl]="privacyPolicyUrl" [memberPanelUrl]="memberPanelUrl" />
+    } @else {
+      <lb-club-privacy [profile]="data.profile" />
+    }
+  }
+</div>

@@ -1,21 +1,104 @@
-ion-button {
+:host {
+  display: inline-flex;
+}
+
+// Same round control as the shell's hamburger.
+.bell {
   position: relative;
-
-  ion-badge {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    min-width: 1rem;
-    padding: 0 4px;
-    font-size: 0.65rem;
-  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: inherit;
+  cursor: pointer;
 }
 
-ion-popover {
-  --width: 320px;
-  --max-height: 60vh;
+.bell__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.15rem;
+  text-align: center;
 }
 
-.notification-item--unread {
-  --background: var(--ion-color-light);
+.bell-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 60vh;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.bell-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.bell-panel__title {
+  font-weight: 700;
+}
+
+.bell-panel__action {
+  border: 0;
+  background: none;
+  color: var(--accent-2);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bell-panel__empty {
+  margin: 0;
+  padding: var(--space-4);
+}
+
+.bell-panel__list {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.bell-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bell-item--unread {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.bell-item__subject {
+  font-weight: 600;
+}
+
+.bell-item__body {
+  font-size: 0.875rem;
 }

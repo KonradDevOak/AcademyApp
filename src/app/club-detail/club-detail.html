@@ -1,0 +1,179 @@
+<main class="club-detail page">
+  <a class="back-link" [routerLink]="isMember() ? '/clubs' : '/find-club'">
+    {{ (isMember() ? 'clubDetail.backToClubs' : 'clubDetail.backToSearch') | translate }}
+  </a>
+
+  @if (status() === 'loading') {
+    <div class="club-detail__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'clubDetail.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error' || !profile()) {
+    <p class="banner banner--error" role="alert">{{ 'clubDetail.loadError' | translate }}</p>
+    <button type="button" class="btn" (click)="retry()">{{ 'fitness.retry' | translate }}</button>
+  } @else if (profile(); as club) {
+    <header class="club-detail__hero" [style.background-image]="background()">
+      @if (sections().length > 0) {
+        <span class="club-detail__sections">
+          @for (section of sections(); track section) {
+            <span class="badge badge--muted">{{ sectionLabelKey(section) | translate }}</span>
+          }
+        </span>
+      }
+      <h1 class="club-detail__name">{{ club.name }}</h1>
+      @if (club.address) {
+        <p class="club-detail__address">{{ club.address }}</p>
+      }
+    </header>
+
+    @if (club.suspended) {
+      <p class="banner banner--warn">{{ 'clubDetail.suspended' | translate }}</p>
+    } @else {
+      @if (club.bio) {
+        <p class="club-detail__bio">{{ club.bio }}</p>
+      }
+
+      @if (disciplines().length > 0) {
+        <section class="stack stack--tight">
+          <p class="eyebrow">{{ 'clubDetail.disciplines' | translate }}</p>
+          <div class="club-detail__chips">
+            @for (discipline of disciplines(); track discipline.id) {
+              <span class="pill">{{ discipline.name }}</span>
+            }
+          </div>
+        </section>
+      }
+
+      @if (club.phone || club.email) {
+        <dl class="fact-grid card">
+          @if (club.phone) {
+            <div>
+              <dt>{{ 'clubDetail.phone' | translate }}</dt>
+              <dd><a [href]="'tel:' + club.phone">{{ club.phone }}</a></dd>
+            </div>
+          }
+          @if (club.email) {
+            <div>
+              <dt>{{ 'clubDetail.email' | translate }}</dt>
+              <dd><a [href]="'mailto:' + club.email">{{ club.email }}</a></dd>
+            </div>
+          }
+        </dl>
+      }
+
+      @if (websiteUrl(); as url) {
+        <a class="btn btn--block" [href]="url" target="_blank" rel="noopener">{{ 'clubDetail.website' | translate }}</a>
+      }
+
+      @if (error(); as message) {
+        <p class="banner banner--error" role="alert">{{ message | translate }}</p>
+      }
+
+      @if (isMember()) {
+        <section class="card stack club-detail__panel">
+          <span class="badge badge--ok club-detail__member">{{ 'findClub.member' | translate }}</span>
+
+          @if (pendingConsents().length > 0) {
+            <p class="banner banner--warn">{{ 'clubDetail.newConsents' | translate }}</p>
+            <ng-container *ngTemplateOutlet="consentsForm" />
+          }
+
+          <button type="button" class="btn btn--primary btn--block" (click)="enter()">
+            {{ 'clubDetail.enter' | translate }}
+          </button>
+          @if (hasClasses()) {
+            <a class="btn btn--block" [routerLink]="['/clubs', storefrontId, 'health']">
+              {{ 'clubDetail.healthQuestionnaire' | translate }}
+            </a>
+          }
+          <button type="button" class="btn btn--danger btn--block" (click)="openLeaveDialog()">
+            {{ 'clubDetail.leave' | translate }}
+          </button>
+        </section>
+
+        <app-confirm-dialog
+          [open]="leaveDialogOpen()"
+          heading="clubDetail.leaveDialog.title"
+          [message]="leaveMessageKey()"
+          [messageParams]="{ name: club.name }"
+          confirmLabel="clubDetail.leave"
+          [confirmDanger]="true"
+          [busy]="busy()"
+          [error]="error()"
+          (confirmed)="confirmLeave()"
+          (dismissed)="closeLeaveDialog()"
+        />
+      } @else {
+        <section class="card stack club-detail__panel">
+          @switch (joinStep()) {
+            @case ('needs-profile') {
+              <p class="eyebrow">{{ 'clubDetail.stepProfile' | translate }}</p>
+              <p class="muted">{{ 'clubDetail.needsProfile' | translate }}</p>
+              <form class="stack" [formGroup]="profileForm" (ngSubmit)="submitProfile()">
+                <label class="field">
+                  <span>{{ 'academy.invite.displayNameLabel' | translate }}</span>
+                  <input class="input" type="text" formControlName="displayName" autocomplete="name" />
+                  @if (profileForm.controls.displayName.touched && profileForm.controls.displayName.invalid) {
+                    <span class="field-hint">{{ 'academy.invite.displayNameRequired' | translate }}</span>
+                  }
+                </label>
+                <button type="submit" class="btn btn--primary btn--block" [disabled]="busy()">
+                  {{ 'clubDetail.continue' | translate }}
+                </button>
+              </form>
+            }
+            @case ('needs-consents') {
+              <p class="eyebrow">{{ 'clubDetail.stepConsents' | translate }}</p>
+              <p class="muted">{{ 'clubDetail.needsConsents' | translate }}</p>
+              <ng-container *ngTemplateOutlet="consentsForm" />
+            }
+            @case ('checking') {
+              <div class="club-detail__state">
+                <span class="spinner" aria-hidden="true"></span>
+              </div>
+            }
+            @case ('joining') {
+              <div class="club-detail__state">
+                <span class="spinner" aria-hidden="true"></span>
+                <p class="muted">{{ 'clubDetail.joining' | translate }}</p>
+              </div>
+            }
+            @default {
+              <p class="muted">
+                {{ (hasGroups() ? 'clubDetail.joinIntroAcademy' : 'clubDetail.joinIntroFitness') | translate }}
+              </p>
+              <button type="button" class="btn btn--primary btn--block" (click)="startJoin()">
+                {{ 'clubDetail.join' | translate }}
+              </button>
+            }
+          }
+        </section>
+      }
+    }
+
+    <ng-template #consentsForm>
+      <ul class="club-detail__consents">
+        @for (consent of pendingConsents(); track consent.documentType) {
+          <li>
+            <label class="chip-check">
+              <input
+                type="checkbox"
+                [checked]="isAccepted(consent.documentType)"
+                (change)="toggleConsent(consent.documentType, $any($event.target).checked)"
+              />
+              <a [href]="consent.contentUrl" target="_blank" rel="noopener">{{ consentLabel(consent) | translate }}</a>
+            </label>
+          </li>
+        }
+      </ul>
+      <button
+        type="button"
+        class="btn btn--primary btn--block"
+        [disabled]="!allConsentsAccepted() || busy()"
+        (click)="submitConsents()"
+      >
+        {{ (isMember() ? 'clubDetail.acceptConsents' : 'clubDetail.continue') | translate }}
+      </button>
+    </ng-template>
+  }
+</main>

@@ -1,26 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl" class="dark">
 
 <head>
   <meta charset="utf-8" />
-  <title>LocalBiz Club</title>
+  <title>Akademia</title>
 
   <base href="/" />
 
-  <meta name="color-scheme" content="light dark" />
   <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0e0e11" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="msapplication-tap-highlight" content="no" />
 
   <link rel="icon" type="image/png" href="assets/icon/favicon.png" />
+  <link rel="preload" href="/assets/fonts/anton-latin-ext.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/inter-latin-ext.woff2" as="font" type="font/woff2" crossorigin />
 
-  <!-- add to homescreen for ios -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 </head>
 
 <body>
-  <app-root></app-root>
+  <app-root>
+    <!-- Pre-bootstrap splash (config fetch + MSAL init); Angular replaces it on bootstrap. -->
+    <style>
+      .boot{position:fixed;inset:0;display:grid;place-items:center;background:#0e0e11}
+      .boot i{width:2.5rem;height:2.5rem;border-radius:50%;background:conic-gradient(transparent,#ff2e7e 45%,#00d1e0);
+        -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));
+        mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));animation:boot .9s linear infinite}
+      @keyframes boot{to{transform:rotate(360deg)}}
+      @media (prefers-reduced-motion:reduce){.boot i{animation:none}}
+    </style>
+    <div class="boot" role="status" aria-label="Akademia"><i></i></div>
+  </app-root>
 </body>
 
 </html>

@@ -1,0 +1,54 @@
+<section class="academy-children">
+  @if (status() === 'loading') {
+    <div class="academy-children__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'academy.children.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="academy-children__error banner banner--error" role="alert">
+      {{ 'academy.children.loadError' | translate }}
+    </p>
+    <button type="button" class="btn" (click)="refresh()">{{ 'academy.children.retry' | translate }}</button>
+  } @else if (athletes().length === 0) {
+    <div class="academy-children__state card">
+      <p>{{ 'academy.children.empty' | translate }}</p>
+      <button type="button" class="btn btn--primary" (click)="goToAdd()">
+        {{ 'academy.children.addChild' | translate }}
+      </button>
+    </div>
+  } @else {
+    <ul class="academy-children__list">
+      @for (athlete of athletes(); track athlete.id; let i = $index) {
+        <li class="academy-children__item athlete-card rise" [style.--i]="i">
+          <a class="academy-children__link" [routerLink]="['/academy/children', athlete.id]">
+            <span class="athlete-card__stripe" aria-hidden="true"></span>
+            <span class="monogram" aria-hidden="true">
+              @if (photoUrl(athlete); as url) {
+                <img class="monogram__photo" [src]="url" alt="" (error)="onPhotoError(athlete.id)" />
+              } @else {
+                {{ athlete.firstName.charAt(0) }}{{ athlete.lastName.charAt(0) }}
+              }
+            </span>
+            <span class="athlete-card__body">
+              <span class="academy-children__name">{{ athlete.firstName }} {{ athlete.lastName }}</span>
+              @if (disciplineNames(athlete); as disciplines) {
+                <span class="academy-children__disciplines">{{ disciplines }}</span>
+              }
+              <span class="academy-children__group">
+                {{ groupNames(athlete) || ('academy.children.noGroup' | translate) }}
+              </span>
+            </span>
+            <span class="athlete-card__chevron" aria-hidden="true">›</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    <div class="academy-children__actions">
+      <button type="button" class="btn" (click)="refresh()">{{ 'academy.children.refresh' | translate }}</button>
+      <button type="button" class="btn btn--primary" (click)="goToAdd()">
+        {{ 'academy.children.addChild' | translate }}
+      </button>
+    </div>
+  }
+</section>

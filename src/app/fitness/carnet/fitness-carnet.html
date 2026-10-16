@@ -1,0 +1,176 @@
+<section class="fitness-carnet">
+  @if (status() === 'loading') {
+    <div class="fitness-carnet__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'fitness.carnet.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="fitness-carnet__error banner banner--error" role="alert">{{ 'fitness.carnet.loadError' | translate }}</p>
+    <button type="button" class="btn" (click)="retry()">{{ 'fitness.retry' | translate }}</button>
+  } @else {
+    @if (actionError(); as message) {
+      <p class="fitness-carnet__error banner banner--error" role="alert">{{ message | translate }}</p>
+    }
+
+    @if (carnet(); as c) {
+      <div class="fitness-carnet__head">
+        <span class="fitness-carnet__name">{{ c.membershipTypeName }}</span>
+        <span
+          class="badge"
+          [class.badge--ok]="c.status === 'Active'"
+          [class.badge--due]="c.status === 'PaymentFailed'"
+          [class.badge--warn]="c.status === 'PendingFirstPayment'"
+          [class.badge--muted]="c.status === 'Expired' || c.status === 'Cancelled'"
+        >
+          {{ carnetStatusKey(c.status) | translate }}
+        </span>
+      </div>
+
+      <dl class="fact-grid">
+        <div>
+          <dt>{{ 'fitness.carnet.price' | translate }}</dt>
+          <dd class="tnum">{{ formatZloty(c.priceGroszeSnapshot) }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'fitness.carnet.period' | translate }}</dt>
+          <dd class="tnum">{{ formatDate(c.currentPeriodStart) }} – {{ formatDate(c.currentPeriodEnd) }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'fitness.carnet.paymentMethod' | translate }}</dt>
+          <dd>{{ carnetPaymentMethodKey(c.paymentMethod) | translate }}</dd>
+        </div>
+      </dl>
+
+      @if (c.status === 'PendingFirstPayment' && c.paymentMethod === 'Manual') {
+        <p class="banner banner--warn">{{ 'fitness.carnet.awaitingFrontDesk' | translate }}</p>
+      }
+      @if (c.status === 'PaymentFailed') {
+        <p class="banner banner--error">{{ 'fitness.carnet.paymentFailed' | translate }}</p>
+      }
+
+      @if (c.paymentMethod === 'Recurring' && c.status === 'Active') {
+        <label class="chip-check fitness-carnet__toggle">
+          <input
+            type="checkbox"
+            [checked]="c.autoRenewalEnabled"
+            [disabled]="busy()"
+            (change)="setAutoRenewal($any($event.target).checked)"
+          />
+          {{ 'fitness.carnet.autoRenewal' | translate }}
+        </label>
+      }
+
+      @if (hasPendingPrice(c)) {
+        <p class="banner banner--warn tnum">
+          {{ 'fitness.carnet.pendingPrice' | translate: { price: formatZloty(c.pendingPriceGrosze!) } }}
+        </p>
+        <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="acceptPriceChange()">
+          {{ 'fitness.carnet.acceptPrice' | translate }}
+        </button>
+      }
+
+      <div class="fitness-carnet__actions">
+        @if (canRepay(c)) {
+          <button type="button" class="btn btn--primary btn--block" [disabled]="busy()" (click)="repay()">
+            {{ (c.status === 'Active' ? 'fitness.carnet.payNextPeriod' : 'fitness.carnet.repay') | translate }}
+          </button>
+        }
+
+        @if (c.status === 'Active' || c.status === 'PaymentFailed') {
+          @if (c.cancellationRequestedAt) {
+            <p class="muted fitness-carnet__note tnum">
+              {{ 'fitness.carnet.cancellationScheduled' | translate: { date: formatDate(c.cancellationEffectiveAt ?? c.currentPeriodEnd) } }}
+            </p>
+            <button type="button" class="btn btn--block" [disabled]="busy()" (click)="withdrawCancellation()">
+              {{ 'fitness.carnet.withdrawCancellation' | translate }}
+            </button>
+          } @else {
+            <button type="button" class="btn btn--danger btn--block" [disabled]="busy()" (click)="openCancelDialog()">
+              {{ 'fitness.carnet.cancel' | translate }}
+            </button>
+          }
+        }
+      </div>
+
+      <app-confirm-dialog
+        [open]="cancelDialogOpen()"
+        heading="fitness.carnet.cancelDialog.title"
+        message="fitness.carnet.cancelDialog.message"
+        confirmLabel="fitness.carnet.cancel"
+        [confirmDanger]="true"
+        [busy]="busy()"
+        [error]="actionError()"
+        (confirmed)="confirmCancellation()"
+        (dismissed)="closeCancelDialog()"
+      />
+    } @else {
+      <p class="muted fitness-carnet__note">{{ 'fitness.carnet.none' | translate }}</p>
+
+      @if (membershipTypes().length === 0) {
+        <p class="muted fitness-carnet__note">{{ 'fitness.carnet.noTypes' | translate }}</p>
+      } @else {
+        <form class="fitness-carnet__form stack" [formGroup]="signUpForm" (ngSubmit)="signUp()">
+          <label class="field">
+            <span>{{ 'fitness.carnet.type' | translate }}</span>
+            <select class="select" formControlName="membershipTypeId">
+              <option value="" disabled>{{ 'fitness.carnet.chooseType' | translate }}</option>
+              @for (type of membershipTypes(); track type.id) {
+                <option [value]="type.id">{{ type.name }} — {{ formatZloty(type.priceGrosze) }}</option>
+              }
+            </select>
+            @if (selectedType(); as type) {
+              @if (type.description) {
+                <small>{{ type.description }}</small>
+              }
+              <small>{{ 'fitness.carnet.sessionsPerMonth' | translate: { count: type.sessionsPerMonth } }}</small>
+            }
+          </label>
+
+          @if (requiresStartingClass()) {
+            <label class="field">
+              <span>{{ 'fitness.carnet.startingClass' | translate }}</span>
+              <select class="select" formControlName="startingClassTypeId">
+                <option value="" disabled>{{ 'fitness.carnet.chooseStartingClass' | translate }}</option>
+                @for (classTypeId of selectedType()!.classTypeIds; track classTypeId) {
+                  <option [value]="classTypeId">{{ classTypeName(classTypeId) }}</option>
+                }
+              </select>
+            </label>
+          }
+
+          <label class="field">
+            <span>{{ 'fitness.carnet.paymentMethod' | translate }}</span>
+            <select class="select" formControlName="paymentMethod">
+              @for (method of paymentMethods(); track method) {
+                <option [value]="method">{{ carnetPaymentMethodKey(method) | translate }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>{{ 'fitness.carnet.discountCode' | translate }}</span>
+            <input class="input" type="text" formControlName="discountCode" autocomplete="off" />
+          </label>
+
+          <p class="muted fitness-carnet__note">{{ 'fitness.carnet.prorationHint' | translate }}</p>
+
+          @if (storefrontId(); as id) {
+            <app-club-terms-consent
+              [storefrontId]="id"
+              [accepted]="signUpForm.controls.termsAccepted.value"
+              (acceptedChange)="signUpForm.controls.termsAccepted.setValue($event)"
+            />
+          }
+
+          <button
+            type="submit"
+            class="btn btn--primary btn--block"
+            [disabled]="busy() || !signUpForm.controls.termsAccepted.value"
+          >
+            {{ 'fitness.carnet.signUp' | translate }}
+          </button>
+        </form>
+      }
+    }
+  }
+</section>

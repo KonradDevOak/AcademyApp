@@ -1,0 +1,172 @@
+<section class="fitness-schedule">
+  <div class="pill-tabs fitness-schedule__tabs" role="tablist">
+    <button type="button" class="pill" role="tab" [class.is-active]="tab() === 'sessions'" (click)="selectTab('sessions')">
+      {{ 'fitness.schedule.tabs.sessions' | translate }}
+    </button>
+    <button type="button" class="pill" role="tab" [class.is-active]="tab() === 'enrollments'" (click)="selectTab('enrollments')">
+      {{ 'fitness.schedule.tabs.enrollments' | translate }}
+    </button>
+    <button type="button" class="pill" role="tab" [class.is-active]="tab() === 'credits'" (click)="selectTab('credits')">
+      {{ 'fitness.schedule.tabs.credits' | translate }}
+    </button>
+  </div>
+
+  @if (actionError(); as message) {
+    <p class="fitness-schedule__msg banner banner--error" role="alert">
+      {{ message | translate }}
+      @if (consentRequired() && storefrontId(); as id) {
+        <a [routerLink]="['/clubs', id]">{{ 'fitness.schedule.goToConsents' | translate }}</a>
+      }
+    </p>
+  }
+  @if (actionInfo(); as message) {
+    <p class="fitness-schedule__msg banner banner--ok" role="status">{{ message | translate }}</p>
+  }
+
+  @if (status() === 'loading') {
+    <div class="fitness-schedule__state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="muted">{{ 'fitness.schedule.loading' | translate }}</p>
+    </div>
+  } @else if (status() === 'error') {
+    <p class="fitness-schedule__msg banner banner--error" role="alert">{{ 'fitness.schedule.loadError' | translate }}</p>
+    <button type="button" class="btn" (click)="retry()">{{ 'fitness.retry' | translate }}</button>
+  } @else {
+    @switch (tab()) {
+      @case ('sessions') {
+        @if (sessions().length === 0) {
+          <p class="muted fitness-schedule__empty">{{ 'fitness.schedule.noSessions' | translate }}</p>
+        } @else {
+          <ul class="fitness-schedule__list">
+            @for (session of sessions(); track session.id) {
+              <li class="fitness-schedule__item">
+                <div class="fitness-schedule__info">
+                  <span class="fitness-schedule__title">{{ session.classTypeName }}</span>
+                  <span class="fitness-schedule__meta tnum">
+                    {{ formatDayTime(session.startsAt) }}–{{ formatTime(session.endsAt) }} · {{ session.trainerName }}
+                  </span>
+                  <span class="fitness-schedule__meta tnum">
+                    {{ session.roomName }} ·
+                    {{ 'fitness.schedule.seats' | translate: { free: session.seatsRemaining, capacity: session.capacity } }}
+                  </span>
+                  @if (!isEnrolled(session) && session.seatsRemaining > 0 && !session.canEnrollManually) {
+                    <span class="fitness-schedule__meta tnum">
+                      {{ 'fitness.schedule.opensAt' | translate: { date: formatDayTime(session.manualEnrollmentOpensAt) } }}
+                    </span>
+                  }
+                </div>
+
+                <div class="fitness-schedule__actions">
+                  @if (isEnrolled(session)) {
+                    <span class="badge badge--ok">{{ 'fitness.schedule.enrolled' | translate }}</span>
+                    <button type="button" class="btn" [disabled]="busySessionId() !== null" (click)="unenroll(session)">
+                      {{ 'fitness.schedule.unenroll' | translate }}
+                    </button>
+                    <button type="button" class="link-btn" [disabled]="busySessionId() !== null" (click)="reportAbsence(session)">
+                      {{ 'fitness.schedule.reportAbsence' | translate }}
+                    </button>
+                  } @else if (isWaitlisted(session)) {
+                    <span class="badge badge--warn">{{ 'fitness.schedule.waitlisted' | translate }}</span>
+                    <button type="button" class="btn" [disabled]="busySessionId() !== null" (click)="leaveWaitlist(session)">
+                      {{ 'fitness.schedule.leaveWaitlist' | translate }}
+                    </button>
+                  } @else if (session.seatsRemaining > 0) {
+                    @if (session.canEnrollManually) {
+                      <button type="button" class="btn btn--primary" [disabled]="busySessionId() !== null" (click)="enroll(session)">
+                        {{ 'fitness.schedule.enroll' | translate }}
+                      </button>
+                    }
+                  } @else {
+                    <button type="button" class="btn" [disabled]="busySessionId() !== null" (click)="joinWaitlist(session)">
+                      {{ 'fitness.schedule.joinWaitlist' | translate }}
+                    </button>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      @case ('enrollments') {
+        @if (upcomingEnrollments().length === 0) {
+          <p class="muted fitness-schedule__empty">{{ 'fitness.schedule.noEnrollments' | translate }}</p>
+        } @else {
+          <ul class="fitness-schedule__list">
+            @for (session of upcomingEnrollments(); track session.id) {
+              <li class="fitness-schedule__item">
+                <div class="fitness-schedule__info">
+                  <span class="fitness-schedule__title">{{ session.classTypeName }}</span>
+                  <span class="fitness-schedule__meta tnum">
+                    {{ formatDayTime(session.startsAt) }}–{{ formatTime(session.endsAt) }} · {{ session.roomName }}
+                  </span>
+                </div>
+                <div class="fitness-schedule__actions">
+                  <button type="button" class="btn" [disabled]="busySessionId() !== null" (click)="unenroll(session)">
+                    {{ 'fitness.schedule.unenroll' | translate }}
+                  </button>
+                  <button type="button" class="link-btn" [disabled]="busySessionId() !== null" (click)="reportAbsence(session)">
+                    {{ 'fitness.schedule.reportAbsence' | translate }}
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      }
+
+      @case ('credits') {
+        @if (availableCredits().length === 0 && otherCredits().length === 0) {
+          <p class="muted fitness-schedule__empty">{{ 'fitness.schedule.noCredits' | translate }}</p>
+        } @else {
+          <ul class="fitness-schedule__list">
+            @for (credit of availableCredits(); track credit.id) {
+              <li class="fitness-schedule__item">
+                <div class="fitness-schedule__info">
+                  <span class="fitness-schedule__title">{{ 'fitness.schedule.credit' | translate }}</span>
+                  <span class="fitness-schedule__meta tnum">
+                    {{ 'fitness.schedule.creditValidUntil' | translate: { date: formatDate(credit.expiresAt) } }}
+                  </span>
+                </div>
+                <div class="fitness-schedule__actions">
+                  <button type="button" class="btn btn--primary" (click)="startRedeem(credit)">
+                    {{ 'fitness.schedule.redeem' | translate }}
+                  </button>
+                </div>
+
+                @if (redeemingCreditId() === credit.id) {
+                  <div class="fitness-schedule__picker card">
+                    <p class="eyebrow">{{ 'fitness.schedule.pickSession' | translate }}</p>
+                    @if (redeemableSessions().length === 0) {
+                      <p class="muted">{{ 'fitness.schedule.noRedeemableSessions' | translate }}</p>
+                    } @else {
+                      @for (session of redeemableSessions(); track session.id) {
+                        <button
+                          type="button"
+                          class="btn btn--block fitness-schedule__pick"
+                          [disabled]="busySessionId() !== null"
+                          (click)="redeem(credit, session)"
+                        >
+                          {{ session.classTypeName }} · <span class="tnum">{{ formatDayTime(session.startsAt) }}</span>
+                        </button>
+                      }
+                    }
+                  </div>
+                }
+              </li>
+            }
+            @for (credit of otherCredits(); track credit.id) {
+              <li class="fitness-schedule__item">
+                <div class="fitness-schedule__info">
+                  <span class="fitness-schedule__title">{{ 'fitness.schedule.credit' | translate }}</span>
+                  <span class="fitness-schedule__meta tnum">{{ formatDate(credit.earnedAt) }}</span>
+                </div>
+                <span class="badge badge--muted">{{ makeupCreditStatusKey(credit.status) | translate }}</span>
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  }
+</section>

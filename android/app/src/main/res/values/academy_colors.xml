@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Background token (bg) of the dark "Neon night" theme in src/theme/_tokens.scss: the window behind the WebView
+         and the system bars before ThemeService takes over (it repaints the status bar per theme). -->
+    <color name="academy_background">#0E0E11</color>
+</resources>
