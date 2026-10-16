@@ -2,18 +2,16 @@
 
 ## Co to jest
 
-SportClub — natywna appka klubowicza (Android/iOS, Ionic 8 + Capacitor 7 + Angular 20) platformy
+AcademyApp — natywna appka klubowicza (Android/iOS, Ionic 8 + Capacitor 7 + Angular 20) platformy
 LocalBiz. Wyekstrahowana 2026-07-18 z `Sandbox/src/Clients/Mobile` (dawniej opisywana jako appka
 właściciela — w praktyce zawierała martwy kod po nieudanym pivocie w stronę weryfikacji autentyczności
 produktów; ten kod został usunięty, nie zmigrowany).
 
-**Nazewnictwo (2026-09-02)**: appka i repo, wcześniej "FitnessClub", zostały przemianowane na
-"SportClub" (`Workspace/FitnessClub` → `Workspace/SportClub`; bundle id/`applicationId`/custom URL
-scheme/display name `pl.localbiz.fitnessclub`/"FitnessClub" → `pl.localbiz.sportclub`/"SportClub";
-redirect URI w Terraformie i wszystkie appka-side stałe zaktualizowane w tej samej zmianie). Osobna,
-starsza historia (2026-07-24): pod poprzednią nazwą appka była na krótko rebrandowana na
-`pl.localbiz.fitnessClub` (camelCase) i cofnięta do `fitnessclub` — dotyczyła nazwy "FitnessClub" i
-jest nieaktualna teraz, że appka nazywa się inaczej. Zob. "Rebrand natywny" niżej po aktualne wartości.
+**Nazewnictwo**: appka nazywa się "AcademyApp" (repo `Workspace/AcademyApp`), dla użytkownika
+"Akademia"; bundle id/`applicationId`/custom URL scheme `pl.localbiz.academy`. Dawne nazwy
+(nieaktualne, nie wracać do nich): "SportClub" (`pl.localbiz.sportclub`) i wcześniej "FitnessClub"
+(`pl.localbiz.fitnessclub`). Appki nie było w sklepach przed zmianą identyfikatora, więc nie ma
+starej pozycji do utrzymania. Zob. "Rebrand natywny" niżej po aktualne wartości.
 
 Trzy frontendy platformy LocalBiz, wszystkie mówiące z jednym backendem w repo `Sandbox`:
 
@@ -21,7 +19,7 @@ Trzy frontendy platformy LocalBiz, wszystkie mówiące z jednym backendem w repo
 |---|---|---|
 | LocalBizWeb | `Sandbox/src/Clients/LocalBizWeb` | właściciel klubu (panel `/club`: grafik, karnety) |
 | Showcase | `Workspace/Showcase` (osobne repo) | odwiedzający — publiczna wizytówka, **bez logowania** |
-| **SportClub** | `Workspace/SportClub` (to repo) | klubowicz — logowanie, grafik, karnety, zgody |
+| **AcademyApp** | `Workspace/AcademyApp` (to repo) | klubowicz — logowanie, grafik, karnety, zgody |
 
 Pełny kontrakt backendu (Members/Classes/Carnets/Notifications, endpointy member-facing):
 `Sandbox/ai/BACKEND_CAPABILITIES.md` + per-moduł `CLAUDE.md` w `Sandbox/src/Modules/*/CLAUDE.md`.
@@ -91,7 +89,7 @@ Wi-Fi (router z client isolation by to zablokował, USB nie):
 **Zweryfikowane na żywym urządzeniu (Infinix X676C), CIAM login round-trip w pełni działający
 (2026-07-25)**: cały bootstrap (`member-configuration` fetch), routing do `/login`, otwarcie systemowej
 przeglądarki przez `onRedirectNavigate`/`Browser.open()` na prawdziwy ekran CIAM (tenant `ciamlocalbiz`,
-`localbiz.ciamlogin.com`), powrót przez `appUrlOpen`/`pl.localbiz.sportclub://auth-callback`, wymiana
+`localbiz.ciamlogin.com`), powrót przez `appUrlOpen`/`pl.localbiz.academy://auth-callback`, wymiana
 kodu na token (`handleRedirectPromise()`), i walidacja tego tokenu przez backend (`MemberBearer`) — cały
 łańcuch potwierdzony end-to-end aż do ekranu "Uzupełnij profil". Po drodze znalezione i naprawione dwa
 osobne błędy (jeden IaC, jeden backendowy, żaden w kodzie appki): `AADSTS9002326` (redirect URI
@@ -150,12 +148,12 @@ praktyce żadnego importu z niego (tylko nieużywana wzmianka w `package.json`'s
    `onRedirectNavigate: (url) => { Browser.open({ url }); return false; }`, co zatrzymuje wewnętrzną
    nawigację MSAL i zamiast tego otwiera `@capacitor/browser`'owy system browser. Powrót łapie
    `@capacitor/app`'s `App.addListener('appUrlOpen', ...)` na `NATIVE_REDIRECT_URI =
-   'pl.localbiz.sportclub://auth-callback'`, po czym `handleRedirectPromise(fragment)` kończy wymianę
+   'pl.localbiz.academy://auth-callback'`, po czym `handleRedirectPromise(fragment)` kończy wymianę
    kodu na tokeny (MSAL nadal robi całą kryptografię — PKCE/state/nonce — sam).
    **Zweryfikowane na żywym urządzeniu 2026-07-24, znaleziony blocker**: `onRedirectNavigate`/
    `Browser.open()` poprawnie otwiera system browser na ekranie CIAM, logowanie się kończy, Entra
-   poprawnie redirectuje przez `pl.localbiz.sportclub://auth-callback`, i Android poprawnie wznawia
-   appkę przez `appUrlOpen` (widoczne w `adb logcat` jako `START ... dat=pl.localbiz.sportclub://
+   poprawnie redirectuje przez `pl.localbiz.academy://auth-callback`, i Android poprawnie wznawia
+   appkę przez `appUrlOpen` (widoczne w `adb logcat` jako `START ... dat=pl.localbiz.academy://
    auth-callback/`). Ale `handleRedirectPromise()` rzuca `ServerError: AADSTS9002326 — Cross-origin
    token redemption is permitted only for the 'Single-Page Application' client-type. Request origin:
    'http://localhost'` — bo ten `fetch()` do endpointu tokenowego wykonuje się z poziomu JS w WebView
@@ -180,7 +178,7 @@ konsumowany jako **normalny, wersjonowany pakiet npm** z prywatnego GitHub Packa
 (`npm.pkg.github.com`, scope `@konraddevoak`, publikowany z repo `Sandbox`, workflow
 `publish-shared-libs.yml`). Powód różnicy: `academy-api` to czysty kontrakt HTTP (DTO + serwis +
 helpery etykiet) — nie ma tu żadnej przepisanej pod Capacitora logiki OAuth, więc nie ma czego
-forkować, a jedna wersjonowana kopia współdzielona z `SportClubWeb` chroni przed rozjazdem przy
+forkować, a jedna wersjonowana kopia współdzielona z `AcademyWeb` chroni przed rozjazdem przy
 zmianach kontraktu backendu (`Modules.Academy`).
 
 - **Auth do registry**: `.npmrc` (w repo) wskazuje scope `@konraddevoak` na `npm.pkg.github.com` i
@@ -191,13 +189,15 @@ zmianach kontraktu backendu (`Modules.Academy`).
   `release-android.yml` to jedyny GitHub Secret — reszta sekretów wydaniowych idzie z Key Vault przez
   OIDC. Lokalnie ten sam PAT trzymaj w env `GITHUB_PACKAGES_PAT`.
 - **Wersja jest pinowana dokładnie** (`1.0.0-dev.<sha>`), nie `dev` dist-tag ani caret. `dev` to
-  ruchomy cel (każdy push na `Sandbox` `develop` go nadpisuje) — dla appki przechodzącej przez
-  `release-android.yml`/App Store review build musi być reprodukowalny. Bump wersji to jedna linia w
-  `package.json`, robiony świadomie gdy potrzebny nowy kontrakt. `Sandbox` publikuje `1.0.0-dev.<sha>`
-  prosto z `develop` — nie trzeba przechodzić przez `master`.
+  ruchomy cel — dla appki przechodzącej przez `release-android.yml`/App Store review build musi być
+  reprodukowalny. Bump wersji to jedna linia w `package.json`, robiony świadomie gdy potrzebny nowy
+  kontrakt. Od 2026-09-22 `Sandbox` nie ma już brancha `develop` — publikuje `X.Y.Z-dev.<sha>` przy
+  merge'u `bugs/**`/`hotfixes/**`/`features/**` → `releases/<name>`, a prawdziwy stabilny semver
+  (`X.Y.Z` bez sufiksu) dopiero przy merge'u `releases/<name>` → `master`. Zob. `Sandbox/CLAUDE.md`,
+  sekcja "Shared npm packages".
 - **Lokalny dev bez czekania na publish**: w `package.json` (niecommitowane) podmień wersję na
   `file:../Sandbox/src/Clients/libs/dist/shared/academy-api` i zbuduj lib w tamtym repo
-  (`cd src/Clients/libs && npx ng build @shared/academy-api`). `SportClub` i `Sandbox` to sąsiednie
+  (`cd src/Clients/libs && npx ng build @shared/academy-api`). `AcademyApp` i `Sandbox` to sąsiednie
   katalogi. **Cofnij do wersji z registry przed commitem** — CI nie ma dostępu do `../Sandbox`.
 - Provider `ACADEMY_API_BASE_URL` w `src/main.ts` (`useFactory` z `ExternalConfigService`) — pakiet
   nie zakłada własnego interceptora, Bearer dokleja globalny `authTokenInterceptor`.
@@ -213,7 +213,7 @@ Zob. `Sandbox/src/Modules/Members/CLAUDE.md` → "IaC — krok ręczny": w Azure
 Members — **to jedyny krok, którego Terraform naprawdę nie robi**. Żaden test logowania end-to-end
 nie zadziała bez niego.
 
-**Redirect URI `pl.localbiz.sportclub://auth-callback` NIE jest manualnym krokiem** — mimo że
+**Redirect URI `pl.localbiz.academy://auth-callback` NIE jest manualnym krokiem** — mimo że
 wcześniejsza wersja tej notatki tak twierdziła. Jest w pełni zarządzany Terraformem, w `Sandbox/iac`:
 `member_native_redirect_uris` (`Sandbox/iac/variables.tf`, wartość w `Sandbox/iac/env/{dev,prod}.tfvars`)
 → `modules/azure-ad-external/ad-application-spa.tf`.
@@ -343,7 +343,7 @@ są zawsze per-konkretny-klub, osiągane z `ClubDetailPage`.
 
 Appka obsługuje dwa wertykały platformy: Klub fitness (istniejący) i Akademię sportową
 (`Sandbox/src/Modules/Academy`, KS Master Gang — dzieci, akrobatyka/sztuki walki, panel rodzica).
-Jedna appka, jeden bundle `pl.localbiz.sportclub`, jedna rejestracja CIAM.
+Jedna appka, jeden bundle `pl.localbiz.academy`, jedna rejestracja CIAM.
 
 - **Rozpoznanie aktywnego wertykału**: `ActiveVerticalService.activeVertical$` (`'fitness' | 'academy'`)
   = `MembershipDto.businessType` klubu wskazanego przez `StorefrontContextService.selectedStorefrontId$`.
@@ -369,7 +369,7 @@ Jedna appka, jeden bundle `pl.localbiz.sportclub`, jedna rejestracja CIAM.
 - **Deep link zaproszenia (G3)**: `DeepLinkService` (`core/services/`) — pierwszy centralny router
   deep linków w appce: jeden `appUrlOpen` + cold start przez `App.getLaunchUrl()` (appka odpalona
   linkiem, nie wznowiona), plugin `@capacitor/app` przez `CAPACITOR_APP` token (wzór `GEOLOCATION_PLUGIN`).
-  Rozpoznaje custom scheme `pl.localbiz.sportclub://invite/academy?token=…&storefrontId=…` (backendowa
+  Rozpoznaje custom scheme `pl.localbiz.academy://invite/academy?token=…&storefrontId=…` (backendowa
   strona-przelotka `GET api/academy/invite`) **oraz** ten sam URL https jako App Link. Wołany raz
   z `AppComponent`. Dwa starsze listenery `appUrlOpen` (`auth-callback`, `payment-callback`) zostały
   świadomie nietknięte — inne hosty, oba zweryfikowane na urządzeniu, konsolidacja to osobny task.
@@ -403,12 +403,9 @@ danego pliku, nie jednorazowo.
 ## Rebrand natywny
 
 `capacitor.config.ts`/`android/app/build.gradle`'s `applicationId`/`strings.xml`/iOS
-`PRODUCT_BUNDLE_IDENTIFIER` → `pl.localbiz.sportclub`, `appName`/display name → "SportClub" —
-przemianowane z `pl.localbiz.fitnessclub`/"FitnessClub" 2026-09-02, zob. "Nazewnictwo" wyżej. Starsza
-historia (2026-07-24, pod poprzednią nazwą "FitnessClub"): appka była na krótko rebrandowana na
-`pl.localbiz.fitnessClub` (camelCase, zgodnie z ówczesną nazwą repo) i cofnięta z powrotem na
-`fitnessclub` — osobny epizod, nieaktualny teraz. Wszystkie identyfikatory (bundle id, custom URL
-scheme dla deep linków, redirect URI w Azure) muszą się zgadzać na `pl.localbiz.sportclub`.
+`PRODUCT_BUNDLE_IDENTIFIER` → `pl.localbiz.academy`, `appName`/display name → "Akademia". Wszystkie
+identyfikatory (bundle id, custom URL scheme dla deep linków, redirect URI w Azure, `bundleId`/
+`androidPackageName` w backendzie) muszą się zgadzać na `pl.localbiz.academy`.
 **Nie zmieniono**: Android `namespace` w `build.gradle` zostaje
 `io.ionic.starter` (musi zgadzać się z faktyczną deklaracją `package` w `MainActivity.java`, która
 wciąż mówi `com.getcapacitor.myapp` — kosmetyczne/porządkowe, nie wpływa na tożsamość appki w sklepie,
@@ -434,11 +431,11 @@ Console) w `/home/konraddabrowski/.claude/plans/jak-wdro-y-aplikacj-angular-bubb
 - **`android/app/build.gradle`** — `signingConfigs.release` czyta `android/keystore.properties`
   (gitignored, tworzony ręcznie raz przez `keytool`) lokalnie, albo `ANDROID_KEYSTORE_*` env (z Key
   Vault) w CI. Bez żadnego z nich buduje się bez podpisu (`assembleDebug` niezmienione).
-- **Terraform (`Sandbox/iac`, osobne repo)** — nowy moduł `modules/sportclub-github-sp/` (OIDC SP,
+- **Terraform (`Sandbox/iac`, osobne repo)** — nowy moduł `modules/academyapp-github-sp/` (OIDC SP,
   scoped do **Key Vault Secrets User**, nie subskrypcyjny Contributor jak `showcase-github-sp`) +
-  `modules/azure-keyvault/sportclub-settings.tf` (5 nowych sekretów: keystore/hasła/alias/Play
-  service account JSON). Gated w root `main.tf` na `var.sportclub_github_repository != ""` — moduł
-  nic nie tworzy, dopóki `env/prod.tfvars`'s `sportclub_github_repository` (dziś `""`) nie zostanie
+  `modules/azure-keyvault/academyapp-settings.tf` (5 nowych sekretów: keystore/hasła/alias/Play
+  service account JSON). Gated w root `main.tf` na `var.academyapp_github_repository != ""` — moduł
+  nic nie tworzy, dopóki `env/prod.tfvars`'s `academyapp_github_repository` (dziś `""`) nie zostanie
   uzupełnione realną ścieżką repo. `terraform validate`/`fmt` przeszły lokalnie (2026-08-26), **`plan`/
   `apply` nie uruchomione** — kod nieprzejrzany/niezmergowany w `Sandbox/iac`.
 - **`ios/fastlane/Fastfile`** — pusty scaffold (`UI.user_error!`), nie wpięty do żadnego CI — Apple
@@ -502,7 +499,7 @@ trzeba ręcznie wkleić do Key Vault po `terraform apply` (jak FCM/wFirma), kod 
 `await CarnetPaymentCallbackService.waitForReturn()` po `Browser.open()`, zamiast odświeżać stan
 karnetu od razu. Nowy serwis `core/services/carnet-payment-callback.service.ts` (mirror
 `msal-external-auth.service.ts` — własny `App.addListener('appUrlOpen', ...)`, własny prefiks
-`pl.localbiz.sportclub://payment-callback`), nowy intent-filter host w
+`pl.localbiz.academy://payment-callback`), nowy intent-filter host w
 `android/app/src/main/AndroidManifest.xml` (iOS nic nie wymaga — `Info.plist` rejestruje tylko schemat,
 nie host). Backend: `GET api/carnets/p24/payment-callback` (`MemberCarnetsController`, `[AllowAnonymous]`)
 serwuje statyczną stronę-lądowisko przekierowującą na ten deep link; `p24carnets--returnUrl` (Terraform)
@@ -514,8 +511,31 @@ Firebase/prawdziwych sekretów APNs w Key Vault): prawdziwy prompt uprawnień pu
 FCM/APNs, realna dostawa po triggerze (np. odwołanie sesji), i cały P24 checkout→deep-link round-trip
 (wymaga też punktu 2 z `faza-7-next-steps.md` — żywa weryfikacja P24 w sandboxie, wciąż otwarta).
 
+**Rejestracja tokenu — potwierdzona jako kompletna po stronie kodu (2026-09-25)**: cały łańcuch
+`push-notifications.service.ts` → `notifications-api.service.ts` → realny endpoint backendu
+`POST api/notifications/native-push-subscriptions/member` jest już okablowany, nic tu nie zostało do
+dopisania. Jedyny brakujący element to poświadczenia (`google-services.json`/klucz APNs) — flaga
+`environment.pushNotificationsEnabled` zostaje `false`, dopóki nie trafią do repo/Key Vaulta.
+
+## Skrzynka powiadomień (bell/inbox) — parytet z AcademyWeb (2026-09-25)
+
+Natywny odpowiednik AcademyWeb's `notification-bell` (ten sam backendowy endpoint, ten sam wzorzec
+pollingu — zob. `Sandbox/src/Modules/Notifications/CLAUDE.md` → "Member notification inbox"), nie
+kolejny kanał pusha: `core/services/member-notifications-api.service.ts` (`GET/POST
+api/notifications/member/inbox[...]`, tym samym wzorcem base-URL co istniejący
+`notifications-api.service.ts` — `ExternalConfigService.getConfig()?.apiConfig?.uri`, **nie**
+`environment.apiBaseUrl` jak w AcademyWeb) + `components/notification-bell/notification-bell.component.ts`
+(`rxResource` + polling co 60s poza strefą Angulara, `ion-popover` z `ion-badge` na liczniku
+nieprzeczytanych — nie absolutnie pozycjonowany div jak w wersji web, bo tu overlay jest idiomatyczny
+Ionic). Wpięty w `ion-buttons slot="end"` w headerze każdej z 5 root-tab stron (`clubs`, `schedule`,
+`carnet`, `academy-children`, `tab1` — ta ostatnia to zakładka "Profil"), bo `<ion-tabs>` nie ma jednego
+współdzielonego headera jak web app-shell.
+
 ## Znane luki / do zrobienia (2026-07-25)
 
+- **Skrzynka powiadomień (bell/inbox) niezweryfikowana na żywym urządzeniu** — przechodzi buildy/testy
+  Karma, ale wymaga lokalnie odpalonego backendu (`dotnet run` w Sandbox) do realnego end-to-end testu
+  (dzwonek w każdej z 5 zakładek, licznik, popover, oznaczanie jako przeczytane).
 - **Discovery klubów (`find-club`) niezweryfikowana na fizycznym urządzeniu** — zbudowana, przechodzi
   `ng build`/lint/testy Karma i `npx cap sync android`, ale prompt uprawnień geolokalizacji, realny
   sort po dystansie i cały flow onboardingu (`complete-profile` → `find-club` → dołączenie → ewentualne
@@ -527,13 +547,19 @@ FCM/APNs, realna dostawa po triggerze (np. odwołanie sesji), i cały P24 checko
 - **Zestaw pytań ankiety zdrowotnej** (`health-questionnaire.page.ts`) to rozsądne minimum wymyślone na
   potrzeby v1 (3 toggle + notatka), nie ustalony z klientką zestaw — `AnswersJson` jest opaque po stronie
   backendu, więc zmiana formularza później nie wymaga migracji.
-- **`npx cap sync ios` nadal nieuruchomione** (brak Xcode) — strukturalna poprawność `Info.plist` po
-  dodaniu `@capacitor/push-notifications` niepotwierdzona. Android **zweryfikowany 2026-07-24** (zob.
-  "Test na fizycznym urządzeniu Android przez USB") — `AndroidManifest.xml`/`build.gradle` buildują się
-  i instalują poprawnie na realnym urządzeniu.
-- **CORS dla iOS** — dev CORS dopuszcza `http://localhost` (Android `androidScheme: 'http'`), ale
-  domyślny schemat Capacitor dla iOS (`capacitor://localhost`) nie jest dziś na liście
-  `member_native_app_cors_origins` (`Sandbox/iac/env/*.tfvars`) — do sprawdzenia przed testami na iOS.
+- **`npx cap sync ios` uruchomione z sukcesem na Linuksie (2026-09-25)** — kopiuje `www/` i aktualizuje
+  listę pluginów w `Info.plist` bez Xcode; jedyny pominięty krok to `pod install` (brak CocoaPods na tej
+  maszynie, oczekiwane). Realny build w Xcode i test na urządzeniu/symulatorze iOS **nadal
+  niezweryfikowane** — wymaga Maca, którego w tej sesji nie było. Android **zweryfikowany 2026-07-24**
+  (zob. "Test na fizycznym urządzeniu Android przez USB") — `AndroidManifest.xml`/`build.gradle` buildują
+  się i instalują poprawnie na realnym urządzeniu.
+- **CORS dla iOS — dev appsettings.json naprawiony (2026-09-25)**: `Sandbox/src/Bootstrapper/Bootstrapper/appsettings.json`'s
+  `cors.allowedOrigins` ma teraz `capacitor://localhost` obok `http://localhost` (Android
+  `androidScheme: 'http'` już działał, iOS nie mógł). To pokrywa tylko lokalny `dotnet run` — deployowane
+  środowiska czytają CORS z Key Vaulta, zasilanego przez `member_native_app_cors_origins`
+  (`Sandbox/iac/env/*.tfvars`), które **nadal** nie jest domieszane do `cors_extra_origins`
+  (`Sandbox/iac/main.tf`, świadomie wstrzymane razem z resztą wdrożenia Android przez Terraform) —
+  do zrobienia razem z odblokowaniem tego pipeline'u, nie osobno.
 - **Pipeline wydawniczy Android niezweryfikowany end-to-end (2026-08-26)** — kod okablowany (zob.
   "Pipeline wydawniczy" wyżej), ale zablokowany na czysto ręcznych krokach użytkownika: konto Google
   Play Console nie założone, upload keystore nie wygenerowany, pierwszy ręczny upload do Play Console

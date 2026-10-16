@@ -5,6 +5,7 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonButtons,
   IonContent,
   IonCard,
   IonCardContent,
@@ -22,6 +23,7 @@ import { personOutline, logOutOutline } from 'ionicons/icons';
 import { MsalExternalAuthService } from '@shared/iam-msal-external';
 import { UserProfile } from '@shared/iam-msal-core';
 import { ThemeService, ThemePreference } from '../core/services/theme.service';
+import { NotificationBellComponent } from '../components/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-tab1',
@@ -32,6 +34,7 @@ import { ThemeService, ThemePreference } from '../core/services/theme.service';
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonButtons,
     IonContent,
     IonCard,
     IonCardContent,
@@ -41,7 +44,8 @@ import { ThemeService, ThemePreference } from '../core/services/theme.service';
     IonAvatar,
     IonList,
     IonSegment,
-    IonSegmentButton
+    IonSegmentButton,
+    NotificationBellComponent
   ],
 })
 export class Tab1Page implements OnInit {

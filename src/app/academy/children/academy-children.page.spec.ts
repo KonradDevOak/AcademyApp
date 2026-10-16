@@ -6,7 +6,16 @@ import { AcademyChildrenPage } from './academy-children.page';
 import { AcademyApiService, AthleteDto } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
+import { MemberNotificationsApiService } from '../../core/services/member-notifications-api.service';
 import { MembershipDto } from '../../core/models/member.model';
+
+// See clubs.page.spec.ts's identical comment — every root-tab page now renders
+// <app-notification-bell>, stubbed here the same way to keep this page's own tests isolated.
+const notificationsApiStub = {
+  browse: () => of({ page: { items: [], currentPage: 1, resultsPerPage: 20, totalPages: 1, totalResults: 0 }, unreadCount: 0 }),
+  markRead: () => of(undefined),
+  markAllRead: () => of(undefined)
+};
 
 describe('AcademyChildrenPage', () => {
   let fixture: ComponentFixture<AcademyChildrenPage>;
@@ -60,7 +69,8 @@ describe('AcademyChildrenPage', () => {
         provideTranslateService(),
         { provide: AcademyApiService, useValue: academyApi },
         { provide: MembersApiService, useValue: membersApi },
-        { provide: StorefrontContextService, useValue: storefrontContext }
+        { provide: StorefrontContextService, useValue: storefrontContext },
+        { provide: MemberNotificationsApiService, useValue: notificationsApiStub }
       ]
     }).compileComponents();
 

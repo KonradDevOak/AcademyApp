@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">SportClub</string>
-    <string name="title_activity_main">SportClub</string>
-    <string name="package_name">pl.localbiz.sportclub</string>
-    <string name="custom_url_scheme">pl.localbiz.sportclub</string>
+    <string name="app_name">Akademia</string>
+    <string name="title_activity_main">Akademia</string>
+    <string name="package_name">pl.localbiz.academy</string>
+    <string name="custom_url_scheme">pl.localbiz.academy</string>
 </resources>

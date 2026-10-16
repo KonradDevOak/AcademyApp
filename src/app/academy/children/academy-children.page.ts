@@ -25,6 +25,7 @@ import { addOutline, chevronForwardOutline } from 'ionicons/icons';
 import { AcademyApiService, AthleteDto, disciplineKey } from '@konraddevoak/academy-api';
 import { MembersApiService } from '../../core/services/members-api.service';
 import { StorefrontContextService } from '../../core/services/storefront-context.service';
+import { NotificationBellComponent } from '../../components/notification-bell/notification-bell.component';
 
 // "Moje dzieci" — the guardian's roster for the active academy. Storefront resolution mirrors
 // schedule.page.ts / carnet.page.ts (memberships -> StorefrontContextService.resolve).
@@ -49,7 +50,8 @@ import { StorefrontContextService } from '../../core/services/storefront-context
     IonSpinner,
     IonRefresher,
     IonRefresherContent,
-    TranslatePipe
+    TranslatePipe,
+    NotificationBellComponent
   ]
 })
 export class AcademyChildrenPage implements OnInit {

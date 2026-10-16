@@ -1,13 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActionSheetController, ToastController } from '@ionic/angular/standalone';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { SchedulePage } from './schedule.page';
 import { ClassesApiService } from '../core/services/classes-api.service';
 import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
+import { MemberNotificationsApiService } from '../core/services/member-notifications-api.service';
 import { MemberSessionDto } from '../core/models/classes.model';
 import { MembershipDto } from '../core/models/member.model';
+
+// See clubs.page.spec.ts's identical comment — every root-tab page now renders
+// <app-notification-bell>, stubbed here the same way to keep this page's own tests isolated.
+const notificationsApiStub = {
+  browse: () => of({ page: { items: [], currentPage: 1, resultsPerPage: 20, totalPages: 1, totalResults: 0 }, unreadCount: 0 }),
+  markRead: () => of(undefined),
+  markAllRead: () => of(undefined)
+};
 
 describe('SchedulePage', () => {
   let fixture: ComponentFixture<SchedulePage>;
@@ -75,11 +85,13 @@ describe('SchedulePage', () => {
     await TestBed.configureTestingModule({
       imports: [SchedulePage],
       providers: [
+        provideTranslateService(),
         { provide: ClassesApiService, useValue: classesApi },
         { provide: MembersApiService, useValue: membersApi },
         { provide: StorefrontContextService, useValue: storefrontContext },
         { provide: ActionSheetController, useValue: actionSheetController },
-        { provide: ToastController, useValue: toastController }
+        { provide: ToastController, useValue: toastController },
+        { provide: MemberNotificationsApiService, useValue: notificationsApiStub }
       ]
     }).compileComponents();
 

@@ -1,0 +1,21 @@
+ion-button {
+  position: relative;
+
+  ion-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 1rem;
+    padding: 0 4px;
+    font-size: 0.65rem;
+  }
+}
+
+ion-popover {
+  --width: 320px;
+  --max-height: 60vh;
+}
+
+.notification-item--unread {
+  --background: var(--ion-color-light);
+}

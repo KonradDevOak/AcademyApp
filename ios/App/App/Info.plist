@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>SportClub</string>
+        <string>Akademia</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,10 +24,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>pl.localbiz.sportclub.auth</string>
+			<string>pl.localbiz.academy.auth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>pl.localbiz.sportclub</string>
+				<string>pl.localbiz.academy</string>
 			</array>
 		</dict>
 	</array>

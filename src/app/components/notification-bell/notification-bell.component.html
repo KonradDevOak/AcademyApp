@@ -1,0 +1,38 @@
+<ion-button fill="clear" [attr.aria-label]="'notifications.bell.toggle' | translate" (click)="toggle()">
+  <ion-icon slot="icon-only" name="notifications-outline"></ion-icon>
+  @if (unreadCount() > 0) {
+    <ion-badge color="danger">{{ unreadCount() }}</ion-badge>
+  }
+</ion-button>
+
+<ion-popover [isOpen]="open()" [dismissOnSelect]="false" (didDismiss)="dismiss()">
+  <ng-template>
+    <ion-list>
+      <ion-item lines="full">
+        <ion-label>{{ 'notifications.bell.title' | translate }}</ion-label>
+        @if (unreadCount() > 0) {
+          <ion-button slot="end" fill="clear" size="small" (click)="markAllRead()">
+            {{ 'notifications.bell.markAllRead' | translate }}
+          </ion-button>
+        }
+      </ion-item>
+
+      @if (items().length === 0) {
+        <ion-item lines="none">
+          <ion-label class="ion-text-wrap">
+            <ion-text color="medium">{{ 'notifications.bell.empty' | translate }}</ion-text>
+          </ion-label>
+        </ion-item>
+      } @else {
+        @for (item of items(); track item.id) {
+          <ion-item button class="notification-item" [class.notification-item--unread]="!item.readAt" (click)="markRead(item.id)">
+            <ion-label class="ion-text-wrap">
+              <h3>{{ item.subject }}</h3>
+              <p>{{ item.body }}</p>
+            </ion-label>
+          </ion-item>
+        }
+      }
+    </ion-list>
+  </ng-template>
+</ion-popover>

@@ -8,6 +8,7 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonButtons,
   IonContent,
   IonSegment,
   IonSegmentButton,
@@ -34,6 +35,7 @@ import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
 import { MakeupCreditDto, MemberSessionDto, MyEnrollmentDto } from '../core/models/classes.model';
 import { getErrorCode } from '../core/utils/consent-error.util';
+import { NotificationBellComponent } from '../components/notification-bell/notification-bell.component';
 
 type ScheduleSegment = 'sessions' | 'enrollments' | 'makeupCredits';
 
@@ -48,6 +50,7 @@ type ScheduleSegment = 'sessions' | 'enrollments' | 'makeupCredits';
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonButtons,
     IonContent,
     IonSegment,
     IonSegmentButton,
@@ -62,7 +65,8 @@ type ScheduleSegment = 'sessions' | 'enrollments' | 'makeupCredits';
     IonText,
     IonSpinner,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    NotificationBellComponent
   ]
 })
 export class SchedulePage implements OnInit {

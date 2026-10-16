@@ -5,6 +5,7 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonButtons,
   IonContent,
   IonGrid,
   IonRow,
@@ -28,6 +29,7 @@ import { MembershipsCacheService } from '../core/services/memberships-cache.serv
 import { ThemeService } from '../core/services/theme.service';
 import { MembershipDto } from '../core/models/member.model';
 import { ManualJoinComponent } from '../components/manual-join/manual-join.component';
+import { NotificationBellComponent } from '../components/notification-bell/notification-bell.component';
 import { pickBackgroundImage } from '../core/utils/club-background.util';
 
 @Component({
@@ -39,6 +41,7 @@ import { pickBackgroundImage } from '../core/utils/club-background.util';
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonButtons,
     IonContent,
     IonGrid,
     IonRow,
@@ -50,7 +53,8 @@ import { pickBackgroundImage } from '../core/utils/club-background.util';
     IonButton,
     IonIcon,
     IonText,
-    ManualJoinComponent
+    ManualJoinComponent,
+    NotificationBellComponent
   ],
 })
 export class ClubsPage implements OnInit, OnDestroy {

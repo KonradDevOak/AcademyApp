@@ -7,6 +7,7 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonButtons,
   IonContent,
   IonCard,
   IonCardHeader,
@@ -34,6 +35,7 @@ import { StorefrontContextService } from '../core/services/storefront-context.se
 import { CarnetPaymentCallbackService } from '../core/services/carnet-payment-callback.service';
 import { CarnetDto, MembershipTypeDto } from '../core/models/carnets.model';
 import { ClassTypeDto } from '../core/models/classes.model';
+import { NotificationBellComponent } from '../components/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-carnet',
@@ -46,6 +48,7 @@ import { ClassTypeDto } from '../core/models/classes.model';
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonButtons,
     IonContent,
     IonCard,
     IonCardHeader,
@@ -60,7 +63,8 @@ import { ClassTypeDto } from '../core/models/classes.model';
     IonBadge,
     IonText,
     IonSpinner,
-    IonList
+    IonList,
+    NotificationBellComponent
   ]
 })
 export class CarnetPage implements OnInit {

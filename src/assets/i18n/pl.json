@@ -172,5 +172,13 @@
       "fitness": "Klub fitness",
       "academy": "Akademia sportowa"
     }
+  },
+  "notifications": {
+    "bell": {
+      "toggle": "Powiadomienia",
+      "title": "Powiadomienia",
+      "markAllRead": "Oznacz wszystkie jako przeczytane",
+      "empty": "Brak powiadomień"
+    }
   }
 }

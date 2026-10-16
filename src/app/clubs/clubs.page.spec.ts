@@ -2,14 +2,26 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastController } from '@ionic/angular/standalone';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { ClubsPage } from './clubs.page';
 import { MembersApiService } from '../core/services/members-api.service';
 import { StorefrontContextService } from '../core/services/storefront-context.service';
 import { StorefrontProfileService } from '../core/services/storefront-profile.service';
 import { MembershipsCacheService } from '../core/services/memberships-cache.service';
+import { MemberNotificationsApiService } from '../core/services/member-notifications-api.service';
 import { MembershipDto } from '../core/models/member.model';
 import { StorefrontImageDto } from '../core/models/storefront.model';
+
+// Every root-tab page now renders <app-notification-bell> in its header (see
+// components/notification-bell/notification-bell.component.ts) — stub its API service here rather than
+// wiring real HttpClient, so this page's own tests stay isolated from the bell's polling and don't need
+// to flush/verify its unrelated HTTP calls.
+const notificationsApiStub = {
+  browse: () => of({ page: { items: [], currentPage: 1, resultsPerPage: 20, totalPages: 1, totalResults: 0 }, unreadCount: 0 }),
+  markRead: () => of(undefined),
+  markAllRead: () => of(undefined)
+};
 
 describe('ClubsPage', () => {
   let fixture: ComponentFixture<ClubsPage>;
@@ -45,11 +57,13 @@ describe('ClubsPage', () => {
       imports: [ClubsPage],
       providers: [
         provideRouter([]),
+        provideTranslateService(),
         { provide: MembersApiService, useValue: membersApi },
         { provide: StorefrontContextService, useValue: storefrontContext },
         { provide: StorefrontProfileService, useValue: storefrontProfile },
         { provide: MembershipsCacheService, useValue: membershipsCache },
-        { provide: ToastController, useValue: toastController }
+        { provide: ToastController, useValue: toastController },
+        { provide: MemberNotificationsApiService, useValue: notificationsApiStub }
       ]
     }).compileComponents();
 

@@ -4,6 +4,9 @@
       Grafik zajęć
       <div class="storefront-label" *ngIf="activeStorefrontName">{{ activeStorefrontName }}</div>
     </ion-title>
+    <ion-buttons slot="end">
+      <app-notification-bell></app-notification-bell>
+    </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
     <ion-segment [(ngModel)]="segment" [ngModelOptions]="{ standalone: true }" class="schedule-segment">

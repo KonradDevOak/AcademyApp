@@ -172,5 +172,13 @@
       "fitness": "Fitness club",
       "academy": "Sports academy"
     }
+  },
+  "notifications": {
+    "bell": {
+      "toggle": "Notifications",
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "empty": "No notifications"
+    }
   }
 }
