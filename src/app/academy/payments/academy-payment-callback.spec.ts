@@ -28,6 +28,7 @@ function guardianCharge(overrides: Partial<GuardianChargeDto> = {}): GuardianCha
     dueAt: null,
     siblingDiscountPercent: 0,
     lines: [],
+    fees: [],
     onlineFeeGrosze: 300,
     onlineTotalGrosze: 15300,
     payments: [],

@@ -1,7 +1,7 @@
 name: Release Android to Play Store
 
-# Publikacja produkcyjna Androida po zmergowanym PR develop -> master. Wzorowane na
-# Showcase/.github/workflows/deploy-prod.yml (ten sam guard head_ref/base_ref/merged).
+# Publikacja produkcyjna Androida po zmergowanym PR releases/** albo hotfix/** -> master.
+# Wzorowane na Showcase/.github/workflows/deploy-prod.yml (ten sam guard head_ref/base_ref/merged).
 # Sekrety (keystore, Play service account JSON) są pobierane w runtime z Azure Key Vault
 # przez OIDC (azure/login), nie trzymane jako GitHub Secrets — zob. CLAUDE.md Faza 3.
 on:
@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   check-merge:
-    name: Check if PR was merged from develop to master
+    name: Check if PR was merged from releases/** or hotfix/** to master
     runs-on: ubuntu-latest
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
@@ -30,7 +30,7 @@ jobs:
           HEAD_REF: ${{ github.head_ref }}
           BASE_REF: ${{ github.base_ref }}
         run: |
-          if [[ "$PR_MERGED" == "true" && "$HEAD_REF" == "develop" && "$BASE_REF" == "master" ]]; then
+          if [[ "$PR_MERGED" == "true" && "$BASE_REF" == "master" && ( "$HEAD_REF" == releases/* || "$HEAD_REF" == hotfix/* ) ]]; then
             echo "should_release=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_release=false" >> "$GITHUB_OUTPUT"
@@ -115,4 +115,6 @@ jobs:
 
       - name: Deploy to Google Play (production track)
         working-directory: android
-        run: fastlane deploy_production
+        # Play odrzuca upload z versionCode, który już widział. run_number rośnie monotonicznie
+        # per workflow; offset zostawia miejsce na pierwszy, ręczny upload (versionCode 1).
+        run: ANDROID_VERSION_CODE=$((GITHUB_RUN_NUMBER + 100)) fastlane deploy_production

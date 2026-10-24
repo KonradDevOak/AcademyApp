@@ -305,11 +305,18 @@
       "dueBy": "termin: {{date}}",
       "creditApplied": "Pokryte z nadpłaty: {{amount}}",
       "credit": "Nadpłata do wykorzystania w kolejnych miesiącach: {{amount}}",
-      "line": "{{child}} — {{discipline}}: {{slots}} × {{unit}}",
-      "siblingDiscount": "rabat rodzinny {{percent}}%",
+      "line": "{{child}} — {{discipline}}: {{slots}}× w tygodniu, {{base}}",
       "waived": {
         "NoSessions": "Zajęcia się nie odbyły — {{amount}} nie jest do zapłaty.",
         "ExcusedEmptyMonth": "Nieobecność usprawiedliwiona przez cały miesiąc — {{amount}} przechodzi na kolejny miesiąc."
+      },
+      "halfMonth": "w tym {{count}} za pół miesiąca",
+      "discount": {
+        "Sibling": "rabat rodzinny {{percent}}%",
+        "SecondDiscipline": "rabat za kolejny przedmiot {{percent}}%"
+      },
+      "fee": {
+        "ReEnrollment": "{{child}} — opłata administracyjna za ponowny zapis"
       }
     },
     "childPhoto": {

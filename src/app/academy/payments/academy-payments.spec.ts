@@ -33,9 +33,13 @@ function charge(overrides: Partial<GuardianChargeDto> = {}): GuardianChargeDto {
         athleteFirstName: 'Ania',
         disciplineId: 'd-1',
         disciplineName: 'Akrobatyka',
+        branchId: 'b-1',
+        locality: 'Drobin',
         slotCount: 2,
-        unitPriceGrosze: 7000,
+        halfSlotCount: 0,
+        baseAmountGrosze: 14000,
         discountPercent: 0,
+        discountReason: 'None',
         amountGrosze: 14000,
         isFullPrice: true,
         waivedGrosze: 0,
@@ -43,6 +47,7 @@ function charge(overrides: Partial<GuardianChargeDto> = {}): GuardianChargeDto {
         carryOverDecision: null
       }
     ],
+    fees: [],
     payments: [],
     ...overrides
   };

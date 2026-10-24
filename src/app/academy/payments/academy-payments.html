@@ -71,9 +71,9 @@
                   {{ statusKey(charge) | translate }}
                 </span>
 
-                @if (charge.lines.length > 0) {
+                @if (charge.lines.length > 0 || charge.fees?.length) {
                   <ul class="academy-payments__lines">
-                    @for (line of charge.lines; track line.athleteId + line.disciplineId) {
+                    @for (line of charge.lines; track line.athleteId + line.disciplineId + line.branchId) {
                       <li class="academy-payments__line tnum">
                         <span>
                           {{
@@ -81,13 +81,16 @@
                               | translate
                                 : {
                                     child: line.athleteFirstName ?? '',
-                                    discipline: line.disciplineName ?? '',
+                                    discipline: (line.disciplineName ?? '') + (line.locality ? ' (' + line.locality + ')' : ''),
                                     slots: line.slotCount,
-                                    unit: formatZloty(line.unitPriceGrosze)
+                                    base: formatZloty(line.baseAmountGrosze)
                                   }
                           }}
+                          @if (line.halfSlotCount) {
+                            · {{ 'academy.payments.halfMonth' | translate: { count: line.halfSlotCount } }}
+                          }
                           @if (!line.isFullPrice) {
-                            · {{ 'academy.payments.siblingDiscount' | translate: { percent: line.discountPercent } }}
+                            · {{ 'academy.payments.discount.' + line.discountReason | translate: { percent: line.discountPercent } }}
                           }
                         </span>
                         <span class="academy-payments__line-amount">{{ formatZloty(line.amountGrosze) }}</span>
@@ -96,6 +99,12 @@
                             {{ 'academy.payments.waived.' + reason | translate: { amount: formatZloty(line.waivedGrosze) } }}
                           </span>
                         }
+                      </li>
+                    }
+                    @for (fee of charge.fees ?? []; track $index) {
+                      <li class="academy-payments__line tnum">
+                        <span>{{ 'academy.payments.fee.' + fee.kind | translate: { child: fee.athleteFirstName ?? '' } }}</span>
+                        <span class="academy-payments__line-amount">{{ formatZloty(fee.amountGrosze) }}</span>
                       </li>
                     }
                   </ul>

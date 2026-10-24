@@ -48,7 +48,7 @@ describe('ClubTileSummaryComponent', () => {
       charges: [{ id: 'g', period: '2026-10', year: 2026, month: 10, expectedAmountGrosze: 10000,
         adjustedAmountGrosze: 0, effectiveAmountGrosze: 10000, paidAmountGrosze: 0, creditAppliedGrosze: 0,
         remainingGrosze: 10000, status: 'Due' as const, dueAt: null, siblingDiscountPercent: 0,
-        onlineFeeGrosze: 0, onlineTotalGrosze: 10000, lines: [], payments: [] }]
+        onlineFeeGrosze: 0, onlineTotalGrosze: 10000, lines: [], fees: [], payments: [] }]
     });
   }
 

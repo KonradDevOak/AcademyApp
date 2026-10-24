@@ -305,11 +305,18 @@
       "dueBy": "due: {{date}}",
       "creditApplied": "Covered by credit: {{amount}}",
       "credit": "Credit for the coming months: {{amount}}",
-      "line": "{{child}} — {{discipline}}: {{slots}} × {{unit}}",
-      "siblingDiscount": "sibling discount {{percent}}%",
+      "line": "{{child}} — {{discipline}}: {{slots}}× a week, {{base}}",
       "waived": {
         "NoSessions": "No training took place — {{amount}} is not owed.",
         "ExcusedEmptyMonth": "Excused for the whole month — {{amount}} carries over to the next month."
+      },
+      "halfMonth": "{{count}} of them for half a month",
+      "discount": {
+        "Sibling": "sibling discount {{percent}}%",
+        "SecondDiscipline": "further subject discount {{percent}}%"
+      },
+      "fee": {
+        "ReEnrollment": "{{child}} — administrative re-enrollment fee"
       }
     },
     "childPhoto": {

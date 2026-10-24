@@ -328,12 +328,14 @@ Zaprojektowany i okablowany, **jeszcze nieuruchomiony end-to-end** (blokuje: kon
 wygenerowanie keystore'a, `terraform apply` w `Sandbox/iac`). Pełny plan (z linkami/krokami do Play
 Console) w `/home/konraddabrowski/.claude/plans/jak-wdro-y-aplikacj-angular-bubbly-lightning.md`.
 
-- **Strategia gałęzi**: wprowadzona `develop` (lokalnie, nie wypchnięta) — feature branch → PR do
-  `develop` → PR `develop → master` = release gate, wzorowane na
-  `Showcase/.github/workflows/deploy-prod.yml`. Zakres celowo: **pełna automatyzacja aż do produkcji**
+- **Strategia gałęzi**: feature branch → PR do `develop`; wydanie = PR `releases/**` albo `hotfix/**`
+  → `master` (release gate, guard wzorowany na `Showcase/.github/workflows/deploy-prod.yml`). PR
+  `develop → master` **nie** wydaje. Zakres celowo: **pełna automatyzacja aż do produkcji**
   (nie tylko internal/beta track) — świadomy wybór użytkownika, mimo ryzyka błędnej auto-publikacji.
 - **`.github/workflows/release-android.yml`** (nowy) — trigger `pull_request closed` na `master` +
-  guard `head_ref == 'develop' && merged == true`. `azure/login` (OIDC, bez GitHub Secrets) → pobiera
+  guard `merged == true` i `head_ref` = `releases/*` albo `hotfix/*`. `versionCode` = `run_number + 100`
+  (env `ANDROID_VERSION_CODE` czytany w `android/app/build.gradle`; lokalnie 1) — Play odrzuca
+  powtórzony versionCode. `azure/login` (OIDC, bez GitHub Secrets) → pobiera
   keystore/hasła/Play service account JSON z Azure Key Vault → `cap sync android` → `fastlane android
   deploy_production` (`android/fastlane/Fastfile`, `upload_to_play_store` track `production`).
 - **`android/app/build.gradle`** — `signingConfigs.release` czyta `android/keystore.properties`
